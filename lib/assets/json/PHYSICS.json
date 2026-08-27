@@ -1,0 +1,19 @@
+{
+    "maxTicks": 10000,
+    "maxSpeedCmPerSec": 340,
+    "robotWidthCm": 20,
+    "robotHeightCm": 20,
+    "wheelBaseCm": 12.5,
+    "dojoOuterDiameterCm": 154,
+    "dojoBorderThicknessCm": 5,
+    "dojoInnerDiameterCm": 144,
+    "shikiriSenLengthCm": 20,
+    "shikiriSenWidthCm": 2,
+    "shikiriSenGapCm": 20,
+    "dtMs": 4,
+    "pidDegPerSec": 540,
+    "pidSettleMs": 20,
+    "viewSizePx": 420,
+    "clampInsideDojo": false,
+    "motorInertia": 0.18
+}
