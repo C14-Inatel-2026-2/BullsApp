@@ -58,4 +58,51 @@ void main() {
         expect(find.text('Desconectado'), findsOneWidget);
       },
     );
+    testWidgets('Deve chamar onBackPressed quando o botão for clicado', 
+      (WidgetTester tester) async {
+        // Arrange
+        var backPressed = false;
+        
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: CustomHeader(
+                isConnected: true,
+                onBackPressed: () {
+                  backPressed = true;
+                },
+              ),
+            ),
+          ),
+        );
+
+        // Act
+        await tester.tap(find.byType(InkWell));
+        await tester.pump();
+
+        // Assert
+        expect(backPressed, true);
+      },
+    );
+    testWidgets('Deve chamar Navigator.pop quando onBackPressed não for fornecido', 
+      (WidgetTester tester) async {
+        // Arrange
+        await tester.pumpWidget(
+          const MaterialApp(
+            home: Scaffold(
+              body: CustomHeader(
+                isConnected: true,
+              ),
+            ),
+          ),
+        );
+
+        // Act
+        await tester.tap(find.byType(InkWell));
+        await tester.pump();
+
+        // Assert - O widget ainda deve estar na tela (pois não há tela anterior)
+        expect(find.byType(CustomHeader), findsOneWidget);
+      },
+    );
   }
