@@ -11,23 +11,23 @@ pipeline {
         stage("Verificação Inicial"){
             steps{
                 echo 'Iniciando pipeline de testes BullsApp...'
-                batch 'flutter --version'
-                batch 'dart --version'
+                bat 'flutter --version'
+                bat 'dart --version'
             }
         }
     
         stage('Obter Dependências'){
             steps {
                 echo 'Instalando dependências...'
-                batch 'flutter clean'
-                batch 'flutter pub get'
+                bat 'flutter clean'
+                bat 'flutter pub get'
             }
         }
 
         stage('Executar Testes'){
             steps {
                 echo 'Rodando testes...'
-                batch 'flutter test -v'
+                bat 'flutter test -v'
             }
         }
        
