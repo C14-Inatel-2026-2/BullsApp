@@ -7,8 +7,8 @@ pipeline {
         stage("Verificação Inicial"){
             steps{
                 echo 'Iniciando pipeline de testes BullsApp...'
-                sh 'flutter --version'
-                sh 'dart --version'
+                bat 'flutter --version'
+                bat 'dart --version'
             }
         }
     
@@ -16,10 +16,10 @@ pipeline {
 
             steps {
                 echo 'Instalando dependências do projeto...'
-                sh '''
+                bat '''
                    flutter clean
                    flutter pub get
-                   echo "Dependências instaladas com sucesso!"
+                   echo Dependencias instaladas com sucesso!
                 '''
 
             }
@@ -29,9 +29,9 @@ pipeline {
 
             steps {
                 echo 'Rodando testes unitários...'
-                sh '''
+                bat '''
                    flutter test -v
-                   echo "Testes executados!"
+                   echo Testes executados!
                 '''
                 
             }
@@ -47,5 +47,5 @@ pipeline {
             echo '❌ Pipeline falhou!'
         }
     }
-    
+}
 }
