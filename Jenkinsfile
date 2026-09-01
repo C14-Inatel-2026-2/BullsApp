@@ -7,6 +7,13 @@ pipeline {
     }
 
     stages {
+        stage('Localizar Flutter') {
+            steps {
+                 bat '''
+                dir C:\\ /s /b | findstr /i "flutter.bat"
+                '''
+             }
+        }
 
         stage('Debug Flutter Path') {
             steps {
