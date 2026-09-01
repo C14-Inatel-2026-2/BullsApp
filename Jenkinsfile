@@ -2,38 +2,32 @@ pipeline {
 
     agent any
 
+    environment {
+        PATH = "${env.PATH};C:\\src\\flutter\\bin"
+    }
+
     stages {
 
         stage("Verificação Inicial"){
             steps{
                 echo 'Iniciando pipeline de testes BullsApp...'
-                bat 'flutter --version'
-                bat 'dart --version'
+                batch 'flutter --version'
+                batch 'dart --version'
             }
         }
     
         stage('Obter Dependências'){
-
             steps {
-                echo 'Instalando dependências do projeto...'
-                bat '''
-                   flutter clean
-                   flutter pub get
-                   echo Dependencias instaladas com sucesso!
-                '''
-
+                echo 'Instalando dependências...'
+                batch 'flutter clean'
+                batch 'flutter pub get'
             }
         }
 
         stage('Executar Testes'){
-
             steps {
-                echo 'Rodando testes unitários...'
-                bat '''
-                   flutter test -v
-                   echo Testes executados!
-                '''
-                
+                echo 'Rodando testes...'
+                batch 'flutter test -v'
             }
         }
        
