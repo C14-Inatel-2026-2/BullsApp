@@ -8,12 +8,12 @@ pipeline {
 
     stages {
 
-        stage('Test Flutter') {
+        stage('Debug Flutter Path') {
             steps {
                 bat '''
-                echo PATH=%PATH%
-                where flutter
-                flutter --version
+                dir C:\\src\\flutter\\bin
+                echo whoami:
+                whoami
                 '''
             }
         }
