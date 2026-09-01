@@ -8,6 +8,16 @@ pipeline {
 
     stages {
 
+        stage('Test Flutter') {
+            steps {
+                bat '''
+                echo PATH=%PATH%
+                where flutter
+                flutter --version
+                '''
+            }
+        }
+
         stage("Verificação Inicial"){
             steps{
                 echo 'Iniciando pipeline de testes BullsApp...'
