@@ -1,53 +1,38 @@
 pipeline {
 
-    agent any
-
-    environment {
-        PATH = "${env.PATH};C:\\src\\flutter\\bin"
+    agent {
+        docker {
+            // Imagem já vem com Flutter + Dart instalados e configurados
+            image 'ghcr.io/cirruslabs/flutter:stable'
+        }
     }
 
     stages {
-        stage('Localizar Flutter') {
-            steps {
-                 bat '''
-                dir C:\\ /s /b | findstr /i "flutter.bat"
-                '''
-             }
-        }
 
-        stage('Debug Flutter Path') {
+        stage('Test Flutter') {
             steps {
-                bat '''
-                dir C:\\src\\flutter\\bin
-                echo whoami:
-                whoami
+                sh '''
+                flutter --version
+                dart --version
                 '''
             }
         }
 
-        stage("Verificação Inicial"){
-            steps{
-                echo 'Iniciando pipeline de testes BullsApp...'
-                bat 'flutter --version'
-                bat 'dart --version'
-            }
-        }
-    
         stage('Obter Dependências'){
             steps {
                 echo 'Instalando dependências...'
-                bat 'flutter clean'
-                bat 'flutter pub get'
+                sh 'flutter clean'
+                sh 'flutter pub get'
             }
         }
 
         stage('Executar Testes'){
             steps {
                 echo 'Rodando testes...'
-                bat 'flutter test -v'
+                sh 'flutter test -v'
             }
         }
-       
+
     }
 
     post {
