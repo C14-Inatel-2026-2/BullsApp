@@ -1,14 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../core/theme/app_colors.dart';
 import '../../data/models/device_model.dart';
-import 'home_page.dart';
+import '../controllers/ble_controller.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/device_list_item.dart';
-
-
+import 'home_page.dart';
 
 class ScanPage extends StatelessWidget {
   const ScanPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (_) => BleController()..init(),
+      child: const _ScanPageView(),
+    );
+  }
+}
+
+class _ScanPageView extends StatelessWidget {
+  const _ScanPageView();
 
   void _connect(BuildContext context, BleDeviceModel device) {
     Navigator.of(context).pushReplacement(
@@ -18,21 +31,16 @@ class ScanPage extends StatelessWidget {
     );
   }
 
-  // Depois substituir por uma lista vinda do BleController
-  final List<BleDeviceModel> devices = const [
-    BleDeviceModel(name: 'ELECTABULLZZ', macAddress: 'A1:B2:C3:D4:E5:F6', rssi: -42),
-    BleDeviceModel(name: 'BULLBASAUR', macAddress: '00:1A:2B:3C:4D:5E', rssi: -68, isPaired: true),
-    BleDeviceModel(name: 'EXCALIBULL', macAddress: 'F1:E2:D3:C4:B5:A6', rssi: -89, isPaired: true),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<BleController>();
+
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: SingleChildScrollView( 
+          child: SingleChildScrollView(
             child: Column(
               children: [
                 const SizedBox(height: 24),
@@ -41,30 +49,41 @@ class ScanPage extends StatelessWidget {
                 const Align(
                   alignment: Alignment.centerLeft,
                   child: Text(' ',
-                      style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600)),
                 ),
                 const SizedBox(height: 12),
 
-                
+                // ── Lista de dispositivos ─────────────────────────────────
                 Column(
                   children: [
-                    for (int i = 0; i < devices.length; i++) ...[
+                    for (int i = 0; i < controller.devices.length; i++) ...[
                       DeviceListItem(
-                        device: devices[i],
-                        onConnect: () => _connect(context, devices[i]),
+                        device: controller.devices[i],
+                        onConnect: () =>
+                            _connect(context, controller.devices[i]),
                       ),
-                      if (i != devices.length - 1) const SizedBox(height: 12),
+                      if (i != controller.devices.length - 1)
+                        const SizedBox(height: 12),
                     ],
                   ],
                 ),
 
                 const SizedBox(height: 20),
+
+                // ── Botão SCAN / PARAR ────────────────────────────────────
                 CustomButton(
-                  label: 'SCAN',
-                  icon: Icons.bluetooth_searching,
+                  label: controller.isScanning ? 'PARAR' : 'SCAN',
+                  icon: controller.isScanning
+                      ? Icons.stop
+                      : Icons.bluetooth_searching,
                   color: AppColors.secondary,
                   height: 52,
-                  onTap: () {},
+                  onTap: controller.isScanning
+                      ? () => controller.stopScan()
+                      : () => controller.startScan(),
                 ),
                 const SizedBox(height: 16),
               ],
