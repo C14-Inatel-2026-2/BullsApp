@@ -41,10 +41,13 @@ class BleService {
     final device = BluetoothDevice.fromId(macAddress);
     try {
       await device.connect(
-        license: License.nonprofit,
+        license: License.nonprofit, // <-- A linha que faltava!
         timeout: AppConstants.bleConnectionTimeout,
       );
+
+      // Garante que o dispositivo fique salvo na memória do Service para uso nas características GATT
       _connectedDevice = device;
+
     } on FlutterBluePlusException catch (e) {
       throw BleException('Falha ao conectar: ${e.description}');
     }
