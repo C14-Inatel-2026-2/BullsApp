@@ -12,6 +12,7 @@ pipeline {
         stage('Test Flutter') {
             steps {
                 sh '''
+                git config --global --add safe.directory '*'
                 flutter --version
                 dart --version
                 '''
