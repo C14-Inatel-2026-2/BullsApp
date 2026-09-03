@@ -4,6 +4,7 @@ pipeline {
         docker {
             // Imagem já vem com Flutter + Dart instalados e configurados
             image 'ghcr.io/cirruslabs/flutter:stable'
+            args '-u root'
         }
     }
 
