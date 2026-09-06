@@ -48,8 +48,8 @@ void main() {
       );
 
       // Assert
-      expect(find.text('Botão Principal'), findsOneWidget);
-      expect(find.text('Subtítulo'), findsOneWidget);
+      final richText = tester.widget<RichText>(find.byType(RichText));
+      expect(richText.text.toPlainText(), 'Botão Principal\nSubtítulo');
     });
 
     testWidgets('deve renderizar ícone quando fornecido', (WidgetTester tester) async {
@@ -77,7 +77,7 @@ void main() {
           home: Scaffold(
             body: CustomButton(
               label: 'Botão com Imagem',
-              iconAsset: 'assets/images/icon.png',
+              iconAsset: 'lib/assets/icons/rapier.png',
               onTap: mockOnTap.call,
             ),
           ),
@@ -124,8 +124,11 @@ void main() {
       );
 
       // Assert
-      expect(find.byType(SizedBox), findsOneWidget);
-      final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox).first);
+      final sizedBoxFinder = find.byWidgetPredicate(
+        (widget) => widget is SizedBox && widget.width == 10,
+      );
+      expect(sizedBoxFinder, findsOneWidget);
+      final sizedBox = tester.widget<SizedBox>(sizedBoxFinder);
       expect(sizedBox.width, 10);
     });
 
