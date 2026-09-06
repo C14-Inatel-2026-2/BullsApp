@@ -46,7 +46,7 @@ class _ScanPageState extends State<ScanPage> {
             child: Column(
               children: [
                 const SizedBox(height: 24),
-                Image.asset('assets/images/robotbull.png', height: 110),
+                Image.asset('lib/assets/images/robotbull.png', height: 110),
                 const SizedBox(height: 32),
 
                 TabSelector(
