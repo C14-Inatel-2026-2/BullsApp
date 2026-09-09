@@ -22,7 +22,7 @@ class TestPage extends StatelessWidget {
                 isConnected: true, //  mudar dinamicamente
               ),
               const SizedBox(height: 5),
-              Image.asset('assets/images/robotbull.png', height: 130),
+              Image.asset('lib/assets/images/robotbull.png', height: 130),
               const SizedBox(height: 20),
               Text(
                 "ESCOLHA UM TESTE",

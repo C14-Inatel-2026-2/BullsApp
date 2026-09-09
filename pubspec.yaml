@@ -65,12 +65,12 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/robotbull.png
-    #- assets/images/robot_view.png
-    - assets/icons/rapier.png
-    - assets/icons/discord.png
-    #- assets/json/JOGADAS.json
-    #- assets/json/PHYSICS.json
+    - lib/assets/images/robotbull.png
+    - lib/assets/images/robot_view.png
+    - lib/assets/icons/rapier.png
+    - lib/assets/icons/discord.png
+    - lib/assets/json/JOGADAS.json
+    - lib/assets/json/PHYSICS.json
 
   # To add assets to your application, add an assets section, like this:
   # assets:

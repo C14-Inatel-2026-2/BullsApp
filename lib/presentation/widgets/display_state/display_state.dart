@@ -16,8 +16,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'simulation.dart';
-import 'display_state_colors.dart';
-import 'display_state_style.dart';
+import '../../../core/theme/display_state_colors.dart';
+import '../../../core/constants/display_state_style.dart';
 
 enum DisplayVisual { defaultVisual, compact }
 
@@ -47,7 +47,7 @@ class DisplayState extends StatefulWidget {
     this.autoplay = true,
     this.hiddenRobot = false,
     this.showStartPoint = false,
-    this.robotAssetPath = 'assets/images/robot_view.png',
+    this.robotAssetPath = 'lib/assets/images/robot_view.png',
   });
 
   @override
