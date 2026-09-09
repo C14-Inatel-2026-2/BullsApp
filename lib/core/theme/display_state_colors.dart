@@ -1,7 +1,3 @@
-/// Cores extraídas de DisplayState.module.css
-///
-/// Mantido separado (assim como no seu projeto original) para facilitar
-/// trocar o tema sem mexer em display_state.dart.
 library display_state_colors;
 
 import 'package:flutter/material.dart';
@@ -13,7 +9,7 @@ class DisplayStateColors {
   static const wrapperText = Color(0xFFFFFFFF);
 
   // .compactWrapper
-  static const compactBackground = Color(0xFF3155B9);
+  static const compactBackground = Color(0xFFF7E6AF);
 
   // .stage
   static const stageBackground = Color(0xFF777777);

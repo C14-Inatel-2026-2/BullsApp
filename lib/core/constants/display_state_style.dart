@@ -3,7 +3,7 @@
 library display_state_style;
 
 import 'package:flutter/material.dart';
-import 'display_state_colors.dart';
+import '../theme/display_state_colors.dart';
 
 class DisplayStateStyle {
   DisplayStateStyle._();

@@ -6,10 +6,19 @@ import '../../data/models/device_model.dart';
 import '../controllers/ble_controller.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/device_list_item.dart';
+import '../widgets/selector.dart';
+
+class ScanPage extends StatefulWidget {
+  const ScanPage({super.key});
+
+  @override
+  State<ScanPage> createState() => _ScanPageState();
+}
 import 'home_page.dart';
 
-class ScanPage extends StatelessWidget {
-  const ScanPage({super.key});
+class _ScanPageState extends State<ScanPage> {
+  // false = mostra "disponíveis", true = mostra "pareados"
+  bool _showPaired = false;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +71,8 @@ class _ScanPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final filteredDevices =
+        devices.where((d) => d.isPaired == _showPaired).toList();
     final controller = context.watch<BleController>();
 
     // Lista ordenada puxando os conhecidos pro topo
@@ -76,6 +87,13 @@ class _ScanPageView extends StatelessWidget {
             child: Column(
               children: [
                 const SizedBox(height: 24),
+                Image.asset('lib/assets/images/robotbull.png', height: 110),
+                const SizedBox(height: 32),
+
+                TabSelector(
+                  options: const ['DISPONÍVEIS', 'PAREADOS'],
+                  selectedIndex: _showPaired ? 0 : 1,
+                  onChanged: (index) => setState(() => _showPaired = index == 0),
                 Image.asset('assets/images/robotbull.png', height: 110),
                 const SizedBox(height: 40),
                 const Align(
@@ -86,8 +104,30 @@ class _ScanPageView extends StatelessWidget {
                           fontSize: 16,
                           fontWeight: FontWeight.w600)),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
 
+                if (filteredDevices.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Text(
+                      _showPaired
+                          ? 'Nenhum dispositivo pareado ainda'
+                          : 'Nenhum dispositivo disponível',
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                  )
+                else
+                  Column(
+                    children: [
+                      for (int i = 0; i < filteredDevices.length; i++) ...[
+                        DeviceListItem(
+                          device: filteredDevices[i],
+                          onConnect: () => _connect(context, filteredDevices[i]),
+                        ),
+                        if (i != filteredDevices.length - 1) const SizedBox(height: 12),
+                      ],
+                    ],
+                  ),
                 // ── Lista de dispositivos ─────────────────────────────────
                 Column(
                   children: [

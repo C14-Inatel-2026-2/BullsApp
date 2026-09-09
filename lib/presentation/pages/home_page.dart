@@ -33,7 +33,7 @@ class HomePage extends StatelessWidget {
           child: Column(
             children: [
               const SizedBox(height: 50),
-              Image.asset('assets/images/robotbull.png', height: 130),
+              Image.asset('lib/assets/images/robotbull.png', height: 130),
               const SizedBox(height: 20),
               Text(
                 deviceName.toUpperCase(),
@@ -65,7 +65,7 @@ class HomePage extends StatelessWidget {
                   children: [
                     CustomButton(
                       label: 'COMBATE',
-                      iconAsset: 'assets/icons/rapier.png',
+                      iconAsset: 'lib/assets/icons/rapier.png',
                       color: AppColors.secondary,
                       onTap: () {Navigator.push(context, MaterialPageRoute(builder: (_) => ModPage()));}, // navegar para tela de combate
                     ),
@@ -86,7 +86,7 @@ class HomePage extends StatelessWidget {
                     const SizedBox(height: 20),
                     CustomButton(
                       label: 'DISCORD',
-                      iconAsset: 'assets/icons/discord.png',
+                      iconAsset: 'lib/assets/icons/discord.png',
                       color: AppColors.discord,
                       textColor: Colors.white,
                       onTap: () {}, // abrir link do discord
