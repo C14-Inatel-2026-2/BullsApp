@@ -81,7 +81,7 @@ class _TerminalPageState extends State<TerminalPage> {
                   color: AppColors.card, // Cor de fundo da caixa (Preta)
                   borderRadius: BorderRadius.circular(12), // Bordas arredondadas
                   border: Border.all(
-                    color: AppColors.black.withOpacity(0.2), // Borda sutil (opcional)
+                    color: AppColors.black.withValues(alpha: 0.2), // Borda sutil (opcional)
                     width: 1,
                   ),
                 ),

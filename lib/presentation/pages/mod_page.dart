@@ -6,6 +6,8 @@ import 'auto_page.dart';
 //import 'rc_page.dart';
 
 class ModPage extends StatelessWidget {
+  const ModPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

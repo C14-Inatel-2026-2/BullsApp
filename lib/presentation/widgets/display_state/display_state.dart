@@ -1,16 +1,3 @@
-/// Porte de DisplayState.jsx + DisplayState.module.css para Flutter.
-///
-/// Uso:
-///   DisplayState(
-///     physics: physicsMap,      // decodificado de PHYSICS.json
-///     state: jogadaMap,         // uma entrada de JOGADAS.json, ex: jogadas['JOGADA_1']
-///   )
-///
-/// Carregando os JSONs (assets):
-///   final physicsMap = jsonDecode(await rootBundle.loadString('assets/PHYSICS.json'));
-///   final jogadas = jsonDecode(await rootBundle.loadString('assets/JOGADAS.json'));
-library display_state;
-
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -513,7 +500,7 @@ class _Stage extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: DisplayStateStyle.actionTextFontSize,
-                      color: DisplayStateColors.actionText.withOpacity(0.95),
+                      color: DisplayStateColors.actionText.withValues(alpha: 0.95),
                       shadows: const [
                         Shadow(color: DisplayStateColors.actionTextShadow, blurRadius: 2, offset: Offset(0, 1)),
                       ],
@@ -748,7 +735,7 @@ class _TrianglePainter extends CustomPainter {
       ..lineTo(size.width / 2, size.height)
       ..close();
 
-    canvas.drawShadow(path, Colors.black.withOpacity(0.5), 1.5, false);
+    canvas.drawShadow(path, Colors.black.withValues(alpha: 0.5), 1.5, false);
     canvas.drawPath(path, Paint()..color = color);
   }
 
@@ -802,7 +789,7 @@ class _PathPainter extends CustomPainter {
     }
 
     final strokePaint = Paint()
-      ..color = pathColor.withOpacity(0.95)
+      ..color = pathColor.withValues(alpha: 0.95)
       ..style = PaintingStyle.stroke
       ..strokeWidth = DisplayStateStyle.pathStrokeWidth * scale
       ..strokeCap = StrokeCap.round

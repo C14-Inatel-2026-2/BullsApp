@@ -95,11 +95,9 @@ class BleRepository {
   }
 
   BleConnectionState _toAppConnectionState(BluetoothConnectionState s) {
-    return switch (s) {
-      BluetoothConnectionState.connected => BleConnectionState.connected,
-      BluetoothConnectionState.disconnected => BleConnectionState.disconnected,
-      _ => BleConnectionState.disconnected,
-    };
+    return s == BluetoothConnectionState.connected
+        ? BleConnectionState.connected
+        : BleConnectionState.disconnected;
   }
 
   // ── Permissões ────────────────────────────────────────────────────────────

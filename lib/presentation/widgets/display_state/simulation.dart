@@ -1,15 +1,4 @@
-/// Porte de simulation.dart a partir de DisplayState.jsx
-/// Contém toda a lógica pura (sem UI): parsing de ações, física do robô,
-/// geometria de tela. Espera receber `physics` e `state` já decodificados
-/// de JSON (Map<String, dynamic>), exatamente como PHYSICS.json e uma
-/// entrada de JOGADAS.json.
-library simulation;
-
 import 'dart:math' as math;
-
-// ---------------------------------------------------------------------
-// Helpers numéricos
-// ---------------------------------------------------------------------
 
 double degToRad(double deg) => deg * math.pi / 180;
 
@@ -31,8 +20,6 @@ double safeNumber(dynamic value, [double fallback = 0]) {
 
 bool hasStartPosition(dynamic value) => value is Map;
 
-/// Retorna `startPosition` resolvida a partir de:
-/// prop explícita > lado (ladoEsc/ladoDir) > state.startPosition > null
 Map<String, dynamic>? resolveStartPosition(
   Map<String, dynamic>? state,
   String side,
@@ -84,11 +71,6 @@ Pose getDefaultStartPosition(
     angle: isDesempateState(state) ? -90 : 90,
   );
 }
-
-// ---------------------------------------------------------------------
-// Parser de expressão aritmética simples (substitui o Function() do JS)
-// Suporta: + - * / ( ) números e ponto decimal, unário -
-// ---------------------------------------------------------------------
 
 double _evalExpression(String expr) {
   final s = expr.replaceAll(' ', '');
@@ -261,7 +243,7 @@ String getNextFromActions(List<String> actions) {
 // Física
 // ---------------------------------------------------------------------
 
-class _Smoothed {
+class Smoothed {
   double vL = 0;
   double vR = 0;
 }
@@ -272,7 +254,7 @@ Pose simulateLinearStep(
   double motorR,
   double dtSec,
   Map<String, dynamic> physics,
-  _Smoothed smoothed,
+  Smoothed smoothed,
 ) {
   final maxTicks = safeNumber(physics['maxTicks']);
   final maxSpeed = safeNumber(physics['maxSpeedCmPerSec']);
@@ -370,7 +352,7 @@ SimulationResult simulateJogada({
 
   final frames = <Frame>[];
   final parsedActions = actions.map(parseAction).toList();
-  final smoothed = _Smoothed();
+  final smoothed = Smoothed();
   final dtMs = safeNumber(physics['dtMs'], 4);
   final pidDegPerSec = safeNumber(physics['pidDegPerSec'], 540);
   final pidSettleMs = safeNumber(physics['pidSettleMs'], 20);
