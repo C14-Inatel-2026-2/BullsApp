@@ -1,6 +1,5 @@
-/// Constantes não-cromáticas extraídas de DisplayState.module.css
-/// (raios, espaçamentos, tamanhos de fonte, sombras).
-library display_state_style;
+// Constantes não-cromáticas extraídas de DisplayState.module.css
+// (raios, espaçamentos, tamanhos de fonte, sombras).
 
 import 'package:flutter/material.dart';
 import '../theme/display_state_colors.dart';

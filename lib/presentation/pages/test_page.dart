@@ -8,6 +8,7 @@ import 'pid_page.dart';
 
 // presentation/pages/home_page.dart
 class TestPage extends StatelessWidget {
+  const TestPage({super.key});
 
   @override
   Widget build(BuildContext context) {
