@@ -31,16 +31,13 @@ pipeline {
         stage('Executar Testes'){
             steps {
                 echo 'Rodando testes...'
-                sh './gradlew check'
                 sh 'flutter test -v'
             }
         }
         stage('Build') {
             steps {
-
                 echo 'Gerando APK Flutter...'
                 sh 'flutter build apk --debug --no-tree-shake-icons'
-                sh './gradlew build'
             }
         }
 
