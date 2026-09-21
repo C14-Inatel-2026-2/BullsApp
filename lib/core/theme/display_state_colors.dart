@@ -1,5 +1,3 @@
-library display_state_colors;
-
 import 'package:flutter/material.dart';
 
 class DisplayStateColors {

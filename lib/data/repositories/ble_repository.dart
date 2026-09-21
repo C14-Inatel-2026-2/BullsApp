@@ -98,7 +98,6 @@ class BleRepository {
     return switch (s) {
       BluetoothConnectionState.connected => BleConnectionState.connected,
       BluetoothConnectionState.disconnected => BleConnectionState.disconnected,
-      _ => BleConnectionState.disconnected,
     };
   }
 

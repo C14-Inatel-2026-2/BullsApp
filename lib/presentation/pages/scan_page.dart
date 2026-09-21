@@ -7,6 +7,7 @@ import '../controllers/ble_controller.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/device_list_item.dart';
 import '../widgets/selector.dart';
+import 'home_page.dart';
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -14,7 +15,6 @@ class ScanPage extends StatefulWidget {
   @override
   State<ScanPage> createState() => _ScanPageState();
 }
-import 'home_page.dart';
 
 class _ScanPageState extends State<ScanPage> {
   // false = mostra "disponíveis", true = mostra "pareados"
@@ -24,17 +24,28 @@ class _ScanPageState extends State<ScanPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => BleController()..init(),
-      child: const _ScanPageView(),
+      child: _ScanPageView(
+        showPaired: _showPaired,
+        onToggle: (value) => setState(() => _showPaired = value),
+      ),
     );
   }
 }
 
 class _ScanPageView extends StatelessWidget {
-  const _ScanPageView();
+  const _ScanPageView({
+    required this.showPaired,
+    required this.onToggle,
+  });
 
-  // ── FUNÇÃO DE CONEXÃO ATUALIZADA ────────────────────────────────────────
-  Future<void> _connect(BuildContext context, BleController controller, BleDeviceModel device) async {
-    // 1. Mostra um aviso de que está tentando conectar
+  final bool showPaired;
+  final ValueChanged<bool> onToggle;
+
+  Future<void> _connect(
+    BuildContext context,
+    BleController controller,
+    BleDeviceModel device,
+  ) async {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Conectando a ${device.name}...'),
@@ -42,16 +53,12 @@ class _ScanPageView extends StatelessWidget {
       ),
     );
 
-    // 2. Aguarda a resposta do hardware BLE
     final success = await controller.connect(device);
 
-    // 3. Verifica se o widget ainda está ativo na tela
     if (!context.mounted) return;
 
-    // Remove o aviso de "conectando"
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
-    // 4. Navega apenas se a conexão foi estabelecida com sucesso
     if (success) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -59,7 +66,6 @@ class _ScanPageView extends StatelessWidget {
         ),
       );
     } else {
-      // 5. Mostra erro se falhar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(controller.errorMessage ?? 'Falha ao conectar no robô.'),
@@ -71,12 +77,11 @@ class _ScanPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final filteredDevices =
-        devices.where((d) => d.isPaired == _showPaired).toList();
     final controller = context.watch<BleController>();
-
-    // Lista ordenada puxando os conhecidos pro topo
-    final listaOrdenada = controller.sortDevicesForUI(controller.devices);
+    final displayedDevices = controller
+        .sortDevicesForUI(controller.devices)
+        .where((device) => device.isPaired == showPaired)
+        .toList();
 
     return Scaffold(
       backgroundColor: AppColors.primary,
@@ -89,28 +94,18 @@ class _ScanPageView extends StatelessWidget {
                 const SizedBox(height: 24),
                 Image.asset('lib/assets/images/robotbull.png', height: 110),
                 const SizedBox(height: 32),
-
                 TabSelector(
                   options: const ['DISPONÍVEIS', 'PAREADOS'],
-                  selectedIndex: _showPaired ? 0 : 1,
-                  onChanged: (index) => setState(() => _showPaired = index == 0),
-                Image.asset('assets/images/robotbull.png', height: 110),
-                const SizedBox(height: 40),
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(' ',
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600)),
+                  selectedIndex: showPaired ? 1 : 0,
+                  onChanged: (index) => onToggle(index == 1),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 26),
 
-                if (filteredDevices.isEmpty)
+                if (displayedDevices.isEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 24),
                     child: Text(
-                      _showPaired
+                      showPaired
                           ? 'Nenhum dispositivo pareado ainda'
                           : 'Nenhum dispositivo disponível',
                       style: const TextStyle(color: Colors.white70),
@@ -119,49 +114,37 @@ class _ScanPageView extends StatelessWidget {
                 else
                   Column(
                     children: [
-                      for (int i = 0; i < filteredDevices.length; i++) ...[
+                      for (int i = 0; i < displayedDevices.length; i++) ...[
                         DeviceListItem(
-                          device: filteredDevices[i],
-                          onConnect: () => _connect(context, filteredDevices[i]),
+                          device: displayedDevices[i],
+                          onConnect: () =>
+                              _connect(context, controller, displayedDevices[i]),
                         ),
-                        if (i != filteredDevices.length - 1) const SizedBox(height: 12),
+                        if (i != displayedDevices.length - 1)
+                          const SizedBox(height: 12),
                       ],
                     ],
                   ),
-                // ── Lista de dispositivos ─────────────────────────────────
-                Column(
-                  children: [
-                    // Tratamento visual para listas vazias
-                    if (listaOrdenada.isEmpty && controller.isScanning)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 20),
-                        child: CircularProgressIndicator(color: Colors.white),
-                      )
-                    else if (listaOrdenada.isEmpty && !controller.isScanning)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 20),
-                        child: Text(
-                          'Nenhum robô encontrado. Verifique o Bluetooth e o GPS do celular.',
-                          style: TextStyle(color: Colors.white70),
-                          textAlign: TextAlign.center,
-                        ),
-                      )
-                    else
-                      for (int i = 0; i < listaOrdenada.length; i++) ...[
-                        DeviceListItem(
-                          device: listaOrdenada[i],
-                          // Chama a nova função passando o controller
-                          onConnect: () => _connect(context, controller, listaOrdenada[i]),
-                        ),
-                        if (i != listaOrdenada.length - 1)
-                          const SizedBox(height: 12),
-                      ],
-                  ],
-                ),
 
                 const SizedBox(height: 20),
 
-                // ── Botão SCAN / PARAR ────────────────────────────────────
+                if (controller.devices.isEmpty && controller.isScanning)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: CircularProgressIndicator(color: Colors.white),
+                  )
+                else if (controller.devices.isEmpty && !controller.isScanning)
+                  const Padding(
+                    padding: EdgeInsets.only(top: 20),
+                    child: Text(
+                      'Nenhum robô encontrado. Verifique o Bluetooth e o GPS do celular.',
+                      style: TextStyle(color: Colors.white70),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
+                const SizedBox(height: 20),
+
                 CustomButton(
                   label: controller.isScanning ? 'PARAR' : 'SCAN',
                   icon: controller.isScanning

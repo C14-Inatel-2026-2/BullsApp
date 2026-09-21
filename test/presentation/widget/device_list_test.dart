@@ -10,12 +10,12 @@ class MockBleDeviceModel extends Mock implements BleDeviceModel {}
 void main() {
   group('DeviceListItem Widget Tests', () {
     late BleDeviceModel mockDevice;
-    late VoidCallback mockOnConnect;
+    late MockVoidCallback mockOnConnect;
 
     setUp(() {
       mockDevice = MockBleDeviceModel();
       mockOnConnect = MockVoidCallback();
-      
+
       // Configurando os mocks
       when(() => mockDevice.name).thenReturn('Test Device');
       when(() => mockDevice.macAddress).thenReturn('AA:BB:CC:DD:EE:FF');

@@ -1,9 +1,8 @@
-/// Porte de simulation.dart a partir de DisplayState.jsx
+/// Porte de simulation.dart a partir de DisplayState.jsx.
 /// Contém toda a lógica pura (sem UI): parsing de ações, física do robô,
-/// geometria de tela. Espera receber `physics` e `state` já decodificados
+/// geometria de tela. Espera receber physics e state já decodificados
 /// de JSON (Map<String, dynamic>), exatamente como PHYSICS.json e uma
 /// entrada de JOGADAS.json.
-library simulation;
 
 import 'dart:math' as math;
 

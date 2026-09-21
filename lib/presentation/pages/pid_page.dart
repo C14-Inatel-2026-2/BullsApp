@@ -14,7 +14,7 @@ class _PIDControllerPageState extends State<PIDControllerPage> {
   final double _min = 0.0000001, _max = 10.0;
 
   void _salvar() {
-    print('KP: $_kp, KD: $_kd, KI: $_ki');
+    debugPrint('KP: $_kp, KD: $_kd, KI: $_ki');
   }
 
   @override
@@ -108,7 +108,7 @@ class _PIDControllerPageState extends State<PIDControllerPage> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: color.withOpacity(0.15),
+                      color: color.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
