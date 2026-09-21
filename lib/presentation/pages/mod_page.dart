@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../controllers/auto_controller.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/header.dart';
 import 'auto_page.dart';
@@ -37,7 +40,24 @@ class ModPage extends StatelessWidget {
                       iconAsset:  null,
                       color: AppColors.secondary,
                       height: 120,
-                      onTap: () {Navigator.push(context, MaterialPageRoute(builder: (_) => const CommandPage()));}, // navegar para tela de AUTO
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            // AutoController vive só enquanto a CommandPage
+                            // estiver aberta, igual ao BleController na ScanPage.
+                            builder: (_) => ChangeNotifierProvider(
+                              create: (_) => AutoController()..init(),
+                              child: Builder(
+                                builder: (ctx) => CommandPage(
+                                  onSendCommand:
+                                      ctx.read<AutoController>().sendJogada,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 20),
                     CustomButton(
