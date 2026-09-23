@@ -4,6 +4,7 @@
 // Nenhum outro arquivo deve importar essa lib diretamente.
 
 import 'dart:async';
+import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/constants/app_constants.dart';
 
@@ -28,9 +29,18 @@ class BleService {
     }
     if (await FlutterBluePlus.isScanning.first) return;
 
-    await FlutterBluePlus.startScan(
-      timeout: AppConstants.bleScanTimeout,
-    );
+    try {
+      await FlutterBluePlus.startScan(
+        timeout: AppConstants.bleScanTimeout,
+      );
+    } on PlatformException catch (e) {
+      if (e.message?.contains('Location services') == true) {
+        throw BleException(
+          'Ative a Localização (GPS) do celular para escanear dispositivos Bluetooth.',
+        );
+      }
+      throw BleException('Falha ao iniciar o scan: ${e.message}');
+    }
   }
 
   Future<void> stopScan() async {

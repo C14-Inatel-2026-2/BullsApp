@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -51,15 +52,14 @@ class BleRepository {
     final models = <BleDeviceModel>[];
 
     // 1. Dispositivos já pareados (bonded) — Android only
-    if (!Platform.isLinux && !Platform.isWindows && !Platform.isMacOS) {
+    if (!kIsWeb && Platform.isAndroid) {
       try {
         final bonded = await FlutterBluePlus.bondedDevices;
         for (final d in bonded) {
-          if (d.platformName.isEmpty) continue; // ignora sem nome
           final mac = d.remoteId.toString();
           seen.add(mac);
           models.add(BleDeviceModel(
-            name: d.platformName,
+            name: d.platformName.isNotEmpty ? d.platformName : mac,
             macAddress: mac,
             rssi: 0, // RSSI indisponível para pareados fora do scan
             isPaired: true,
@@ -74,10 +74,12 @@ class BleRepository {
     for (final r in results) {
       final mac = r.device.remoteId.toString();
       if (seen.contains(mac)) continue; // já está como pareado
-      if (r.device.platformName.isEmpty) continue; // ignora sem nome
       seen.add(mac);
+      final name = r.device.platformName.isNotEmpty
+          ? r.device.platformName
+          : r.advertisementData.advName;
       models.add(BleDeviceModel(
-        name: r.device.platformName,
+        name: name.isNotEmpty ? name : mac,
         macAddress: mac,
         rssi: r.rssi,
         isPaired: false,
@@ -104,7 +106,7 @@ class BleRepository {
   // ── Permissões ────────────────────────────────────────────────────────────
 
   Future<void> _requestPermissions() async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)) return;
 
     // Pede todas as permissões necessárias, incluindo localização
     // (necessária em algumas versões do Android para BLE scan)
@@ -114,11 +116,15 @@ class BleRepository {
       Permission.locationWhenInUse, // necessário em Android 10/11
     ].request();
 
-    final denied =
-    statuses.values.any((s) => s.isDenied || s.isPermanentlyDenied);
-    if (denied) {
+    // No Android 12+, localização não é necessária para o BLE. Ela só é
+    // exigida pelo sistema em versões anteriores ao Android 12.
+    final bluetoothDenied = [
+      statuses[Permission.bluetoothScan],
+      statuses[Permission.bluetoothConnect],
+    ].any((status) => status?.isDenied == true || status?.isPermanentlyDenied == true);
+    if (bluetoothDenied) {
       throw BlePermissionException(
-        'Permissões de Bluetooth negadas. Habilite nas configurações do app.',
+        'Permissões de Bluetooth negadas. Habilite o Bluetooth e as permissões do app nas configurações.',
       );
     }
   }

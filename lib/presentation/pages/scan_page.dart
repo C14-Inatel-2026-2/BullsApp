@@ -128,6 +128,16 @@ class _ScanPageView extends StatelessWidget {
 
                 const SizedBox(height: 20),
 
+                if (controller.errorMessage != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      controller.errorMessage!,
+                      style: const TextStyle(color: Colors.redAccent),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+
                 if (controller.devices.isEmpty && controller.isScanning)
                   const Padding(
                     padding: EdgeInsets.only(top: 20),
