@@ -52,6 +52,14 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
   mocktail: ^1.0.5
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "lib/assets/images/robotbull.png"
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "lib/assets/images/robotbull.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
