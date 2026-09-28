@@ -4,7 +4,7 @@ import 'package:bullsapp/presentation/widgets/dropdown.dart';
 
 void main() {
   group('Dropdown', () {
-    testWidgets('mostra a jogada selecionada, formatada (sem underscore)',
+    testWidgets('mostra a jogada selecionada, formatada corretamente',
         (tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -36,8 +36,8 @@ void main() {
         ),
       );
 
-      // JOGADA_2 só aparece se a lista estiver aberta
       expect(find.text('JOGADA 2'), findsNothing);
+      expect(find.text ('JOGADA 1'), findsOneWidget);
     });
 
     testWidgets('abre a lista ao tocar no cabeçalho', (tester) async {
