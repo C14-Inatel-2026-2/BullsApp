@@ -43,6 +43,12 @@ pipeline {
                 sh 'flutter test -v'
             }
         }
+        stage('Build') {
+            steps {
+                echo 'Gerando APK Flutter...'
+                sh 'flutter build apk --debug --no-tree-shake-icons'
+            }
+        }
 
     }
 

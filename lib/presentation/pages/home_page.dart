@@ -1,26 +1,86 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../data/models/device_model.dart';
+import '../../data/repositories/ble_repository.dart';
 import '../widgets/custom_button.dart';
 import 'scan_page.dart';
 import 'mod_page.dart';
 import 'test_page.dart';
 
-
 // presentation/pages/home_page.dart
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   final String deviceName;
   final bool isConnected;
 
+  /// Dispositivo conectado — usado pra monitorar a conexão.
+  /// Se for null, a página não monitora nada (comportamento antigo).
+  final BleDeviceModel? device;
+
+  /// Injetável pra facilitar testes (mock/fake). Por padrão usa o real.
+  final BleRepository? repository;
+
   const HomePage({
     super.key,
-    this.deviceName = 'NOME DO DISPOSITIVO',
-    this.isConnected = true,
+    required this.deviceName,
+    required this.isConnected,
+    this.device,
+    this.repository,
   });
 
-  void _disconnect(BuildContext context) {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  late final BleRepository _repo;
+  StreamSubscription<BleConnectionState>? _connectionSub;
+  late bool _isConnected;
+
+  @override
+  void initState() {
+    super.initState();
+    _isConnected = widget.isConnected;
+    _repo = widget.repository ?? BleRepository();
+    _listenToConnection();
+  }
+
+  void _listenToConnection() {
+    final device = widget.device;
+    if (device == null) return;
+
+    _connectionSub = _repo.connectionStateOf(device).listen(
+      (state) {
+        if (state == BleConnectionState.disconnected) _onConnectionLost();
+      },
+      onError: (e) => debugPrint('Erro ao monitorar conexão: $e'),
+    );
+  }
+
+  void _onConnectionLost() {
+    if (!mounted || !_isConnected) return;
+
+    // Troca "CONECTADO" por "DESCONECTADO"
+    setState(() => _isConnected = false);
+
+    // Fecha ModPage/TestPage (se estiverem abertas) e volta pro menu (esta página)
+    final homeRoute = ModalRoute.of(context);
+    if (homeRoute != null) {
+      Navigator.of(context).popUntil((route) => route == homeRoute);
+    }
+  }
+
+  void _disconnect() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const ScanPage()),
     );
+  }
+
+  @override
+  void dispose() {
+    _connectionSub?.cancel();
+    super.dispose();
   }
 
   @override
@@ -36,7 +96,7 @@ class HomePage extends StatelessWidget {
               Image.asset('lib/assets/images/robotbull.png', height: 130),
               const SizedBox(height: 20),
               Text(
-                deviceName.toUpperCase(),
+                widget.deviceName.toUpperCase(),
                 style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold, letterSpacing: 2),
               ),
               const SizedBox(height: 6),
@@ -47,13 +107,13 @@ class HomePage extends StatelessWidget {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: isConnected ? AppColors.success : Colors.redAccent,
+                      color: _isConnected ? AppColors.success : Colors.redAccent,
                       shape: BoxShape.circle,
                     ),
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    isConnected ? 'CONECTADO' : 'DESCONECTADO',
+                    _isConnected ? 'CONECTADO' : 'DESCONECTADO',
                     style: const TextStyle(color: Colors.white70, fontSize: 12, letterSpacing: 1),
                   ),
                 ],
@@ -98,7 +158,7 @@ class HomePage extends StatelessWidget {
                       color: AppColors.secondary,
                       height: 42,
                       width: CustomButton.defaultWidth * 0.65,
-                      onTap: () => _disconnect(context),
+                      onTap: _disconnect,
                     ),
                   ],
                 ),

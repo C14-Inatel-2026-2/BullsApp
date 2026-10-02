@@ -34,7 +34,7 @@ class SensorModel {
 
 class SensorPage extends StatelessWidget {
   const SensorPage({super.key});
-
+  
   //adicionar a conexão com blecontroller para ter dados reais.
   final List<SensorModel> sensors = const [
     SensorModel(
@@ -42,12 +42,14 @@ class SensorPage extends StatelessWidget {
       label: 'Sensor 1',
       status: Status.vendo,
       position: Alignment(-0.37, -0.15),
+
     ),
     SensorModel(
       id: '2',
       label: 'Sensor 2',
       status: Status.cego,
       position: Alignment(-0.29, -0.40),
+
     ),
     SensorModel(
       id: '3',

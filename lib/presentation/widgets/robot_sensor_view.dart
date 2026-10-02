@@ -13,7 +13,7 @@ class RobotSensorView extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          Image.asset('lib/assets/images/robot_view.png', height: 530),
+          Image.asset('lib/assets/images/robot_view.png', fit: BoxFit.contain),
           for (final sensor in sensors)
             Align(
               alignment: sensor.position,
