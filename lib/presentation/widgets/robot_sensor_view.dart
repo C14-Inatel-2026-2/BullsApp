@@ -8,21 +8,25 @@ class RobotSensorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Image.asset('assets/imagens/robotbull.png', height: 110),
-        for (final sensor in sensors)
-          Align(
-            alignment: sensor.position,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.sensors, color: sensor.status.color),
-                Text(sensor.label, style: const TextStyle(color: Colors.white)),
-              ],
+    return AspectRatio(
+      aspectRatio: 2.5,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Image.asset('lib/assets/images/robot_view.png', height: 530),
+          for (final sensor in sensors)
+            Align(
+              alignment: sensor.position,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.sensors, color: sensor.status.color),
+                  Text(sensor.label, style: const TextStyle(color: Colors.white)),
+                ],
+              ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 }
