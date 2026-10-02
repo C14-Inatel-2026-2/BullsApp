@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../controllers/test_controller.dart';
 import '../widgets/header.dart';
 
 class TerminalPage extends StatefulWidget {
@@ -12,20 +15,10 @@ class TerminalPage extends StatefulWidget {
 class _TerminalPageState extends State<TerminalPage> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  
-  // Lista que guarda as linhas do terminal
-  final List<String> _logs = [
-    "Terminal iniciado...",
-    "Aguardando entrada...",
-  ];
 
-  // Método público para adicionar linhas (você vai chamar isso do backend depois)
-  void addLog(String text) {
-    setState(() {
-      _logs.add(text);
-    });
-    _scrollToBottom();
-  }
+  // As linhas do terminal vivem no TestController; a tela só as exibe.
+  // Guarda quantas já foram vistas para rolar quando chegar linha nova.
+  int _linesSeen = 0;
 
   // Rola para o final automaticamente
   void _scrollToBottom() {
@@ -41,18 +34,12 @@ class _TerminalPageState extends State<TerminalPage> {
   }
 
   // Função que o botão ENVIAR chama
-  void _sendMessage() {
-    String text = _inputController.text.trim();
+  void _sendMessage(TestController controller) {
+    final text = _inputController.text.trim();
     if (text.isEmpty) return;
 
-    // Mostra o que o usuário enviou
-    addLog("> $text");
-
-    // Limpa o campo
     _inputController.clear();
-
-    // AQUI VOCÊ VAI CHAMAR O SEU BACKEND DEPOIS
-    // Exemplo: meuBackend.enviar(text);
+    controller.sendCommand(text);
   }
 
   @override
@@ -64,82 +51,118 @@ class _TerminalPageState extends State<TerminalPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.primary, // Fundo preto
-      
-      body: Column(
-        children: [
-          const CustomHeader(
-                isConnected: true, //  mudar dinamicamente
-                ),
-          // Área que mostra o texto
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0), // Espaçamento externo da caixa
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.card, // Cor de fundo da caixa (Preta)
-                  borderRadius: BorderRadius.circular(12), // Bordas arredondadas
-                  border: Border.all(
-                    color: AppColors.black.withValues(alpha: 0.2), // Borda sutil (opcional)
-                    width: 1,
-                  ),
-                ),
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(12),
-                  itemCount: _logs.length,
-                  itemBuilder: (context, index) {
-                    return Text(
-                      _logs[index],
-                      style: const TextStyle(
-                        color: AppColors.secondary, // Sua cor verde/dourada
-                        fontFamily: 'Courier New',
-                        fontSize: 15,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
+    return ChangeNotifierProvider(
+      create: (_) => TestController()..init(),
+      child: Builder(
+        builder: (context) {
+          final controller = context.watch<TestController>();
+          final logs = controller.log;
+          if (logs.length != _linesSeen) {
+            _linesSeen = logs.length;
+            _scrollToBottom();
+          }
 
-          // Área de digitação
-          Container(
-            padding: const EdgeInsets.all(12),
-            color: AppColors.primary, // Fundo 
-            child: Row(
+          return Scaffold(
+            backgroundColor: AppColors.primary, // Fundo preto
+
+            body: Column(
               children: [
+                const CustomHeader(
+                  isConnected: true, //  mudar dinamicamente
+                ),
+                // Área que mostra o texto
                 Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.black,
-                      borderRadius: BorderRadius.circular(8), // Bordas arredondadas
-                    ),
-                    child: TextField(
-                      controller: _inputController,
-                      style: const TextStyle(color: AppColors.secondary), // Cor do texto digitado
-                      decoration: const InputDecoration(
-                        hintText: "Digite o comando...",
-                        hintStyle: TextStyle(color: AppColors.secondary), // Cor do placeholder
-                        filled: true,
-                        fillColor: AppColors.card, // Cor de fundo do TextField
-                        
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  child: Padding(
+                    padding: const EdgeInsets.all(
+                      16.0,
+                    ), // Espaçamento externo da caixa
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.card, // Cor de fundo da caixa (Preta)
+                        borderRadius: BorderRadius.circular(
+                          12,
+                        ), // Bordas arredondadas
+                        border: Border.all(
+                          color: AppColors.black.withValues(
+                            alpha: 0.2,
+                          ), // Borda sutil (opcional)
+                          width: 1,
+                        ),
                       ),
-                      onSubmitted: (_) => _sendMessage(),
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        padding: const EdgeInsets.all(12),
+                        itemCount: logs.length,
+                        itemBuilder: (context, index) {
+                          return Text(
+                            logs[index],
+                            style: const TextStyle(
+                              color:
+                                  AppColors.secondary, // Sua cor verde/dourada
+                              fontFamily: 'Courier New',
+                              fontSize: 15,
+                            ),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
-                IconButton(
-                  icon: const Icon(Icons.send, color: AppColors.secondary),
-                  onPressed: _sendMessage,
+
+                // Área de digitação
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  color: AppColors.primary, // Fundo
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.black,
+                            borderRadius: BorderRadius.circular(
+                              8,
+                            ), // Bordas arredondadas
+                          ),
+                          child: TextField(
+                            controller: _inputController,
+                            style: const TextStyle(
+                              color: AppColors.secondary,
+                            ), // Cor do texto digitado
+                            decoration: const InputDecoration(
+                              hintText: "Digite o comando...",
+                              hintStyle: TextStyle(
+                                color: AppColors.secondary,
+                              ), // Cor do placeholder
+                              filled: true,
+                              fillColor:
+                                  AppColors.card, // Cor de fundo do TextField
+
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 12,
+                              ),
+                            ),
+                            onSubmitted: (_) => _sendMessage(controller),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: const Icon(
+                          Icons.send,
+                          color: AppColors.secondary,
+                        ),
+                        onPressed: controller.isBusy
+                            ? null
+                            : () => _sendMessage(controller),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

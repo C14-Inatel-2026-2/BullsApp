@@ -1,16 +1,3 @@
-/// Porte de DisplayState.jsx + DisplayState.module.css para Flutter.
-///
-/// Uso:
-///   DisplayState(
-///     physics: physicsMap,      // decodificado de PHYSICS.json
-///     state: jogadaMap,         // uma entrada de JOGADAS.json, ex: jogadas['JOGADA_1']
-///   )
-///
-/// Carregando os JSONs (assets):
-///   final physicsMap = jsonDecode(await rootBundle.loadString('assets/PHYSICS.json'));
-///   final jogadas = jsonDecode(await rootBundle.loadString('assets/JOGADAS.json'));
-library display_state;
-
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';

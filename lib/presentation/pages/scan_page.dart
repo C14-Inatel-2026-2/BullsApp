@@ -17,29 +17,7 @@ class ScanPage extends StatefulWidget {
 }
 
 class _ScanPageState extends State<ScanPage> {
-  // false = mostra "disponíveis", true = mostra "pareados"
   bool _showPaired = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => BleController()..init(),
-      child: _ScanPageView(
-        showPaired: _showPaired,
-        onToggle: (value) => setState(() => _showPaired = value),
-      ),
-    );
-  }
-}
-
-class _ScanPageView extends StatelessWidget {
-  const _ScanPageView({
-    required this.showPaired,
-    required this.onToggle,
-  });
-
-  final bool showPaired;
-  final ValueChanged<bool> onToggle;
 
   Future<void> _connect(
     BuildContext context,
@@ -62,7 +40,7 @@ class _ScanPageView extends StatelessWidget {
     if (success) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => HomePage(deviceName: device.name, isConnected: true, device: device),
+          builder: (_) => HomePage(deviceName: device.name),
         ),
       );
     } else {
@@ -77,100 +55,94 @@ class _ScanPageView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = context.watch<BleController>();
-    final displayedDevices = controller
-        .sortDevicesForUI(controller.devices)
-        .where((device) => device.isPaired == showPaired)
-        .toList();
+    return ChangeNotifierProvider(
+      create: (_) => BleController()..init(),
+      child: Builder(
+        builder: (context) {
+          final controller = context.watch<BleController>();
+          final displayedDevices = controller
+              .sortDevicesForUI(controller.devices)
+              .where((device) => device.isPaired == _showPaired)
+              .toList();
 
-    return Scaffold(
-      backgroundColor: AppColors.primary,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 24),
-                Image.asset('lib/assets/images/robotbull.png', height: 110),
-                const SizedBox(height: 32),
-                TabSelector(
-                  options: const ['DISPONÍVEIS', 'PAREADOS'],
-                  selectedIndex: showPaired ? 1 : 0,
-                  onChanged: (index) => onToggle(index == 1),
-                ),
-                const SizedBox(height: 26),
-
-                if (displayedDevices.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Text(
-                      showPaired
-                          ? 'Nenhum dispositivo pareado ainda'
-                          : 'Nenhum dispositivo disponível',
-                      style: const TextStyle(color: Colors.white70),
-                    ),
-                  )
-                else
-                  Column(
+          return Scaffold(
+            backgroundColor: AppColors.primary,
+            body: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: SingleChildScrollView(
+                  child: Column(
                     children: [
-                      for (int i = 0; i < displayedDevices.length; i++) ...[
-                        DeviceListItem(
-                          device: displayedDevices[i],
-                          onConnect: () =>
-                              _connect(context, controller, displayedDevices[i]),
+                      const SizedBox(height: 24),
+                      Image.asset('lib/assets/images/robotbull.png', height: 110),
+                      const SizedBox(height: 32),
+                      TabSelector(
+                        options: const ['DISPONÍVEIS', 'PAREADOS'],
+                        selectedIndex: _showPaired ? 0 : 1,
+                        onChanged: (index) =>
+                            setState(() => _showPaired = index == 1),
+                      ),
+                      const SizedBox(height: 24),
+                      if (displayedDevices.isEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 24),
+                          child: Text(
+                            _showPaired
+                                ? 'Nenhum dispositivo pareado ainda'
+                                : 'Nenhum dispositivo disponível',
+                            style: const TextStyle(color: Colors.white70),
+                            textAlign: TextAlign.center,
+                          ),
+                        )
+                      else
+                        Column(
+                          children: [
+                            for (int i = 0; i < displayedDevices.length; i++) ...[
+                              DeviceListItem(
+                                device: displayedDevices[i],
+                                onConnect: () =>
+                                    _connect(context, controller, displayedDevices[i]),
+                              ),
+                              if (i != displayedDevices.length - 1)
+                                const SizedBox(height: 12),
+                            ],
+                          ],
                         ),
-                        if (i != displayedDevices.length - 1)
-                          const SizedBox(height: 12),
-                      ],
+                      const SizedBox(height: 20),
+                      if (displayedDevices.isEmpty && controller.isScanning)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: CircularProgressIndicator(color: Colors.white),
+                        )
+                      else if (displayedDevices.isEmpty && !controller.isScanning)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: Text(
+                            'Nenhum robô encontrado. Verifique o Bluetooth e o GPS do celular.',
+                            style: TextStyle(color: Colors.white70),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      const SizedBox(height: 20),
+                      CustomButton(
+                        label: controller.isScanning ? 'PARAR' : 'SCAN',
+                        icon: controller.isScanning
+                            ? Icons.stop
+                            : Icons.bluetooth_searching,
+                        color: AppColors.secondary,
+                        height: 52,
+                        onTap: controller.isScanning
+                            ? () => controller.stopScan()
+                            : () => controller.startScan(),
+                      ),
+                      const SizedBox(height: 16),
                     ],
                   ),
-
-                const SizedBox(height: 20),
-
-                if (controller.errorMessage != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      controller.errorMessage!,
-                      style: const TextStyle(color: Colors.redAccent),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-
-                if (controller.devices.isEmpty && controller.isScanning)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: CircularProgressIndicator(color: Colors.white),
-                  )
-                else if (controller.devices.isEmpty && !controller.isScanning)
-                  const Padding(
-                    padding: EdgeInsets.only(top: 20),
-                    child: Text(
-                      'Nenhum robô encontrado. Verifique o Bluetooth e o GPS do celular.',
-                      style: TextStyle(color: Colors.white70),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-
-                const SizedBox(height: 20),
-
-                CustomButton(
-                  label: controller.isScanning ? 'PARAR' : 'SCAN',
-                  icon: controller.isScanning
-                      ? Icons.stop
-                      : Icons.bluetooth_searching,
-                  color: AppColors.secondary,
-                  height: 52,
-                  onTap: controller.isScanning
-                      ? () => controller.stopScan()
-                      : () => controller.startScan(),
                 ),
-                const SizedBox(height: 16),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
