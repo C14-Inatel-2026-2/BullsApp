@@ -4,6 +4,7 @@ import '../widgets/custom_button.dart';
 import '../widgets/header.dart';
 import 'terminal_page.dart';
 import 'pid_page.dart';
+import 'sensor_page.dart';
 
 
 // presentation/pages/home_page.dart
@@ -45,7 +46,12 @@ class TestPage extends StatelessWidget {
                       label: 'TESTAR SENSORES',
                       icon: Icons.sensors,
                       color: AppColors.secondary,
-                      onTap: () {}, 
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const SensorPage()),
+                        );
+                      }, 
                     ),
                     const SizedBox(height: 20),
                     CustomButton(
