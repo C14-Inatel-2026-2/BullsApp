@@ -49,17 +49,26 @@ class AutoController extends ChangeNotifier {
   ) async {
     final number = _jogadaNumber(jogadaKey);
     if (number == null) {
-      errorMessage = 'Jogada inválida: $jogadaKey';
-      status = AutoStatus.error;
-      notifyListeners();
+      _fail('Jogada inválida: $jogadaKey');
       return;
     }
-    await _send(RobotProtocol.jogada(_ladoFromSide(side), number));
+    final lado = Lado.fromSide(side);
+    if (lado == null) {
+      _fail('Lado inválido: $side');
+      return;
+    }
+    await _send(RobotProtocol.jogada(lado, number));
   }
 
   /// Entra no modo rádio-controlado pelo lado indicado ('ladoDir'/'ladoEsc').
-  Future<void> startRC(String side) =>
-      _send(RobotProtocol.rc(_ladoFromSide(side)));
+  Future<void> startRC(String side) async {
+    final lado = Lado.fromSide(side);
+    if (lado == null) {
+      _fail('Lado inválido: $side');
+      return;
+    }
+    await _send(RobotProtocol.rc(lado));
+  }
 
   Future<void> stop() async {
     await _send(RobotProtocol.parar);
@@ -95,8 +104,12 @@ class AutoController extends ChangeNotifier {
     return match == null ? null : int.tryParse(match.group(0)!);
   }
 
-  static Lado _ladoFromSide(String side) =>
-      side == 'ladoEsc' ? Lado.esquerdo : Lado.direito;
+  /// Marca erro de validação: nada é enviado ao robô.
+  void _fail(String message) {
+    errorMessage = message;
+    status = AutoStatus.error;
+    notifyListeners();
+  }
 
   // ── Cleanup ────────────────────────────────────────────────────────────
   @override
