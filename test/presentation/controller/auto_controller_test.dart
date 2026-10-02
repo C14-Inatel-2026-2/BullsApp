@@ -107,4 +107,16 @@ void main() {
     expect(controller.errorMessage, isNotNull);
     verifyNever(() => port.send(any()));
   });
+
+  test('stop envia STOP e volta para idle', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.stop();
+
+    verify(() => port.send('STOP')).called(1);
+    expect(controller.status, AutoStatus.idle);
+  });
 }
