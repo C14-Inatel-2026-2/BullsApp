@@ -44,4 +44,30 @@ void main() {
     expect(controller.errorMessage, isNotNull);
     verifyNever(() => port.send(any()));
   });
+
+  test('sendJogada rejeita lado vazio sem enviar comando', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.sendJogada('JOGADA_22', '', []);
+
+    expect(controller.status, AutoStatus.error);
+    expect(controller.errorMessage, isNotNull);
+    verifyNever(() => port.send(any()));
+  });
+
+  test('sendJogada rejeita jogada sem número', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.sendJogada('JOGADA_X', 'ladoDir', []);
+
+    expect(controller.status, AutoStatus.error);
+    expect(controller.errorMessage, isNotNull);
+    verifyNever(() => port.send(any()));
+  });
 }
