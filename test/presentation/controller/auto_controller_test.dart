@@ -1,9 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'dart:async';
 
 import 'package:bullsapp/data/repositories/robot_command_port.dart';
 import 'package:bullsapp/presentation/controllers/auto_controller.dart';
 import 'package:bullsapp/presentation/controllers/auto_status.dart';
+import 'package:bullsapp/data/repositories/robot_command_exception.dart';
 
 class MockRobotCommandPort extends Mock implements RobotCommandPort {}
 
@@ -43,5 +45,109 @@ void main() {
     expect(controller.status, AutoStatus.error);
     expect(controller.errorMessage, isNotNull);
     verifyNever(() => port.send(any()));
+  });
+
+  test('sendJogada rejeita lado vazio sem enviar comando', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.sendJogada('JOGADA_22', '', []);
+
+    expect(controller.status, AutoStatus.error);
+    expect(controller.errorMessage, isNotNull);
+    verifyNever(() => port.send(any()));
+  });
+
+  test('sendJogada rejeita jogada sem número', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.sendJogada('JOGADA_X', 'ladoDir', []);
+
+    expect(controller.status, AutoStatus.error);
+    expect(controller.errorMessage, isNotNull);
+    verifyNever(() => port.send(any()));
+  });
+
+  test('startRC envia DRC para o lado direito', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+    
+    await controller.startRC('ladoDir');
+
+    verify(() => port.send('DRC')).called(1);
+    expect(controller.status, AutoStatus.running);
+  });
+
+  test('startRC envia ERC para o lado esquerdo', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.startRC('ladoEsc');
+
+    verify(() => port.send('ERC')).called(1);
+    expect(controller.status, AutoStatus.running);
+  });
+
+  test('startRC não envia nada para lado invalido', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.startRC('xpto');
+
+    expect(controller.status, AutoStatus.error);
+    expect(controller.errorMessage, isNotNull);
+    verifyNever(() => port.send(any()));
+  });
+
+  test('stop envia STOP e volta para idle', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.stop();
+
+    verify(() => port.send('STOP')).called(1);
+    expect(controller.status, AutoStatus.idle);
+  });
+
+  test('stop mantém o erro quando o envio falha', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenThrow(const RobotCommandException('sem robô'));
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.stop();
+
+    verify(() => port.send('STOP')).called(1);
+    expect(controller.status, AutoStatus.error);
+    expect(controller.errorMessage, 'sem robô');
+  });
+
+  test('stop envia STOP mesmo com um comando em andamento', () async {
+    final travado = Completer<void>();
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) => travado.future);
+    when(() => port.send('STOP')).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    controller.sendJogada('JOGADA_22', 'ladoDir', []);
+    await controller.stop();
+
+    verify(() => port.send('STOP')).called(1);
+
+    travado.complete();   // libera o envio pendurado
   });
 }
