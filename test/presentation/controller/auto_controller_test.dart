@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'dart:async';
 
 import 'package:bullsapp/data/repositories/robot_command_port.dart';
 import 'package:bullsapp/presentation/controllers/auto_controller.dart';
@@ -132,5 +133,21 @@ void main() {
     verify(() => port.send('STOP')).called(1);
     expect(controller.status, AutoStatus.error);
     expect(controller.errorMessage, 'sem robô');
+  });
+
+  test('stop envia STOP mesmo com um comando em andamento', () async {
+    final travado = Completer<void>();
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) => travado.future);
+    when(() => port.send('STOP')).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    controller.sendJogada('JOGADA_22', 'ladoDir', []);
+    await controller.stop();
+
+    verify(() => port.send('STOP')).called(1);
+
+    travado.complete();   // libera o envio pendurado
   });
 }
