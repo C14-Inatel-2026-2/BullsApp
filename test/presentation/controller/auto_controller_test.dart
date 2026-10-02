@@ -8,7 +8,7 @@ import 'package:bullsapp/presentation/controllers/auto_status.dart';
 class MockRobotCommandPort extends Mock implements RobotCommandPort {}
 
 void main() {
-  test('sendJogada monta E22 para JOGADA_22 do lado direito', () async {
+  test('sendJogada monta D22 para JOGADA_22 do lado direito', () async {
     final port = MockRobotCommandPort();
     when(() => port.send(any())).thenAnswer((_) async {});
     when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
@@ -22,7 +22,7 @@ void main() {
 
   test('sendJogada monta E22 para JOGADA_22 do lado esquerdo', () async {
     final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async{});
+    when(() => port.send(any())).thenAnswer((_) async {});
     when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
     final controller = AutoController(port: port)..init();
 
@@ -32,9 +32,9 @@ void main() {
     expect(controller.status, AutoStatus.running);
   });
 
-  test('sendJogada rejeita lado desconhecido sem enviar comando', () async{
+  test('sendJogada rejeita lado desconhecido sem enviar comando', () async {
     final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async{});
+    when(() => port.send(any())).thenAnswer((_) async {});
     when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
     final controller = AutoController(port: port)..init();
 
