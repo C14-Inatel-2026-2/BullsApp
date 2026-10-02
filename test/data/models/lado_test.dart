@@ -19,8 +19,11 @@ void main() {
       expect(Lado.fromSide(''), isNull);
     });
 
-    test('não aceita variação de caixa', () {
+    test('não aceita o valor em maiúsculas', () {
       expect(Lado.fromSide('LADODIR'), isNull);
+    });
+
+    test('não aceita o valor todo em minúsculas', () {
       expect(Lado.fromSide('ladodir'), isNull);
     });
   });
