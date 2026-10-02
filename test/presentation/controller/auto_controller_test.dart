@@ -94,4 +94,17 @@ void main() {
     verify(() => port.send('ERC')).called(1);
     expect(controller.status, AutoStatus.running);
   });
+
+  test('startRC não envia nada para lado invalido', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.startRC('xpto');
+
+    expect(controller.status, AutoStatus.error);
+    expect(controller.errorMessage, isNotNull);
+    verifyNever(() => port.send(any()));
+  });
 }
