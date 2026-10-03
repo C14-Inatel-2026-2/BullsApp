@@ -66,31 +66,43 @@ class AutoController extends ChangeNotifier {
     await _send(RobotProtocol.rc(lado));
   }
 
+  /// Para o robô. Nunca é descartado, mesmo com outro envio em andamento.
   Future<void> stop() async {
-    await _send(RobotProtocol.parar);
+    await _send(RobotProtocol.parar, force: true);
     if (status != AutoStatus.error) status = AutoStatus.idle;
     notifyListeners();
   }
 
   // ── Internos ───────────────────────────────────────────────────────────
-  Future<void> _send(String command) async {
-    if (status == AutoStatus.sending) return;
+  /// Conta os envios para que a resposta de um envio antigo (ex.: a jogada
+  /// que estava indo quando o STOP passou na frente) não sobrescreva o
+  /// status do mais recente.
+  int _sendSeq = 0;
 
+  Future<void> _send(String command, {bool force = false}) async {
+    if (status == AutoStatus.sending && !force) return;
+
+    final seq = ++_sendSeq;
     status = AutoStatus.sending;
     lastCommand = command;
     errorMessage = null;
     notifyListeners();
 
+    AutoStatus result;
+    String? error;
     try {
       await _port.send(command);
-      status = AutoStatus.running;
+      result = AutoStatus.running;
     } on RobotCommandException catch (e) {
-      errorMessage = e.message;
-      status = AutoStatus.error;
+      error = e.message;
+      result = AutoStatus.error;
     } catch (e) {
-      errorMessage = 'Falha ao enviar: $e';
-      status = AutoStatus.error;
+      error = 'Falha ao enviar: $e';
+      result = AutoStatus.error;
     }
+    if (seq != _sendSeq) return; // um envio mais novo já assumiu o status
+    status = result;
+    errorMessage = error;
     notifyListeners();
   }
 
