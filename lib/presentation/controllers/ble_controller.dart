@@ -68,6 +68,8 @@ class BleController extends ChangeNotifier {
 
   Future<bool> connect(BleDeviceModel device) async {
     try {
+      // No Android, conectar com o scan rodando costuma falhar ou demorar.
+      await _repo.stopScan();
       await _repo.connect(device);
 
       // Salva o MAC localmente após a conexão ser bem-sucedida
