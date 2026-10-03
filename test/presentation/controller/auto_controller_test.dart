@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -43,5 +45,26 @@ void main() {
     expect(controller.status, AutoStatus.error);
     expect(controller.errorMessage, isNotNull);
     verifyNever(() => port.send(any()));
+  });
+
+  test('STOP é enviado mesmo com uma jogada ainda sendo enviada', () async {
+    final port = MockRobotCommandPort();
+    final jogadaEnviada = Completer<void>();
+    when(() => port.send('D22')).thenAnswer((_) => jogadaEnviada.future);
+    when(() => port.send('STOP')).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    final jogada = controller.sendJogada('JOGADA_22', 'ladoDir', []);
+    expect(controller.status, AutoStatus.sending);
+
+    await controller.stop();
+    verify(() => port.send('STOP')).called(1);
+    expect(controller.status, AutoStatus.idle);
+
+    // A jogada antiga terminando depois não pode "religar" o status.
+    jogadaEnviada.complete();
+    await jogada;
+    expect(controller.status, AutoStatus.idle);
   });
 }
