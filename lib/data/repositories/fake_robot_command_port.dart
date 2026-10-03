@@ -5,8 +5,8 @@ import 'robot_command_port.dart';
 
 /// Implementação em memória do [RobotCommandPort], sem Bluetooth.
 ///
-/// Serve para rodar o terminal e as telas de teste no emulador enquanto o
-/// `BleRepository` não implementa o canal de comandos. Nos testes unitários
+/// Serve para rodar o app sem robô (emulador, apresentação):
+/// `flutter run --dart-define=FAKE_ROBOT=true`. Nos testes unitários
 /// dos controllers, prefira um mock (mocktail) — aí cada teste decide o que
 /// o robô responde.
 class FakeRobotCommandPort implements RobotCommandPort {

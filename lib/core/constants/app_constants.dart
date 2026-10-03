@@ -5,8 +5,27 @@ class AppConstants {
   static const String appPackageName = 'com.bullsapp.app';
 
   // BLE Constants
-  static const String bleServiceUUID = '180A'; // Device Information Service
-  static const String bleCharacteristicUUID = '2A29'; // Manufacturer Name String
+  /// Perfis de "serial sobre BLE" que o app reconhece no robô, em ordem de
+  /// preferência: (serviço, característica de escrita, característica de
+  /// notificação). Se o firmware usar outro perfil, adicione aqui.
+  /// Sem nenhum desses, o app usa o primeiro serviço que tiver uma
+  /// característica de escrita e uma de notificação.
+  static const List<(String, String, String)> robotSerialProfiles = [
+    // Nordic UART Service (NUS) — padrão em ESP32/nRF
+    (
+      '6E400001-B5A3-F393-E0A9-E50E24DCCA9E',
+      '6E400002-B5A3-F393-E0A9-E50E24DCCA9E', // RX do robô (app escreve)
+      '6E400003-B5A3-F393-E0A9-E50E24DCCA9E', // TX do robô (app recebe)
+    ),
+    // HM-10 / HC-08 / módulos BLE-serial baratos
+    ('FFE0', 'FFE1', 'FFE1'),
+  ];
+
+  /// Fim de linha de cada comando enviado e das respostas do robô.
+  /// TODO(time): confirmar com o firmware (println do Arduino manda "\r\n";
+  /// o app aceita os dois na leitura).
+  static const String robotLineTerminator = '\n';
+
   static const Duration bleScanTimeout = Duration(seconds: 30);
   static const Duration bleConnectionTimeout = Duration(seconds: 10);
   static const int bleMaxRetries = 3;

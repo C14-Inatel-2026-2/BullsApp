@@ -6,8 +6,15 @@ import 'package:permission_handler/permission_handler.dart';
 
 import '../models/device_model.dart';
 import '../services/ble_service.dart';
+import 'robot_command_exception.dart';
+import 'robot_command_port.dart';
 
-class BleRepository {
+/// Ponto único de acesso ao Bluetooth para o app inteiro.
+///
+/// Deve existir UMA instância só (criada no main.dart e distribuída via
+/// Provider): o robô conectado fica guardado no [BleService] dela, então
+/// uma segunda instância não enxergaria a conexão.
+class BleRepository implements RobotCommandPort {
   BleRepository({BleService? service}) : _service = service ?? BleService();
 
   final BleService _service;
@@ -38,6 +45,22 @@ class BleRepository {
     return _service
         .connectionStateOf(device.macAddress)
         .map(_toAppConnectionState);
+  }
+
+  // ── Comandos (RobotCommandPort) ───────────────────────────────────────────
+
+  @override
+  Stream<String> get responses => _service.robotLines;
+
+  @override
+  Future<void> send(String command) async {
+    try {
+      await _service.sendLine(command);
+    } on BleException catch (e) {
+      throw RobotCommandException(e.message);
+    } catch (e) {
+      throw RobotCommandException('Falha ao enviar comando: $e');
+    }
   }
 
   // ── Conversões privadas ───────────────────────────────────────────────────
