@@ -2,35 +2,10 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../widgets/robot_sensor_view.dart';
 import '../widgets/header.dart';
+import '../../data/models/sensor_model.dart';
+import '../../data/models/sensor_status.dart';
 
-enum Status { vendo, cego, ssinal }
 
-extension SensorStatusX on Status {
-  Color get color {
-    switch (this) {
-      case Status.vendo:
-        return AppColors.success; // vendo
-      case Status.cego:
-        return AppColors.warning; // cego
-      case Status.ssinal:
-        return AppColors.error; // Sem Sinal
-    }
-  }
-}
-
-class SensorModel {
-  final String id;
-  final String label;
-  final Status status;
-  final Alignment position;
-
-  const SensorModel({
-    required this.id,
-    required this.label,
-    required this.status,
-    required this.position,
-  });
-}
 
 class SensorPage extends StatelessWidget {
   const SensorPage({super.key});
@@ -40,39 +15,39 @@ class SensorPage extends StatelessWidget {
     SensorModel(
       id: '1',
       label: 'Sensor 1',
-      status: Status.vendo,
+      status: SensorStatus.vendo,
       position: Alignment(-0.37, -0.15),
 
     ),
     SensorModel(
       id: '2',
       label: 'Sensor 2',
-      status: Status.cego,
+      status: SensorStatus.cego,
       position: Alignment(-0.29, -0.40),
 
     ),
     SensorModel(
       id: '3',
       label: 'Sensor 3',
-      status: Status.ssinal,
+      status: SensorStatus.semSinal,
       position: Alignment(-0.06, -0.40),
     ),
     SensorModel(
       id: '4',
       label: 'Sensor 4',
-      status: Status.vendo,
+      status: SensorStatus.vendo,
       position: Alignment(0.06, -0.40),
     ),
     SensorModel(
       id: '5',
       label: 'Sensor 5',
-      status: Status.cego,
+      status: SensorStatus.cego,
       position: Alignment(0.29, -0.40),
     ),
     SensorModel(
       id: '6',
       label: 'Sensor 6',
-      status: Status.ssinal,
+      status: SensorStatus.semSinal,
       position: Alignment(0.37, -0.15),
     ),
   ];

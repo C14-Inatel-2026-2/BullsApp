@@ -40,7 +40,7 @@ class _ScanPageState extends State<ScanPage> {
     if (success) {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (_) => HomePage(deviceName: device.name),
+          builder: (_) => HomePage(deviceName: device.name, isConnected: true, device: device),
         ),
       );
     } else {
