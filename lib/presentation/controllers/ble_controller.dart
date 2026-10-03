@@ -17,8 +17,9 @@ class BleController extends ChangeNotifier {
     notifyListeners();
   }
 
-  BleController({BleRepository? repository})
-      : _repo = repository ?? BleRepository();
+  /// Recebe o [BleRepository] único do app (via Provider) — criar outro
+  /// aqui perderia a conexão ao sair da ScanPage.
+  BleController({required BleRepository repository}) : _repo = repository;
 
   final BleRepository _repo;
 

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/models/device_model.dart';
+import '../../data/repositories/ble_repository.dart';
 import '../controllers/ble_controller.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/device_list_item.dart';
@@ -60,7 +61,8 @@ class _ScanPageState extends State<ScanPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => BleController()..init(),
+      create: (ctx) =>
+          BleController(repository: ctx.read<BleRepository>())..init(),
       child: Builder(
         builder: (context) {
           final controller = context.watch<BleController>();

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/robot_protocol.dart';
 import '../../data/models/sensor_status.dart';
-import '../../data/repositories/fake_robot_command_port.dart';
 import '../../data/repositories/robot_command_exception.dart';
 import '../../data/repositories/robot_command_port.dart';
 
@@ -14,10 +13,7 @@ import '../../data/repositories/robot_command_port.dart';
 /// respostas: em texto cru em [log] (terminal) e já interpretadas em
 /// [sensores] (tela de sensores).
 class TestController extends ChangeNotifier {
-  // TODO(kaynan): trocar o fake pelo BleRepository quando ele implementar
-  // RobotCommandPort (escrita/notify na característica do robô).
-  TestController({RobotCommandPort? port})
-      : _port = port ?? FakeRobotCommandPort();
+  TestController({required RobotCommandPort port}) : _port = port;
 
   final RobotCommandPort _port;
 
