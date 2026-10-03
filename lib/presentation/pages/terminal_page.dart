@@ -37,7 +37,9 @@ class _TerminalPageState extends State<TerminalPage> {
   // Função que o botão ENVIAR chama
   void _sendMessage(TestController controller) {
     final text = _inputController.text.trim();
-    if (text.isEmpty) return;
+    // Com envio em andamento o comando seria ignorado: mantém o texto no
+    // campo em vez de apagá-lo.
+    if (text.isEmpty || controller.isBusy) return;
 
     _inputController.clear();
     controller.sendCommand(text);
