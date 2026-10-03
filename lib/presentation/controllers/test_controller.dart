@@ -37,9 +37,12 @@ class TestController extends ChangeNotifier {
 
   // ── Ações ──────────────────────────────────────────────────────────────
   /// Envia um comando cru digitado pelo usuário (terminal).
-  Future<void> sendCommand(String command) async {
+  /// Ignorado se vazio ou se já houver um envio em andamento.
+  Future<void> sendCommand(String command) => _sendCommand(command);
+
+  Future<void> _sendCommand(String command, {bool force = false}) async {
     final text = command.trim();
-    if (text.isEmpty || isBusy) return;
+    if (text.isEmpty || (isBusy && !force)) return;
 
     isBusy = true;
     errorMessage = null;
@@ -65,7 +68,8 @@ class TestController extends ChangeNotifier {
   Future<void> testMotors({required int left, required int right}) =>
       sendCommand(RobotProtocol.testarMotores(left, right));
 
-  Future<void> stopMotors() => sendCommand(RobotProtocol.parar);
+  /// Nunca é descartado, mesmo com outro envio em andamento.
+  Future<void> stopMotors() => _sendCommand(RobotProtocol.parar, force: true);
 
   Future<void> savePid({
     required double kp,
