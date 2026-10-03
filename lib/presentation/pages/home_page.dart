@@ -73,7 +73,18 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _disconnect() {
+  Future<void> _disconnect() async {
+    // Para de monitorar antes: a queda que vamos provocar não é "perda".
+    await _connectionSub?.cancel();
+    _connectionSub = null;
+
+    try {
+      await _repo.disconnect();
+    } catch (e) {
+      debugPrint('Erro ao desconectar: $e');
+    }
+
+    if (!mounted) return;
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (_) => const ScanPage()),
     );
