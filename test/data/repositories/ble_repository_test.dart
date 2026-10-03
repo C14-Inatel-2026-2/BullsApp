@@ -13,6 +13,7 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:bullsapp/data/services/ble_service.dart';
 import 'package:bullsapp/data/repositories/ble_repository.dart';
+import 'package:bullsapp/data/repositories/robot_command_exception.dart';
 
 import '../../mocks/mocks.dart';
 
@@ -119,6 +120,39 @@ void main() {
       await repository.disconnect();
 
       verify(() => mockService.disconnect()).called(1);
+    });
+  });
+
+  // ── Comandos (RobotCommandPort) ────────────────────────────────────────────
+
+  group('BleRepository.send', () {
+    test('envia a linha pelo service', () async {
+      when(() => mockService.sendLine('D22')).thenAnswer((_) async {});
+
+      await repository.send('D22');
+
+      verify(() => mockService.sendLine('D22')).called(1);
+    });
+
+    test('converte BleException em RobotCommandException', () async {
+      when(() => mockService.sendLine(any()))
+          .thenThrow(const BleException('Nenhum robô conectado.'));
+
+      await expectLater(
+        () => repository.send('STOP'),
+        throwsA(isA<RobotCommandException>()
+            .having((e) => e.message, 'message', 'Nenhum robô conectado.')),
+      );
+    });
+
+    test('responses repassa as linhas do robô', () async {
+      when(() => mockService.robotLines)
+          .thenAnswer((_) => Stream.fromIterable(['sensorD2 vendo', 'OK']));
+
+      await expectLater(
+        repository.responses,
+        emitsInOrder(['sensorD2 vendo', 'OK', emitsDone]),
+      );
     });
   });
 }
