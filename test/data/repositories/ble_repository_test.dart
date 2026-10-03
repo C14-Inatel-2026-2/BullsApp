@@ -13,7 +13,6 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:bullsapp/data/services/ble_service.dart';
 import 'package:bullsapp/data/repositories/ble_repository.dart';
-import 'package:bullsapp/data/models/device_model.dart';
 
 import '../../mocks/mocks.dart';
 
