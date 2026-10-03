@@ -1,8 +1,14 @@
-.PHONY: run clean build-apk build-web get test format docker-build docker-up docker-down docker-logs docker-stop docker-rm docker-shell help
+.PHONY: run run-fake clean build-apk build-web get test format docker-build docker-up docker-down docker-logs docker-stop docker-rm docker-shell help
 
 # Flutter Commands
+
+# App normal: escaneia e conecta no robô real por Bluetooth
 run:
 	flutter run
+
+# App com robô simulado: pula o scan e responde os comandos sem Bluetooth
+run-fake:
+	flutter run --dart-define=FAKE_ROBOT=true
 
 clean:
 	flutter clean
@@ -25,7 +31,8 @@ format:
 # Docker Commands
 help:
 	@echo "=== BullsApp Flutter Commands ==="
-	@echo "make run         - Executar app em desenvolvimento"
+	@echo "make run         - Executar app com o robô real (Bluetooth)"
+	@echo "make run-fake    - Executar app com robô simulado (sem Bluetooth)"
 	@echo "make clean       - Limpar build"
 	@echo "make build-apk   - Build APK release"
 	@echo "make build-web   - Build web release"
