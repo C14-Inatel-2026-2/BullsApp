@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../data/repositories/robot_command_port.dart';
 import '../controllers/test_controller.dart';
 import '../widgets/header.dart';
 
@@ -52,7 +53,8 @@ class _TerminalPageState extends State<TerminalPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => TestController()..init(),
+      create: (ctx) =>
+          TestController(port: ctx.read<RobotCommandPort>())..init(),
       child: Builder(
         builder: (context) {
           final controller = context.watch<TestController>();

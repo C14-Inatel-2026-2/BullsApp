@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/robot_protocol.dart';
 import '../../data/models/lado.dart';
-import '../../data/repositories/fake_robot_command_port.dart';
 import '../../data/repositories/robot_command_exception.dart';
 import '../../data/repositories/robot_command_port.dart';
 import 'auto_status.dart';
@@ -14,10 +13,7 @@ import 'auto_status.dart';
 /// comando que o robô entende ("D22") e envia pelo [RobotCommandPort],
 /// guardando o status de execução.
 class AutoController extends ChangeNotifier {
-  // TODO(kaynan): trocar o fake pelo BleRepository quando ele implementar
-  // RobotCommandPort (escrita/notify na característica do robô).
-  AutoController({RobotCommandPort? port})
-      : _port = port ?? FakeRobotCommandPort();
+  AutoController({required RobotCommandPort port}) : _port = port;
 
   final RobotCommandPort _port;
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
+import '../../data/repositories/robot_command_port.dart';
 import '../controllers/auto_controller.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/header.dart';
@@ -47,7 +48,9 @@ class ModPage extends StatelessWidget {
                             // AutoController vive só enquanto a CommandPage
                             // estiver aberta, igual ao BleController na ScanPage.
                             builder: (_) => ChangeNotifierProvider(
-                              create: (_) => AutoController()..init(),
+                              create: (ctx) => AutoController(
+                                port: ctx.read<RobotCommandPort>(),
+                              )..init(),
                               child: Builder(
                                 builder: (ctx) => CommandPage(
                                   onSendCommand:
