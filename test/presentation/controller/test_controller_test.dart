@@ -60,4 +60,17 @@ void main() {
     expect(controller.errorMessage, 'sem robô');
     expect(controller.log, contains('! sem robô'));
   });
+
+  test('clearLog esvazia o log', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+    await controller.sendCommand('SENSORES');
+
+    expect(controller.log, isNotEmpty);
+    controller.clearLog();
+
+    expect(controller.log, isEmpty);
+  });
 }
