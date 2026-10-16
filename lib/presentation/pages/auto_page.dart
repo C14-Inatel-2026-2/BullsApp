@@ -5,11 +5,12 @@ import 'package:flutter/services.dart' show rootBundle;
 import '../../core/theme/app_colors.dart';
 import '../widgets/header.dart';
 import '../widgets/toggle_button.dart';
+import '../widgets/dropdown.dart';
 import '../widgets/display_state/simulation.dart' show getActionsFromState;
 import '../widgets/display_state/display_state.dart';
 
 class CommandPage extends StatefulWidget {
-  final Map<String, dynamic>? startPosition; 
+  final Map<String, dynamic>? startPosition;
   final void Function(String jogadaKey, String side, List<String> actions)?
       onSendCommand;
 
@@ -30,7 +31,6 @@ class _CommandPageState extends State<CommandPage> {
 
   String? _selectedKey;
   String _selectedSide = 'ladoDir'; // 'ladoDir' = DIREITA, 'ladoEsc' = ESQUERDA
-  bool _isDropdownOpen = false;
 
   @override
   void initState() {
@@ -102,7 +102,7 @@ class _CommandPageState extends State<CommandPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const CustomHeader(
-                    isConnected: true, 
+                    isConnected: true,
                   ),
                   const SizedBox(height: 16),
 
@@ -117,58 +117,11 @@ class _CommandPageState extends State<CommandPage> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Dropdown "JOGADA 67 ⌄"
-                  GestureDetector(
-                    onTap: () => setState(() => _isDropdownOpen = !_isDropdownOpen),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.black38,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            _selectedKey!.replaceAll('_', ' '),
-                            style: const TextStyle(color: Colors.white70, fontWeight: FontWeight.bold, letterSpacing: 1),
-                          ),
-                          Icon(
-                            _isDropdownOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                            color: AppColors.secondary,
-                          ),
-                        ],
-                      ),
-                    ),
+                  JogadaSelectorDropdown(
+                    selectedKey: _selectedKey!,
+                    options: data.orderedKeys,
+                    onSelected: (key) => setState(() => _selectedKey = key),
                   ),
-
-                  if (_isDropdownOpen)
-                    Container(
-                      margin: const EdgeInsets.only(top: 6),
-                      constraints: const BoxConstraints(maxHeight: 220),
-                      decoration: BoxDecoration(
-                        color: Colors.black45,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: data.orderedKeys.length,
-                        itemBuilder: (context, i) {
-                          final key = data.orderedKeys[i];
-                          return ListTile(
-                            dense: true,
-                            title: Text(
-                              key.replaceAll('_', ' '),
-                              style: const TextStyle(color: Colors.white70),
-                            ),
-                            onTap: () => setState(() {
-                              _selectedKey = key;
-                              _isDropdownOpen = false;
-                            }),
-                          );
-                        },
-                      ),
-                    ),
 
                   const SizedBox(height: 16),
 
