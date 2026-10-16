@@ -45,4 +45,19 @@ void main() {
     expect(controller.errorMessage, isNull);
     verifyNever(() => port.send(any()));
   });
+
+  test('sendCommand registra erro quando o envio falha', () async {
+    final port = MockRobotCommandPort();
+    when(
+      () => port.send(any()),
+    ).thenThrow(const RobotCommandException('sem robô'));
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+
+    await controller.sendCommand('SENSORES');
+
+    verify(() => port.send('SENSORES')).called(1);
+    expect(controller.errorMessage, 'sem robô');
+    expect(controller.log, contains('! sem robô'));
+  });
 }
