@@ -34,12 +34,46 @@ pipeline {
                 sh 'flutter test -v'
             }
         }
-        stage('Build') {
-            steps {
-                echo 'Gerando APK Flutter...'
-                sh 'flutter build apk --debug --no-tree-shake-icons'
+        stage('Builds em Paralelo') {
+            parallel {
+                stage('Build APK') {
+                    steps {
+                        // Aloca um workspace temporário específico para o build Android
+                        ws("${env.WORKSPACE}_android") {
+                            // Garante que o código atualizado esteja nesta pasta alternativa
+                            checkout scm
+                            echo 'Gerando APK Flutter...'
+                            sh 'flutter pub get'
+                            sh 'flutter build apk --debug --no-tree-shake-icons'
+                        }
+                    }
+                }
+
+                stage('Build Web') {
+                    steps {
+                        // Aloca um workspace temporário específico para o build Web
+                        ws("${env.WORKSPACE}_web") {
+                            checkout scm
+                            echo 'Gerando Web Flutter...'
+                            sh 'flutter pub get'
+                            sh 'flutter build web --debug --no-tree-shake-icons'
+                        }
+                    }
+                }
+
+                stage('Build IOS') {
+                    steps {
+                        // Aloca um workspace temporário específico para o build iOS
+                        ws("${env.WORKSPACE}_ios") {
+                            checkout scm
+                            echo 'Gerando IOS Flutter...'
+                            sh 'flutter pub get'
+                            sh 'flutter build ios --debug --no-tree-shake-icons --no-codesign'
+                        }
+                    }
+                }
             }
-        }
+
 
     }
 
