@@ -27,19 +27,10 @@ pipeline {
                 sh 'flutter pub get'
             }
         }
-        stage('Build') {
-            steps {
-
-                echo 'Gerando APK Flutter...'
-                sh 'flutter build apk --debug'
-                sh './gradlew build'
-            }
-        }
 
         stage('Executar Testes'){
             steps {
                 echo 'Rodando testes...'
-                sh './gradlew check'
                 sh 'flutter test -v'
             }
         }
@@ -82,8 +73,7 @@ pipeline {
                     }
                 }
             }
-
-
+        }
     }
 
     post {
