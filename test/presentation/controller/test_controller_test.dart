@@ -32,4 +32,17 @@ void main() {
     expect(controller.errorMessage, isNull);
     verifyNever(() => port.send(any()));
   });
+
+  test('sendCommand ignora comando só com espaços', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+
+    await controller.sendCommand('   ');
+
+    expect(controller.log, hasLength(2));
+    expect(controller.errorMessage, isNull);
+    verifyNever(() => port.send(any()));
+  });
 }
