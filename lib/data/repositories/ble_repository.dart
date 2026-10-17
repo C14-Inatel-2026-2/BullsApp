@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -74,7 +75,9 @@ class BleRepository implements RobotCommandPort {
     final models = <BleDeviceModel>[];
 
     // 1. Dispositivos já pareados (bonded) — Android only
-    if (!Platform.isLinux && !Platform.isWindows && !Platform.isMacOS) {
+    // (Platform do dart:io lança exceção no navegador: checa kIsWeb antes)
+    if (!kIsWeb &&
+        !Platform.isLinux && !Platform.isWindows && !Platform.isMacOS) {
       try {
         final bonded = await FlutterBluePlus.bondedDevices;
         for (final d in bonded) {
@@ -97,10 +100,15 @@ class BleRepository implements RobotCommandPort {
     for (final r in results) {
       final mac = r.device.remoteId.toString();
       if (seen.contains(mac)) continue; // já está como pareado
-      if (r.device.platformName.isEmpty) continue; // ignora sem nome
+      // platformName vem do cache do sistema e costuma vir vazio para
+      // dispositivos nunca pareados; o nome anunciado vem em advName.
+      final name = r.advertisementData.advName.isNotEmpty
+          ? r.advertisementData.advName
+          : r.device.platformName;
+      if (name.isEmpty) continue; // ignora sem nome
       seen.add(mac);
       models.add(BleDeviceModel(
-        name: r.device.platformName,
+        name: name,
         macAddress: mac,
         rssi: r.rssi,
         isPaired: false,
@@ -126,7 +134,8 @@ class BleRepository implements RobotCommandPort {
   // ── Permissões ────────────────────────────────────────────────────────────
 
   Future<void> _requestPermissions() async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
+    // No navegador quem pede permissão é o próprio Chrome, no seletor do scan.
+    if (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)) return;
 
     // Pede todas as permissões necessárias, incluindo localização
     // (necessária em algumas versões do Android para BLE scan)

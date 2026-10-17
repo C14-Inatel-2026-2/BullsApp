@@ -115,6 +115,15 @@ class _ScanPageState extends State<ScanPage> {
                           ],
                         ),
                       const SizedBox(height: 20),
+                      if (controller.errorMessage != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            controller.errorMessage!,
+                            style: const TextStyle(color: Colors.redAccent),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       if (displayedDevices.isEmpty && controller.isScanning)
                         const Padding(
                           padding: EdgeInsets.only(top: 8),

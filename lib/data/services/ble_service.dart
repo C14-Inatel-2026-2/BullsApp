@@ -42,6 +42,11 @@ class BleService {
 
     await FlutterBluePlus.startScan(
       timeout: AppConstants.bleScanTimeout,
+      // No navegador só dá para abrir os serviços declarados aqui.
+      webOptionalServices: [
+        for (final (serviceId, _, _) in AppConstants.robotSerialProfiles)
+          Guid(serviceId),
+      ],
     );
   }
 
