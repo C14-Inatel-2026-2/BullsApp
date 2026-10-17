@@ -90,4 +90,21 @@ void main() {
     expect(controller.sensores['D2'], SensorStatus.vendo);
     await respostas.close();
   });
+
+  test(
+    'resposta que não é de sensor entra no log sem alterar sensores',
+    () async {
+      final respostas = StreamController<String>();
+      final port = MockRobotCommandPort();
+      when(() => port.responses).thenAnswer((_) => respostas.stream);
+      final controller = TestController(port: port)..init();
+
+      respostas.add('OK D22');
+      await Future.delayed(Duration.zero);
+
+      expect(controller.log, contains('< OK D22'));
+      expect(controller.sensores, isEmpty);
+      await respostas.close();
+    },
+  );
 }
