@@ -12,7 +12,8 @@ class BleService {
 
   Stream<List<ScanResult>> get rawScanResults => FlutterBluePlus.scanResults;
   Stream<bool> get isScanning => FlutterBluePlus.isScanning;
-  Stream<BluetoothAdapterState> get adapterState => FlutterBluePlus.adapterState;
+  Stream<BluetoothAdapterState> get adapterState =>
+      FlutterBluePlus.adapterState;
 
   // ── Dispositivo conectado ─────────────────────────────────────────────────
 
@@ -28,9 +29,7 @@ class BleService {
     }
     if (await FlutterBluePlus.isScanning.first) return;
 
-    await FlutterBluePlus.startScan(
-      timeout: AppConstants.bleScanTimeout,
-    );
+    await FlutterBluePlus.startScan(timeout: AppConstants.bleScanTimeout);
   }
 
   Future<void> stopScan() async {
@@ -49,7 +48,6 @@ class BleService {
 
       // Garante que o dispositivo fique salvo na memória do Service para uso nas características GATT
       _connectedDevice = device;
-
     } on FlutterBluePlusException catch (e) {
       throw BleException('Falha ao conectar: ${e.description}');
     }
@@ -73,8 +71,8 @@ class BleService {
   }
 
   Future<List<int>> readCharacteristic(
-      BluetoothCharacteristic characteristic,
-      ) async {
+    BluetoothCharacteristic characteristic,
+  ) async {
     if (!characteristic.properties.read) {
       throw BleException('Característica não suporta leitura.');
     }
@@ -82,10 +80,11 @@ class BleService {
   }
 
   Future<void> writeCharacteristic(
-      BluetoothCharacteristic characteristic,
-      List<int> data,
-      ) async {
-    final supportsWrite = characteristic.properties.write ||
+    BluetoothCharacteristic characteristic,
+    List<int> data,
+  ) async {
+    final supportsWrite =
+        characteristic.properties.write ||
         characteristic.properties.writeWithoutResponse;
     if (!supportsWrite) {
       throw BleException('Característica não suporta escrita.');
@@ -97,10 +96,10 @@ class BleService {
   }
 
   Future<Stream<List<int>>> subscribeToCharacteristic(
-      BluetoothCharacteristic characteristic,
-      ) async {
-    final supportsNotify = characteristic.properties.notify ||
-        characteristic.properties.indicate;
+    BluetoothCharacteristic characteristic,
+  ) async {
+    final supportsNotify =
+        characteristic.properties.notify || characteristic.properties.indicate;
     if (!supportsNotify) {
       throw BleException('Característica não suporta notificações.');
     }

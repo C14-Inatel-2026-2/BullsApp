@@ -5,11 +5,9 @@ import '../widgets/header.dart';
 import 'package:provider/provider.dart';
 import '../controllers/sensor_controller.dart';
 
-
-
 class SensorPage extends StatelessWidget {
   const SensorPage({super.key});
-  
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -29,14 +27,16 @@ class SensorPage extends StatelessWidget {
                       isConnected: true, //  mudar dinamicamente
                     ),
                     const SizedBox(height: 16),
-                    controller.sensors.isEmpty  
-                      ? AspectRatio(
-                          aspectRatio: 2.5,
-                          child: Center(
-                            child: CircularProgressIndicator(color: AppColors.secondary),
-                          ),
-                        )
-                      : RobotSensorView(sensors: controller.sensors),
+                    controller.sensors.isEmpty
+                        ? AspectRatio(
+                            aspectRatio: 2.5,
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.secondary,
+                              ),
+                            ),
+                          )
+                        : RobotSensorView(sensors: controller.sensors),
                     const SizedBox(height: 20),
                   ],
                 ),

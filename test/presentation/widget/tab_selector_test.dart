@@ -21,8 +21,9 @@ void main() {
       expect(find.text('PAREADOS'), findsOneWidget);
     });
 
-    testWidgets('destaca visualmente a opção correspondente ao selectedIndex',
-        (tester) async {
+    testWidgets('destaca visualmente a opção correspondente ao selectedIndex', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -54,12 +55,14 @@ void main() {
           matching: find.byType(AnimatedContainer),
         ),
       );
-      final unselectedDecoration = unselectedContainer.decoration as BoxDecoration;
+      final unselectedDecoration =
+          unselectedContainer.decoration as BoxDecoration;
       expect(unselectedDecoration.color, Colors.transparent);
     });
 
-    testWidgets('chama onChanged com o índice correto ao tocar numa opção',
-        (tester) async {
+    testWidgets('chama onChanged com o índice correto ao tocar numa opção', (
+      tester,
+    ) async {
       int? capturedIndex;
 
       await tester.pumpWidget(
@@ -80,55 +83,60 @@ void main() {
       expect(capturedIndex, 1);
     });
 
-    testWidgets('NÃO chama onChanged ao tocar na opção já selecionada (idempotência)',
-        (tester) async {
-      int callCount = 0;
+    testWidgets(
+      'NÃO chama onChanged ao tocar na opção já selecionada (idempotência)',
+      (tester) async {
+        int callCount = 0;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: TabSelector(
-              options: const ['A', 'B'],
-              selectedIndex: 0,
-              onChanged: (_) => callCount++,
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: TabSelector(
+                options: const ['A', 'B'],
+                selectedIndex: 0,
+                onChanged: (_) => callCount++,
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('A')); // já está selecionada
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('A')); // já está selecionada
+        await tester.pumpAndSettle();
 
-      // Aqui documentamos o comportamento ATUAL do widget: ele chama
-      // onChanged mesmo tocando na já selecionada (não tem guard clause).
-      // Se vocês decidirem adicionar essa otimização depois, esse teste
-      // "falha de propósito" pra avisar que o comportamento mudou.
-      expect(callCount, 1);
-    });
+        // Aqui documentamos o comportamento ATUAL do widget: ele chama
+        // onChanged mesmo tocando na já selecionada (não tem guard clause).
+        // Se vocês decidirem adicionar essa otimização depois, esse teste
+        // "falha de propósito" pra avisar que o comportamento mudou.
+        expect(callCount, 1);
+      },
+    );
   });
 
   group('TabSelector - simulação de falhas / casos extremos', () {
-    testWidgets('lista de opções vazia não derruba o app (renderiza sem crash)',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: TabSelector(
-              options: const [],
-              selectedIndex: 0,
-              onChanged: (_) {},
+    testWidgets(
+      'lista de opções vazia não derruba o app (renderiza sem crash)',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: TabSelector(
+                options: const [],
+                selectedIndex: 0,
+                onChanged: (_) {},
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      // Não deve lançar exceção — o teste passa só de não travar aqui.
-      expect(tester.takeException(), isNull);
-      expect(find.byType(TabSelector), findsOneWidget);
-    });
+        // Não deve lançar exceção — o teste passa só de não travar aqui.
+        expect(tester.takeException(), isNull);
+        expect(find.byType(TabSelector), findsOneWidget);
+      },
+    );
 
-    testWidgets('selectedIndex fora do intervalo não derruba o app',
-        (tester) async {
+    testWidgets('selectedIndex fora do intervalo não derruba o app', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -145,9 +153,15 @@ void main() {
       // Nenhuma opção deveria aparecer marcada como selecionada,
       // já que índice 5 não bate com nenhuma (0 ou 1).
       final containerA = tester.widget<AnimatedContainer>(
-        find.ancestor(of: find.text('A'), matching: find.byType(AnimatedContainer)),
+        find.ancestor(
+          of: find.text('A'),
+          matching: find.byType(AnimatedContainer),
+        ),
       );
-      expect((containerA.decoration as BoxDecoration).color, Colors.transparent);
+      expect(
+        (containerA.decoration as BoxDecoration).color,
+        Colors.transparent,
+      );
     });
 
     testWidgets('selectedIndex negativo não derruba o app', (tester) async {
@@ -166,31 +180,35 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('múltiplos toques rápidos chamam onChanged o número certo de vezes',
-        (tester) async {
-      final capturedIndexes = <int>[];
+    testWidgets(
+      'múltiplos toques rápidos chamam onChanged o número certo de vezes',
+      (tester) async {
+        final capturedIndexes = <int>[];
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: TabSelector(
-              options: const ['A', 'B', 'C'],
-              selectedIndex: 0,
-              onChanged: (index) => capturedIndexes.add(index),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: TabSelector(
+                options: const ['A', 'B', 'C'],
+                selectedIndex: 0,
+                onChanged: (index) => capturedIndexes.add(index),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('B'));
-      await tester.tap(find.text('C'));
-      await tester.tap(find.text('A'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('B'));
+        await tester.tap(find.text('C'));
+        await tester.tap(find.text('A'));
+        await tester.pumpAndSettle();
 
-      expect(capturedIndexes, [1, 2, 0]);
-    });
+        expect(capturedIndexes, [1, 2, 0]);
+      },
+    );
 
-    testWidgets('opções com texto duplicado não quebram o widget', (tester) async {
+    testWidgets('opções com texto duplicado não quebram o widget', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

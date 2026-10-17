@@ -175,68 +175,67 @@ class _PIDControllerPageState extends State<PIDControllerPage> {
 
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: AppColors.card2,
-            title: Text(
-              'Ajustar $label',
-              style: TextStyle(color: AppColors.secondary),
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.card2,
+        title: Text(
+          'Ajustar $label',
+          style: TextStyle(color: AppColors.secondary),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: controller,
+              style: const TextStyle(color: AppColors.secondary),
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                fillColor: AppColors.primary,
+                filled: true,
+                hintStyle: TextStyle(color: AppColors.primary),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                hintText: 'Valor entre 0.0000001 e 10',
+              ),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
+            const SizedBox(height: 16),
+            Row(
               children: [
-                TextField(
-                  controller: controller,
-                  style: const TextStyle(color: AppColors.secondary),
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    fillColor: AppColors.primary,
-                    filled: true,
-                    hintStyle: TextStyle(color: AppColors.primary),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final newValue =
+                          double.tryParse(controller.text) ?? value;
+                      if (newValue >= _min && newValue <= _max) {
+                        onChanged(newValue);
+                      }
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: color),
+                    child: const Text(
+                      'Aplicar',
+                      style: TextStyle(color: AppColors.primary),
                     ),
-                    hintText: 'Valor entre 0.0000001 e 10',
                   ),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final newValue =
-                              double.tryParse(controller.text) ?? value;
-                          if (newValue >= _min && newValue <= _max) {
-                            onChanged(newValue);
-                          }
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(backgroundColor: color),
-                        child: const Text(
-                          'Aplicar',
-                          style: TextStyle(color: AppColors.primary),
-                        ),
-                      ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                        ),
-                        child: const Text(
-                          'Cancelar',
-                          style: TextStyle(color: AppColors.secondary),
-                        ),
-                      ),
+                    child: const Text(
+                      'Cancelar',
+                      style: TextStyle(color: AppColors.secondary),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
-          ),
+          ],
+        ),
+      ),
     );
   }
 }

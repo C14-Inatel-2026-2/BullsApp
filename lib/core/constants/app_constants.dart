@@ -6,7 +6,8 @@ class AppConstants {
 
   // BLE Constants
   static const String bleServiceUUID = '180A'; // Device Information Service
-  static const String bleCharacteristicUUID = '2A29'; // Manufacturer Name String
+  static const String bleCharacteristicUUID =
+      '2A29'; // Manufacturer Name String
   static const Duration bleScanTimeout = Duration(seconds: 30);
   static const Duration bleConnectionTimeout = Duration(seconds: 10);
   static const int bleMaxRetries = 3;

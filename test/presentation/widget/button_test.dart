@@ -16,15 +16,14 @@ void main() {
       mockOnTap = MockVoidCallback();
     });
 
-    testWidgets('deve renderizar o label corretamente', (WidgetTester tester) async {
+    testWidgets('deve renderizar o label corretamente', (
+      WidgetTester tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: CustomButton(
-              label: 'Botão Teste',
-              onTap: mockOnTap.call,
-            ),
+            body: CustomButton(label: 'Botão Teste', onTap: mockOnTap.call),
           ),
         ),
       );
@@ -33,7 +32,9 @@ void main() {
       expect(find.text('Botão Teste'), findsOneWidget);
     });
 
-    testWidgets('deve renderizar label2 quando fornecido', (WidgetTester tester) async {
+    testWidgets('deve renderizar label2 quando fornecido', (
+      WidgetTester tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(
         MaterialApp(
@@ -52,7 +53,9 @@ void main() {
       expect(richText.text.toPlainText(), 'Botão Principal\nSubtítulo');
     });
 
-    testWidgets('deve renderizar ícone quando fornecido', (WidgetTester tester) async {
+    testWidgets('deve renderizar ícone quando fornecido', (
+      WidgetTester tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(
         MaterialApp(
@@ -70,7 +73,9 @@ void main() {
       expect(find.byIcon(Icons.add), findsOneWidget);
     });
 
-    testWidgets('deve renderizar imagem asset quando fornecido', (WidgetTester tester) async {
+    testWidgets('deve renderizar imagem asset quando fornecido', (
+      WidgetTester tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(
         MaterialApp(
@@ -88,15 +93,14 @@ void main() {
       expect(find.byType(Image), findsOneWidget);
     });
 
-    testWidgets('deve chamar onTap quando clicado', (WidgetTester tester) async {
+    testWidgets('deve chamar onTap quando clicado', (
+      WidgetTester tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: CustomButton(
-              label: 'Botão',
-              onTap: mockOnTap.call,
-            ),
+            body: CustomButton(label: 'Botão', onTap: mockOnTap.call),
           ),
         ),
       );
@@ -109,7 +113,9 @@ void main() {
       verify(() => mockOnTap()).called(1);
     });
 
-    testWidgets('deve ter espaçamento entre ícone e texto', (WidgetTester tester) async {
+    testWidgets('deve ter espaçamento entre ícone e texto', (
+      WidgetTester tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(
         MaterialApp(
@@ -132,26 +138,22 @@ void main() {
       expect(sizedBox.width, 10);
     });
 
-    testWidgets('deve centralizar o conteúdo horizontalmente', (WidgetTester tester) async {
+    testWidgets('deve centralizar o conteúdo horizontalmente', (
+      WidgetTester tester,
+    ) async {
       // Arrange
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: CustomButton(
-              label: 'Botão',
-              onTap: mockOnTap.call,
-            ),
+            body: CustomButton(label: 'Botão', onTap: mockOnTap.call),
           ),
         ),
       );
 
       // Act
-      final row = tester.widget<Row>(
-        find.byType(Row),
-      );
+      final row = tester.widget<Row>(find.byType(Row));
       // Assert
       expect(row.mainAxisAlignment, MainAxisAlignment.center);
     });
- 
   });
 }

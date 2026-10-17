@@ -45,8 +45,8 @@ class BleRepository {
   /// Mescla resultados do scan com dispositivos já pareados (bonded).
   /// Pareados aparecem primeiro, depois os demais por RSSI.
   Future<List<BleDeviceModel>> _convertAndMergeWithBonded(
-      List<ScanResult> results,
-      ) async {
+    List<ScanResult> results,
+  ) async {
     final seen = <String>{};
     final models = <BleDeviceModel>[];
 
@@ -58,12 +58,14 @@ class BleRepository {
           if (d.platformName.isEmpty) continue; // ignora sem nome
           final mac = d.remoteId.toString();
           seen.add(mac);
-          models.add(BleDeviceModel(
-            name: d.platformName,
-            macAddress: mac,
-            rssi: 0, // RSSI indisponível para pareados fora do scan
-            isPaired: true,
-          ));
+          models.add(
+            BleDeviceModel(
+              name: d.platformName,
+              macAddress: mac,
+              rssi: 0, // RSSI indisponível para pareados fora do scan
+              isPaired: true,
+            ),
+          );
         }
       } catch (_) {
         // bondedDevices pode falhar em algumas versões — ignora
@@ -76,12 +78,14 @@ class BleRepository {
       if (seen.contains(mac)) continue; // já está como pareado
       if (r.device.platformName.isEmpty) continue; // ignora sem nome
       seen.add(mac);
-      models.add(BleDeviceModel(
-        name: r.device.platformName,
-        macAddress: mac,
-        rssi: r.rssi,
-        isPaired: false,
-      ));
+      models.add(
+        BleDeviceModel(
+          name: r.device.platformName,
+          macAddress: mac,
+          rssi: r.rssi,
+          isPaired: false,
+        ),
+      );
     }
 
     // Pareados primeiro, depois por RSSI decrescente
@@ -113,8 +117,9 @@ class BleRepository {
       Permission.locationWhenInUse, // necessário em Android 10/11
     ].request();
 
-    final denied =
-    statuses.values.any((s) => s.isDenied || s.isPermanentlyDenied);
+    final denied = statuses.values.any(
+      (s) => s.isDenied || s.isPermanentlyDenied,
+    );
     if (denied) {
       throw BlePermissionException(
         'Permissões de Bluetooth negadas. Habilite nas configurações do app.',
@@ -125,12 +130,7 @@ class BleRepository {
 
 // ── Tipos de domínio ──────────────────────────────────────────────────────────
 
-enum BleConnectionState {
-  disconnected,
-  connecting,
-  connected,
-  disconnecting,
-}
+enum BleConnectionState { disconnected, connecting, connected, disconnecting }
 
 class BlePermissionException implements Exception {
   final String message;

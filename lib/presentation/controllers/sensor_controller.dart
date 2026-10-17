@@ -3,10 +3,9 @@ import 'dart:async';
 import '../../data/repositories/sensor_repository.dart';
 import '../../data/models/sensor_model.dart';
 
-
 class SensorController extends ChangeNotifier {
   SensorController({SensorRepository? repository})
-      : _repo = repository ?? SensorRepository();
+    : _repo = repository ?? SensorRepository();
 
   final SensorRepository _repo;
 

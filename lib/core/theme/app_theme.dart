@@ -7,11 +7,11 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       fontFamily: GoogleFonts.jetBrainsMono().fontFamily,
-      
+
       // Cores Principais
       primaryColor: AppColors.primary,
       scaffoldBackgroundColor: AppColors.primary,
-      
+
       // Color Scheme
       colorScheme: ColorScheme.light(
         primary: AppColors.primary,
@@ -42,13 +42,8 @@ class AppTheme {
           foregroundColor: AppColors.black,
           elevation: 2,
           padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          textStyle: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
 
@@ -56,10 +51,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.secondary,
-          textStyle: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
+          textStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
         ),
       ),
 
@@ -69,9 +61,7 @@ class AppTheme {
           foregroundColor: AppColors.secondary,
           side: BorderSide(color: AppColors.secondary, width: 2),
           padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
       ),
 
@@ -109,13 +99,9 @@ class AppTheme {
           fontSize: 24,
           fontWeight: FontWeight.w600,
         ),
-        bodyLarge: TextStyle(
-          color: AppColors.white,
-          fontSize: 16,
-        ), 
+        bodyLarge: TextStyle(color: AppColors.white, fontSize: 16),
       ),
-      
-      
+
       // FAB Theme
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: AppColors.secondary,
