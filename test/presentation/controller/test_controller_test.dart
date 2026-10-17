@@ -134,4 +134,19 @@ void main() {
     expect(controller.sensores, {'D2': SensorStatus.cego});
     await respostas.close();
   });
+
+  test('dispose para de ouvir as respostas do robô', () async {
+    final respostas = StreamController<String>();
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => respostas.stream);
+    final controller = TestController(port: port)..init();
+
+    controller.dispose();
+    respostas.add('sensorD2 vendo');
+    await Future.delayed(Duration.zero);
+
+    expect(controller.log, isNot(contains('< sensorD2 vendo')));
+    expect(controller.sensores, isEmpty);
+    await respostas.close();
+  });
 }
