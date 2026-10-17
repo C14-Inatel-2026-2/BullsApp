@@ -175,4 +175,18 @@ void main() {
     expect(controller.status, AutoStatus.error);
     expect(controller.errorMessage, 'Falha ao enviar: Exception: canal fechado');
   });
+
+  test('dispose para de ouvir as respostas do robô', () async {
+    final respostas = StreamController<String>();
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => respostas.stream);
+    final controller = AutoController(port: port)..init();
+
+    controller.dispose();
+    respostas.add('OK D22');
+    await Future.delayed(Duration.zero);
+
+    expect(controller.lastResponse, isNull);
+    await respostas.close();
+  });
 }
