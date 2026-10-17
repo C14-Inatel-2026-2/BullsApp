@@ -27,22 +27,15 @@ pipeline {
                 sh 'flutter pub get'
             }
         }
-        stage('Build') {
-            steps {
-
-                echo 'Gerando APK Flutter...'
-                sh 'flutter build apk --debug'
-                sh './gradlew build'
-            }
-        }
 
         stage('Executar Testes'){
             steps {
                 echo 'Rodando testes...'
-                sh './gradlew check'
                 sh 'flutter test -v'
             }
         }
+
+        // Build só depois dos testes: se algum teste falhar, não perde tempo gerando APK
         stage('Build') {
             steps {
                 echo 'Gerando APK Flutter...'
@@ -55,9 +48,25 @@ pipeline {
     post {
         success {
             echo '✅ Pipeline concluído com sucesso!'
+            notificarDiscord('✅ Pipeline OK')
         }
         failure {
             echo '❌ Pipeline falhou!'
+            notificarDiscord('❌ Pipeline FALHOU')
+        }
+    }
+}
+
+// Manda uma mensagem no Discord usando o webhook salvo no Jenkins
+// (credencial do tipo "Secret text" com o ID 'discord-webhook')
+def notificarDiscord(String status) {
+    withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
+        withEnv(["STATUS=${status}"]) {
+            sh '''
+            curl -s -H "Content-Type: application/json" \
+                 -d "{\\"content\\": \\"$STATUS — $JOB_NAME #$BUILD_NUMBER\\n$BUILD_URL\\"}" \
+                 "$DISCORD_WEBHOOK"
+            '''
         }
     }
 }
