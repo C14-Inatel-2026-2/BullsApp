@@ -17,7 +17,7 @@ class TestController extends ChangeNotifier {
   // TODO(kaynan): trocar o fake pelo BleRepository quando ele implementar
   // RobotCommandPort (escrita/notify na característica do robô).
   TestController({RobotCommandPort? port})
-      : _port = port ?? FakeRobotCommandPort();
+    : _port = port ?? FakeRobotCommandPort();
 
   final RobotCommandPort _port;
 
@@ -75,8 +75,7 @@ class TestController extends ChangeNotifier {
     required double kp,
     required double ki,
     required double kd,
-  }) =>
-      sendCommand(RobotProtocol.pid(kp, ki, kd));
+  }) => sendCommand(RobotProtocol.pid(kp, ki, kd));
 
   void clearLog() {
     log.clear();
@@ -89,8 +88,9 @@ class TestController extends ChangeNotifier {
 
     final match = RobotProtocol.respostaSensor.firstMatch(line.trim());
     if (match != null) {
-      sensores[match.group(1)!.toUpperCase()] =
-          SensorStatus.fromResposta(match.group(2)!);
+      sensores[match.group(1)!.toUpperCase()] = SensorStatus.fromResposta(
+        match.group(2)!,
+      );
     }
     notifyListeners();
   }

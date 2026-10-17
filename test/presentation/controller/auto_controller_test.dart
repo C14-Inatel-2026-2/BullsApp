@@ -78,7 +78,7 @@ void main() {
     when(() => port.send(any())).thenAnswer((_) async {});
     when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
     final controller = AutoController(port: port)..init();
-    
+
     await controller.startRC('ladoDir');
 
     verify(() => port.send('DRC')).called(1);
@@ -124,7 +124,9 @@ void main() {
 
   test('stop mantém o erro quando o envio falha', () async {
     final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenThrow(const RobotCommandException('sem robô'));
+    when(
+      () => port.send(any()),
+    ).thenThrow(const RobotCommandException('sem robô'));
     when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
     final controller = AutoController(port: port)..init();
 
@@ -148,6 +150,6 @@ void main() {
 
     verify(() => port.send('STOP')).called(1);
 
-    travado.complete();   // libera o envio pendurado
+    travado.complete(); // libera o envio pendurado
   });
 }

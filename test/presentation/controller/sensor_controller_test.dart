@@ -58,11 +58,11 @@ void main() {
   });
 
   group('SensorController - ciclo de vida', () {
-  test('para de ouvir o stream quando o controller é destruído', () {
-    controller.init();
-    expect(stream.hasListener, isTrue);
-    controller.dispose();
-    expect(stream.hasListener, isFalse);
+    test('para de ouvir o stream quando o controller é destruído', () {
+      controller.init();
+      expect(stream.hasListener, isTrue);
+      controller.dispose();
+      expect(stream.hasListener, isFalse);
+    });
   });
-});
 }

@@ -17,7 +17,7 @@ class AutoController extends ChangeNotifier {
   // TODO(kaynan): trocar o fake pelo BleRepository quando ele implementar
   // RobotCommandPort (escrita/notify na característica do robô).
   AutoController({RobotCommandPort? port})
-      : _port = port ?? FakeRobotCommandPort();
+    : _port = port ?? FakeRobotCommandPort();
 
   final RobotCommandPort _port;
 

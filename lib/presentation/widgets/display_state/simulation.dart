@@ -42,8 +42,10 @@ Map<String, dynamic>? resolveStartPosition(
 }
 
 bool isDesempateState(Map<String, dynamic>? state) {
-  final category =
-      (state?['category'] ?? state?['categoria'] ?? '').toString().trim().toUpperCase();
+  final category = (state?['category'] ?? state?['categoria'] ?? '')
+      .toString()
+      .trim()
+      .toUpperCase();
   return category == 'DESEMPATE';
 }
 
@@ -193,11 +195,19 @@ ParsedAction parseAction(String action) {
     return ParsedAction(type: ActionType.motorR, raw: text, value: value);
   }
   if (key == 'delay') {
-    return ParsedAction(type: ActionType.delay, raw: text, ms: safeNumber(value));
+    return ParsedAction(
+      type: ActionType.delay,
+      raw: text,
+      ms: safeNumber(value),
+    );
   }
   if (key == 'PID') {
     final clean = value.replaceAll(RegExp(r'[^\-0-9.]'), '');
-    return ParsedAction(type: ActionType.pid, raw: text, deg: safeNumber(clean));
+    return ParsedAction(
+      type: ActionType.pid,
+      raw: text,
+      deg: safeNumber(clean),
+    );
   }
   if (key == 'NEXT') {
     return ParsedAction(type: ActionType.next, raw: text, next: value);
@@ -315,7 +325,15 @@ class Frame {
 }
 
 void _pushFrame(List<Frame> frames, Pose pose, double elapsedMs, String label) {
-  frames.add(Frame(t: elapsedMs, x: pose.x, y: pose.y, angle: pose.angle, actionLabel: label));
+  frames.add(
+    Frame(
+      t: elapsedMs,
+      x: pose.x,
+      y: pose.y,
+      angle: pose.angle,
+      actionLabel: label,
+    ),
+  );
 }
 
 class SimulationResult {
@@ -380,7 +398,14 @@ SimulationResult simulateJogada({
             final stepMs = math.min(dtMs, duration - i * dtMs);
             final dtSec = stepMs / 1000;
 
-            pose = simulateLinearStep(pose, motorL, motorR, dtSec, physics, smoothed);
+            pose = simulateLinearStep(
+              pose,
+              motorL,
+              motorR,
+              dtSec,
+              physics,
+              smoothed,
+            );
 
             elapsedMs += stepMs;
             _pushFrame(frames, pose, elapsedMs, action.raw);
@@ -390,7 +415,8 @@ SimulationResult simulateJogada({
 
       case ActionType.pid:
         {
-          final duration = (action.deg.abs() / pidDegPerSec) * 1000 + pidSettleMs;
+          final duration =
+              (action.deg.abs() / pidDegPerSec) * 1000 + pidSettleMs;
           final steps = math.max(1, (duration / dtMs).ceil());
           final startAngle = pose.angle;
           final targetAngle = normalizeAngleDeg(startAngle + action.deg);
@@ -549,8 +575,9 @@ List<Frame> getDrawableFrames(
 ) {
   if (frames.isEmpty) return [];
 
-  final limited =
-      arrowMode == ArrowMode.draw ? frames.where((f) => f.t <= currentTimeMs).toList() : frames;
+  final limited = arrowMode == ArrowMode.draw
+      ? frames.where((f) => f.t <= currentTimeMs).toList()
+      : frames;
 
   final drawable = <Frame>[];
 

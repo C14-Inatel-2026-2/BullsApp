@@ -8,7 +8,6 @@ import '../../data/services/saved_devices_service.dart';
 /// Estado da ScanPage gerenciado por ChangeNotifier (Provider).
 /// A presentation/ conversa com o BleRepository — nunca com o BleService.
 class BleController extends ChangeNotifier {
-
   // Lista em memória dos MACs conhecidos
   List<String> knownMacs = [];
 
@@ -18,7 +17,7 @@ class BleController extends ChangeNotifier {
   }
 
   BleController({BleRepository? repository})
-      : _repo = repository ?? BleRepository();
+    : _repo = repository ?? BleRepository();
 
   final BleRepository _repo;
 

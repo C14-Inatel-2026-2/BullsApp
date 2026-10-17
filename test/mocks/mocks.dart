@@ -28,12 +28,7 @@ BleDeviceModel makeDevice({
   int rssi = -55,
   bool isPaired = false,
 }) =>
-    BleDeviceModel(
-      name: name,
-      macAddress: mac,
-      rssi: rssi,
-      isPaired: isPaired,
-    );
+    BleDeviceModel(name: name, macAddress: mac, rssi: rssi, isPaired: isPaired);
 
 /// Stream controller reutilizável para simular [BleRepository.devicesStream].
 StreamController<List<BleDeviceModel>> makeDevicesController() =>

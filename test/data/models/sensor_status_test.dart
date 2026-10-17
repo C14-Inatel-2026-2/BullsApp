@@ -6,13 +6,16 @@ import 'package:bullsapp/data/models/sensor_status.dart';
 void main() {
   group('SensorStatus', () {
     test('se a resposta for "vendo", retorna SensorStatus.vendo', () {
-      expect(SensorStatus.fromResposta('vendo') ,SensorStatus.vendo);
+      expect(SensorStatus.fromResposta('vendo'), SensorStatus.vendo);
     });
     test('se a resposta for "cego", retorna SensorStatus.cego', () {
-      expect(SensorStatus.fromResposta('cego') ,SensorStatus.cego);
+      expect(SensorStatus.fromResposta('cego'), SensorStatus.cego);
     });
     test('se a resposta for "semSinal", retorna SensorStatus.semSinal', () {
-      expect(SensorStatus.fromResposta('careca do saldanha ') ,SensorStatus.semSinal);
+      expect(
+        SensorStatus.fromResposta('careca do saldanha '),
+        SensorStatus.semSinal,
+      );
     });
   });
 }

@@ -21,7 +21,10 @@ class RobotSensorView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.sensors, color: sensor.status.color),
-                  Text(sensor.label, style: const TextStyle(color: Colors.white)),
+                  Text(
+                    sensor.label,
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ],
               ),
             ),

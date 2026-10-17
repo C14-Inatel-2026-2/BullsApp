@@ -18,7 +18,8 @@ import 'package:mocktail/mocktail.dart';
 class FlutterBluePlusMockable {
   Stream<List<ScanResult>> get scanResults => FlutterBluePlus.scanResults;
   Stream<bool> get isScanning => FlutterBluePlus.isScanning;
-  Stream<BluetoothAdapterState> get adapterState => FlutterBluePlus.adapterState;
+  Stream<BluetoothAdapterState> get adapterState =>
+      FlutterBluePlus.adapterState;
 
   Future<void> startScan({
     List<Guid> withServices = const [],
@@ -26,14 +27,13 @@ class FlutterBluePlusMockable {
     Duration? removeIfGone,
     bool oneByOne = false,
     bool androidUsesFineLocation = false,
-  }) =>
-      FlutterBluePlus.startScan(
-        withServices: withServices,
-        timeout: timeout,
-        removeIfGone: removeIfGone,
-        oneByOne: oneByOne,
-        androidUsesFineLocation: androidUsesFineLocation,
-      );
+  }) => FlutterBluePlus.startScan(
+    withServices: withServices,
+    timeout: timeout,
+    removeIfGone: removeIfGone,
+    oneByOne: oneByOne,
+    androidUsesFineLocation: androidUsesFineLocation,
+  );
 
   Future<void> stopScan() => FlutterBluePlus.stopScan();
 }
@@ -85,42 +85,44 @@ void main() {
   });
 
   group('BleService.startScan', () {
-    test('chama startScan quando Bluetooth está ON e não está escaneando', () async {
-      // Arrange
-      when(() => mockFbp.adapterState)
-          .thenAnswer((_) => Stream.value(BluetoothAdapterState.on));
-      when(() => mockFbp.isScanning)
-          .thenAnswer((_) => Stream.value(false));
-      when(() => mockFbp.startScan()).thenAnswer((_) async {});
+    test(
+      'chama startScan quando Bluetooth está ON e não está escaneando',
+      () async {
+        // Arrange
+        when(
+          () => mockFbp.adapterState,
+        ).thenAnswer((_) => Stream.value(BluetoothAdapterState.on));
+        when(() => mockFbp.isScanning).thenAnswer((_) => Stream.value(false));
+        when(() => mockFbp.startScan()).thenAnswer((_) async {});
 
-      // Act
-      await service.startScan();
+        // Act
+        await service.startScan();
 
-      // Assert
-      verify(() => mockFbp.startScan()).called(1);
-    });
+        // Assert
+        verify(() => mockFbp.startScan()).called(1);
+      },
+    );
 
     test('lança BleTestException quando Bluetooth está OFF', () async {
       // Arrange
-      when(() => mockFbp.adapterState)
-          .thenAnswer((_) => Stream.value(BluetoothAdapterState.off));
-      when(() => mockFbp.isScanning)
-          .thenAnswer((_) => Stream.value(false));
+      when(
+        () => mockFbp.adapterState,
+      ).thenAnswer((_) => Stream.value(BluetoothAdapterState.off));
+      when(() => mockFbp.isScanning).thenAnswer((_) => Stream.value(false));
 
       // Act & Assert
-      await expectLater(
-        service.startScan(),
-        throwsA(isA<BleTestException>()),
-      );
+      await expectLater(service.startScan(), throwsA(isA<BleTestException>()));
       verifyNever(() => mockFbp.startScan());
     });
 
     test('não chama startScan quando já está escaneando', () async {
       // Arrange
-      when(() => mockFbp.adapterState)
-          .thenAnswer((_) => Stream.value(BluetoothAdapterState.on));
-      when(() => mockFbp.isScanning)
-          .thenAnswer((_) => Stream.value(true)); // já escaneando
+      when(
+        () => mockFbp.adapterState,
+      ).thenAnswer((_) => Stream.value(BluetoothAdapterState.on));
+      when(
+        () => mockFbp.isScanning,
+      ).thenAnswer((_) => Stream.value(true)); // já escaneando
 
       // Act
       await service.startScan();
@@ -154,10 +156,7 @@ void main() {
 
       // 1. Registra a expectativa ANTES de disparar o evento
       // 2. Usa isEmpty no lugar de []
-      final expectation = expectLater(
-        stream,
-        emits(isEmpty),
-      );
+      final expectation = expectLater(stream, emits(isEmpty));
 
       // Dispara o evento e fecha o fluxo
       controller.add([]);
@@ -169,14 +168,12 @@ void main() {
 
     test('isScanning repassa o stream do wrapper', () async {
       // Arrange
-      when(() => mockFbp.isScanning)
-          .thenAnswer((_) => Stream.fromIterable([false, true, false]));
+      when(
+        () => mockFbp.isScanning,
+      ).thenAnswer((_) => Stream.fromIterable([false, true, false]));
 
       // Act & Assert
-      await expectLater(
-        service.isScanning,
-        emitsInOrder([false, true, false]),
-      );
+      await expectLater(service.isScanning, emitsInOrder([false, true, false]));
     });
   });
 }

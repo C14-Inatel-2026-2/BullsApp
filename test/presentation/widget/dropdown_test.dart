@@ -4,8 +4,9 @@ import 'package:bullsapp/presentation/widgets/dropdown.dart';
 
 void main() {
   group('Dropdown', () {
-    testWidgets('mostra a jogada selecionada, formatada corretamente',
-        (tester) async {
+    testWidgets('mostra a jogada selecionada, formatada corretamente', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -37,7 +38,7 @@ void main() {
       );
 
       expect(find.text('JOGADA 2'), findsNothing);
-      expect(find.text ('JOGADA 1'), findsOneWidget);
+      expect(find.text('JOGADA 1'), findsOneWidget);
     });
 
     testWidgets('abre a lista ao tocar no cabeçalho', (tester) async {
@@ -60,8 +61,9 @@ void main() {
       expect(find.text('JOGADA 3'), findsOneWidget);
     });
 
-    testWidgets('ícone muda de seta pra baixo pra seta pra cima ao abrir',
-        (tester) async {
+    testWidgets('ícone muda de seta pra baixo pra seta pra cima ao abrir', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -83,8 +85,9 @@ void main() {
       expect(find.byIcon(Icons.keyboard_arrow_down), findsNothing);
     });
 
-    testWidgets('chama onSelected com a chave correta ao escolher uma opção',
-        (tester) async {
+    testWidgets('chama onSelected com a chave correta ao escolher uma opção', (
+      tester,
+    ) async {
       String? capturedKey;
 
       await tester.pumpWidget(
@@ -108,8 +111,9 @@ void main() {
       expect(capturedKey, 'JOGADA_2');
     });
 
-    testWidgets('fecha a lista automaticamente após escolher uma opção',
-        (tester) async {
+    testWidgets('fecha a lista automaticamente após escolher uma opção', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -131,8 +135,9 @@ void main() {
       expect(find.byIcon(Icons.keyboard_arrow_down), findsOneWidget);
     });
 
-    testWidgets('tocar no cabeçalho duas vezes abre e depois fecha (toggle)',
-        (tester) async {
+    testWidgets('tocar no cabeçalho duas vezes abre e depois fecha (toggle)', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -172,47 +177,52 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('ao abrir com lista vazia, mostra mensagem de "nenhuma jogada"',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: JogadaSelectorDropdown(
-              selectedKey: 'JOGADA_1',
-              options: const [],
-              onSelected: (_) {},
+    testWidgets(
+      'ao abrir com lista vazia, mostra mensagem de "nenhuma jogada"',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: JogadaSelectorDropdown(
+                selectedKey: 'JOGADA_1',
+                options: const [],
+                onSelected: (_) {},
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('JOGADA 1'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('JOGADA 1'));
+        await tester.pumpAndSettle();
 
-      expect(find.text('Nenhuma jogada disponível'), findsOneWidget);
-    });
+        expect(find.text('Nenhuma jogada disponível'), findsOneWidget);
+      },
+    );
 
-    testWidgets('selectedKey que não existe na lista de options não derruba o app',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: JogadaSelectorDropdown(
-              selectedKey: 'JOGADA_999', // não está em options
-              options: const ['JOGADA_1', 'JOGADA_2'],
-              onSelected: (_) {},
+    testWidgets(
+      'selectedKey que não existe na lista de options não derruba o app',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: JogadaSelectorDropdown(
+                selectedKey: 'JOGADA_999', // não está em options
+                options: const ['JOGADA_1', 'JOGADA_2'],
+                onSelected: (_) {},
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      expect(tester.takeException(), isNull);
-      // Mostra o valor selecionado mesmo não estando na lista de opções
-      expect(find.text('JOGADA 999'), findsOneWidget);
-    });
+        expect(tester.takeException(), isNull);
+        // Mostra o valor selecionado mesmo não estando na lista de opções
+        expect(find.text('JOGADA 999'), findsOneWidget);
+      },
+    );
 
-    testWidgets('chave com múltiplos underscores é formatada corretamente',
-        (tester) async {
+    testWidgets('chave com múltiplos underscores é formatada corretamente', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -228,8 +238,9 @@ void main() {
       expect(find.text('JOGADA TATICA ESPECIAL 1'), findsOneWidget);
     });
 
-    testWidgets('lista longa de opções não derruba o app (scroll interno)',
-        (tester) async {
+    testWidgets('lista longa de opções não derruba o app (scroll interno)', (
+      tester,
+    ) async {
       final manyOptions = List.generate(100, (i) => 'JOGADA_$i');
 
       await tester.pumpWidget(
@@ -252,28 +263,30 @@ void main() {
       // estarão montados na árvore ao mesmo tempo — isso é esperado.
     });
 
-    testWidgets('tocar rapidamente em várias opções seguidas só mantém a última escolha',
-        (tester) async {
-      final capturedKeys = <String>[];
+    testWidgets(
+      'tocar rapidamente em várias opções seguidas só mantém a última escolha',
+      (tester) async {
+        final capturedKeys = <String>[];
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: JogadaSelectorDropdown(
-              selectedKey: 'JOGADA_1',
-              options: const ['JOGADA_1', 'JOGADA_2', 'JOGADA_3'],
-              onSelected: (key) => capturedKeys.add(key),
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: JogadaSelectorDropdown(
+                selectedKey: 'JOGADA_1',
+                options: const ['JOGADA_1', 'JOGADA_2', 'JOGADA_3'],
+                onSelected: (key) => capturedKeys.add(key),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.text('JOGADA 1'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('JOGADA 2'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('JOGADA 1'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('JOGADA 2'));
+        await tester.pumpAndSettle();
 
-      expect(capturedKeys, ['JOGADA_2']);
-    });
+        expect(capturedKeys, ['JOGADA_2']);
+      },
+    );
   });
 }

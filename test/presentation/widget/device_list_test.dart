@@ -26,7 +26,9 @@ void main() {
       when(() => mockDevice.isPaired).thenReturn(false);
     });
 
-    testWidgets('deve renderizar o nome do dispositivo corretamente', (tester) async {
+    testWidgets('deve renderizar o nome do dispositivo corretamente', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -71,7 +73,9 @@ void main() {
       expect(find.text('-45 dBm'), findsOneWidget);
     });
 
-    testWidgets('deve exibir "CONECTAR" quando o dispositivo está pareado', (tester) async {
+    testWidgets('deve exibir "CONECTAR" quando o dispositivo está pareado', (
+      tester,
+    ) async {
       when(() => mockDevice.isPaired).thenReturn(false);
 
       await tester.pumpWidget(
@@ -89,7 +93,9 @@ void main() {
       expect(find.text('PAREAR'), findsNothing);
     });
 
-    testWidgets('deve exibir "PAREAR" quando o dispositivo está conectado', (tester) async {
+    testWidgets('deve exibir "PAREAR" quando o dispositivo está conectado', (
+      tester,
+    ) async {
       when(() => mockDevice.isPaired).thenReturn(true);
 
       await tester.pumpWidget(
@@ -107,7 +113,9 @@ void main() {
       expect(find.text('CONECTAR'), findsNothing);
     });
 
-    testWidgets('deve chamar onConnect quando o botão for pressionado', (tester) async {
+    testWidgets('deve chamar onConnect quando o botão for pressionado', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -126,7 +134,8 @@ void main() {
     });
 
     testWidgets('deve lidar com nomes longos sem quebrar', (tester) async {
-      const longName = 'Nomeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeio';
+      const longName =
+          'Nomeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeio';
       when(() => mockDevice.name).thenReturn(longName);
 
       await tester.pumpWidget(
