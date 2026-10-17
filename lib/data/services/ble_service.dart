@@ -9,6 +9,9 @@ import '../../core/constants/app_constants.dart';
 import 'robot_line_decoder.dart';
 
 class BleService {
+  /// Serviços genéricos do GATT (1800/1801) nunca são o canal do robô.
+  static final _genericServices = {Guid('1800'), Guid('1801')};
+
   // ── Streams internos ─────────────────────────────────────────────────────
 
   Stream<List<ScanResult>> get rawScanResults => FlutterBluePlus.scanResults;
@@ -85,7 +88,9 @@ class BleService {
     // Se a conexão cair (robô desligou, saiu do alcance), o canal fica
     // inválido — limpa para o próximo send() falhar com mensagem clara.
     _connectionSub = device.connectionState.listen((state) {
-      if (state == BluetoothConnectionState.disconnected) _closeCommandChannel();
+      if (state == BluetoothConnectionState.disconnected) {
+        _closeCommandChannel();
+      }
     });
   }
 
@@ -154,7 +159,8 @@ class BleService {
     bool canNotify(BluetoothCharacteristic c) =>
         c.properties.notify || c.properties.indicate;
 
-    for (final (serviceId, writeId, notifyId) in AppConstants.robotSerialProfiles) {
+    for (final (serviceId, writeId, notifyId)
+        in AppConstants.robotSerialProfiles) {
       for (final s in services.where((s) => s.uuid == Guid(serviceId))) {
         final write = s.characteristics
             .where((c) => c.uuid == Guid(writeId) && canWrite(c))
@@ -166,9 +172,7 @@ class BleService {
       }
     }
 
-    // Serviços genéricos do GATT (1800/1801) nunca são o canal do robô.
-    final generic = [Guid('1800'), Guid('1801')];
-    for (final s in services.where((s) => !generic.contains(s.uuid))) {
+    for (final s in services.where((s) => !_genericServices.contains(s.uuid))) {
       final write = s.characteristics.where(canWrite).firstOrNull;
       final notify = s.characteristics.where(canNotify).firstOrNull;
       if (write != null && notify != null) return (write, notify);
