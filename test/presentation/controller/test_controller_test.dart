@@ -200,4 +200,17 @@ void main() {
 
     verify(() => port.send('STOP')).called(1);
   });
+
+  // O formato do comando PID ainda não foi confirmado com o firmware (ver
+  // TODO no RobotProtocol). Se mudar, este teste é o que deve ser atualizado.
+  test('savePid envia os três ganhos', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+
+    await controller.savePid(kp: 1.5, ki: 0.2, kd: 3.0);
+
+    verify(() => port.send('PID 1.5 0.2 3.0')).called(1);
+  });
 }
