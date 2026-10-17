@@ -52,12 +52,9 @@ class _HomePageState extends State<HomePage> {
     final device = widget.device;
     if (device == null) return;
 
-    _connectionSub = _repo.connectionStateOf(device).listen(
-      (state) {
-        if (state == BleConnectionState.disconnected) _onConnectionLost();
-      },
-      onError: (e) => debugPrint('Erro ao monitorar conexão: $e'),
-    );
+    _connectionSub = _repo.connectionStateOf(device).listen((state) {
+      if (state == BleConnectionState.disconnected) _onConnectionLost();
+    }, onError: (e) => debugPrint('Erro ao monitorar conexão: $e'));
   }
 
   void _onConnectionLost() {
@@ -110,7 +107,11 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 20),
               Text(
                 widget.deviceName.toUpperCase(),
-                style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold, letterSpacing: 2),
+                style: const TextStyle(
+                  color: AppColors.secondary,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
               ),
               const SizedBox(height: 6),
               Row(
@@ -120,14 +121,20 @@ class _HomePageState extends State<HomePage> {
                     width: 8,
                     height: 8,
                     decoration: BoxDecoration(
-                      color: _isConnected ? AppColors.success : Colors.redAccent,
+                      color: _isConnected
+                          ? AppColors.success
+                          : Colors.redAccent,
                       shape: BoxShape.circle,
                     ),
                   ),
                   const SizedBox(width: 6),
                   Text(
                     _isConnected ? 'CONECTADO' : 'DESCONECTADO',
-                    style: const TextStyle(color: Colors.white70, fontSize: 12, letterSpacing: 1),
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      letterSpacing: 1,
+                    ),
                   ),
                 ],
               ),
@@ -140,14 +147,24 @@ class _HomePageState extends State<HomePage> {
                       label: 'COMBATE',
                       iconAsset: 'lib/assets/icons/rapier.png',
                       color: AppColors.secondary,
-                      onTap: () {Navigator.push(context, MaterialPageRoute(builder: (_) => ModPage()));}, // navegar para tela de combate
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => ModPage()),
+                        );
+                      }, // navegar para tela de combate
                     ),
                     const SizedBox(height: 20),
                     CustomButton(
                       label: 'TESTAR',
                       icon: Icons.build,
                       color: AppColors.secondary,
-                      onTap: () {Navigator.push(context, MaterialPageRoute(builder: (_) => TestPage()));}, // navegar para tela de teste
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => TestPage()),
+                        );
+                      }, // navegar para tela de teste
                     ),
                     const SizedBox(height: 20),
                     CustomButton(

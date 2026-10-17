@@ -51,7 +51,9 @@ class _ScanPageState extends State<ScanPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(controller.errorMessage ?? 'Falha ao conectar no robô.'),
+          content: Text(
+            controller.errorMessage ?? 'Falha ao conectar no robô.',
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -80,7 +82,10 @@ class _ScanPageState extends State<ScanPage> {
                   child: Column(
                     children: [
                       const SizedBox(height: 24),
-                      Image.asset('lib/assets/images/robotbull.png', height: 110),
+                      Image.asset(
+                        'lib/assets/images/robotbull.png',
+                        height: 110,
+                      ),
                       const SizedBox(height: 32),
                       TabSelector(
                         options: const ['DISPONÍVEIS', 'PAREADOS'],
@@ -103,11 +108,18 @@ class _ScanPageState extends State<ScanPage> {
                       else
                         Column(
                           children: [
-                            for (int i = 0; i < displayedDevices.length; i++) ...[
+                            for (
+                              int i = 0;
+                              i < displayedDevices.length;
+                              i++
+                            ) ...[
                               DeviceListItem(
                                 device: displayedDevices[i],
-                                onConnect: () =>
-                                    _connect(context, controller, displayedDevices[i]),
+                                onConnect: () => _connect(
+                                  context,
+                                  controller,
+                                  displayedDevices[i],
+                                ),
                               ),
                               if (i != displayedDevices.length - 1)
                                 const SizedBox(height: 12),
@@ -129,7 +141,8 @@ class _ScanPageState extends State<ScanPage> {
                           padding: EdgeInsets.only(top: 8),
                           child: CircularProgressIndicator(color: Colors.white),
                         )
-                      else if (displayedDevices.isEmpty && !controller.isScanning)
+                      else if (displayedDevices.isEmpty &&
+                          !controller.isScanning)
                         const Padding(
                           padding: EdgeInsets.only(top: 8),
                           child: Text(

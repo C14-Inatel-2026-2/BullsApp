@@ -13,7 +13,8 @@ class BleService {
 
   Stream<List<ScanResult>> get rawScanResults => FlutterBluePlus.scanResults;
   Stream<bool> get isScanning => FlutterBluePlus.isScanning;
-  Stream<BluetoothAdapterState> get adapterState => FlutterBluePlus.adapterState;
+  Stream<BluetoothAdapterState> get adapterState =>
+      FlutterBluePlus.adapterState;
 
   // ── Dispositivo conectado ─────────────────────────────────────────────────
 

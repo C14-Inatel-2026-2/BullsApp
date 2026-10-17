@@ -12,13 +12,9 @@ import '../widgets/display_state/display_state.dart';
 class CommandPage extends StatefulWidget {
   final Map<String, dynamic>? startPosition;
   final void Function(String jogadaKey, String side, List<String> actions)?
-      onSendCommand;
+  onSendCommand;
 
-  const CommandPage({
-    super.key,
-    this.startPosition,
-    this.onSendCommand,
-  });
+  const CommandPage({super.key, this.startPosition, this.onSendCommand});
 
   @override
   State<CommandPage> createState() => _CommandPageState();
@@ -39,8 +35,12 @@ class _CommandPageState extends State<CommandPage> {
   }
 
   Future<_JogadaData> _loadData() async {
-    final physicsString = await rootBundle.loadString('lib/assets/json/PHYSICS.json');
-    final jogadasString = await rootBundle.loadString('lib/assets/json/JOGADAS.json');
+    final physicsString = await rootBundle.loadString(
+      'lib/assets/json/PHYSICS.json',
+    );
+    final jogadasString = await rootBundle.loadString(
+      'lib/assets/json/JOGADAS.json',
+    );
 
     final physics = jsonDecode(physicsString) as Map<String, dynamic>;
     final jogadas = jsonDecode(jogadasString) as Map<String, dynamic>;
@@ -88,8 +88,12 @@ class _CommandPageState extends State<CommandPage> {
             final data = snapshot.data!;
             _selectedKey ??= data.orderedKeys.first;
 
-            final rawJogada = data.jogadas[_selectedKey!] as Map<String, dynamic>;
-            final actionsForSide = getActionsFromState(rawJogada, _selectedSide);
+            final rawJogada =
+                data.jogadas[_selectedKey!] as Map<String, dynamic>;
+            final actionsForSide = getActionsFromState(
+              rawJogada,
+              _selectedSide,
+            );
 
             final flattenedState = {
               'category': rawJogada['category'],
@@ -101,19 +105,25 @@ class _CommandPageState extends State<CommandPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const CustomHeader(
-                    isConnected: true,
-                  ),
+                  const CustomHeader(isConnected: true),
                   const SizedBox(height: 16),
 
                   const Text(
                     'SELECIONAR JOGADA',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   const Text(
                     'SEQUÊNCIA AUTÔNOMA TÁTICA',
-                    style: TextStyle(color: Colors.white54, fontSize: 11, letterSpacing: 1),
+                    style: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 11,
+                      letterSpacing: 1,
+                    ),
                   ),
                   const SizedBox(height: 16),
 
@@ -171,11 +181,16 @@ class _CommandPageState extends State<CommandPage> {
                       onPressed: () => _sendCommand(data.jogadas),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: _sendColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
                       child: const Text(
                         'ENVIAR COMANDO',
-                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),

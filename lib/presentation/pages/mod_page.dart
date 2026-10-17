@@ -7,6 +7,7 @@ import '../controllers/auto_controller.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/header.dart';
 import 'auto_page.dart';
+
 //import 'rc_page.dart';
 
 class ModPage extends StatelessWidget {
@@ -18,18 +19,22 @@ class ModPage extends StatelessWidget {
       backgroundColor: AppColors.primary,
       body: SafeArea(
         child: Padding(
-           
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
               const CustomHeader(
                 isConnected: true, //  mudar dinamicamente
-                ),
-                const SizedBox(height: 16),
-                Image.asset('lib/assets/images/robotbull.png', height: 130),
+              ),
+              const SizedBox(height: 16),
+              Image.asset('lib/assets/images/robotbull.png', height: 130),
               const SizedBox(height: 20),
-              Text('SELECIONE UM MODO',
-                style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold, letterSpacing: 2),
+              Text(
+                'SELECIONE UM MODO',
+                style: const TextStyle(
+                  color: AppColors.secondary,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
               ),
               const SizedBox(height: 30),
 
@@ -38,7 +43,7 @@ class ModPage extends StatelessWidget {
                   children: [
                     CustomButton(
                       label: 'AUTO',
-                      iconAsset:  null,
+                      iconAsset: null,
                       color: AppColors.secondary,
                       height: 120,
                       onTap: () {
@@ -53,8 +58,9 @@ class ModPage extends StatelessWidget {
                               )..init(),
                               child: Builder(
                                 builder: (ctx) => CommandPage(
-                                  onSendCommand:
-                                      ctx.read<AutoController>().sendJogada,
+                                  onSendCommand: ctx
+                                      .read<AutoController>()
+                                      .sendJogada,
                                 ),
                               ),
                             ),
@@ -67,13 +73,13 @@ class ModPage extends StatelessWidget {
                       label: 'RC',
                       label2: 'Radio Controlado',
                       height: 120,
-                      iconAsset:  null,
+                      iconAsset: null,
                       color: AppColors.secondary,
-                      onTap: () {}//Navigator.push(context, MaterialPageRoute(builder: (_) => const ));}, // navegar para tela de RC
-
+                      onTap:
+                          () {}, //Navigator.push(context, MaterialPageRoute(builder: (_) => const ));}, // navegar para tela de RC
                     ),
                     const SizedBox(height: 50),
-                    ],
+                  ],
                 ),
               ),
             ],
@@ -82,5 +88,4 @@ class ModPage extends StatelessWidget {
       ),
     );
   }
-            
 }

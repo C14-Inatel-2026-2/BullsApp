@@ -23,7 +23,11 @@ class CustomHeader extends StatelessWidget {
         children: [
           // Botão Voltar
           InkWell(
-            onTap: onBackPressed ?? () => Navigator.pop(context), // Se não passar função, volta automaticamente
+            onTap:
+                onBackPressed ??
+                () => Navigator.pop(
+                  context,
+                ), // Se não passar função, volta automaticamente
             child: const Row(
               children: [
                 Icon(Icons.arrow_back, color: AppColors.secondary),
@@ -50,7 +54,10 @@ class CustomHeader extends StatelessWidget {
                 height: 10,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isConnected ? AppColors.success : AppColors.error, // Verde se conectado, vermelho se desconectado
+                  color: isConnected
+                      ? AppColors.success
+                      : AppColors
+                            .error, // Verde se conectado, vermelho se desconectado
                 ),
               ),
               const SizedBox(width: 6),

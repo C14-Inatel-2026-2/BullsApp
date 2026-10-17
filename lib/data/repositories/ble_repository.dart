@@ -69,8 +69,8 @@ class BleRepository implements RobotCommandPort {
   /// Mescla resultados do scan com dispositivos já pareados (bonded).
   /// Pareados aparecem primeiro, depois os demais por RSSI.
   Future<List<BleDeviceModel>> _convertAndMergeWithBonded(
-      List<ScanResult> results,
-      ) async {
+    List<ScanResult> results,
+  ) async {
     final seen = <String>{};
     final models = <BleDeviceModel>[];
 
@@ -84,12 +84,14 @@ class BleRepository implements RobotCommandPort {
           if (d.platformName.isEmpty) continue; // ignora sem nome
           final mac = d.remoteId.toString();
           seen.add(mac);
-          models.add(BleDeviceModel(
-            name: d.platformName,
-            macAddress: mac,
-            rssi: 0, // RSSI indisponível para pareados fora do scan
-            isPaired: true,
-          ));
+          models.add(
+            BleDeviceModel(
+              name: d.platformName,
+              macAddress: mac,
+              rssi: 0, // RSSI indisponível para pareados fora do scan
+              isPaired: true,
+            ),
+          );
         }
       } catch (_) {
         // bondedDevices pode falhar em algumas versões — ignora
@@ -145,8 +147,9 @@ class BleRepository implements RobotCommandPort {
       Permission.locationWhenInUse, // necessário em Android 10/11
     ].request();
 
-    final denied =
-    statuses.values.any((s) => s.isDenied || s.isPermanentlyDenied);
+    final denied = statuses.values.any(
+      (s) => s.isDenied || s.isPermanentlyDenied,
+    );
     if (denied) {
       throw BlePermissionException(
         'Permissões de Bluetooth negadas. Habilite nas configurações do app.',
@@ -157,12 +160,7 @@ class BleRepository implements RobotCommandPort {
 
 // ── Tipos de domínio ──────────────────────────────────────────────────────────
 
-enum BleConnectionState {
-  disconnected,
-  connecting,
-  connected,
-  disconnecting,
-}
+enum BleConnectionState { disconnected, connecting, connected, disconnecting }
 
 class BlePermissionException implements Exception {
   final String message;

@@ -34,13 +34,11 @@ void main() {
 
   group('BleRepository.isScanning', () {
     test('repassa o stream do BleService', () async {
-      when(() => mockService.isScanning)
-          .thenAnswer((_) => Stream.fromIterable([false, true]));
+      when(
+        () => mockService.isScanning,
+      ).thenAnswer((_) => Stream.fromIterable([false, true]));
 
-      await expectLater(
-        repository.isScanning,
-        emitsInOrder([false, true]),
-      );
+      await expectLater(repository.isScanning, emitsInOrder([false, true]));
     });
   });
 
@@ -58,14 +56,12 @@ void main() {
     });
 
     test('propaga BleException lançada pelo service', () async {
-      when(() => mockService.startScan())
-          .thenThrow(const BleException('Bluetooth desligado.'));
+      when(
+        () => mockService.startScan(),
+      ).thenThrow(const BleException('Bluetooth desligado.'));
 
       // BleRepository não trata BleException — ela sobe para o controller.
-      await expectLater(
-        repository.startScan(),
-        throwsA(isA<BleException>()),
-      );
+      await expectLater(repository.startScan(), throwsA(isA<BleException>()));
     });
   });
 
@@ -98,14 +94,15 @@ void main() {
       const mac = 'AA:BB:CC:DD:EE:FF';
 
       // 1. Usa thenAnswer com async para simular a falha num Future
-      when(() => mockService.connectToDevice(mac))
-          .thenAnswer((_) async => throw const BleException('Falha ao conectar.'));
+      when(
+        () => mockService.connectToDevice(mac),
+      ).thenAnswer((_) async => throw const BleException('Falha ao conectar.'));
 
       final device = makeDevice(mac: mac);
 
       // 2. Envolve a chamada numa função anónima () =>
       await expectLater(
-            () => repository.connect(device),
+        () => repository.connect(device),
         throwsA(isA<BleException>()),
       );
     });

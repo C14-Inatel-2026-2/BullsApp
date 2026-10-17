@@ -28,21 +28,66 @@ pipeline {
             }
         }
 
+        stage('Verificar Formatação') {
+            steps {
+                echo 'Verificando formatação...'
+                sh 'dart format --output=none --set-exit-if-changed lib test'
+            }
+        }
+
+        stage('Análise Estática') {
+            steps {
+                echo 'Verificando análise estática...'
+                sh 'flutter analyze'
+            }
+        }
+
         stage('Executar Testes'){
             steps {
                 echo 'Rodando testes...'
                 sh 'flutter test -v'
             }
         }
+        stage('Builds em Paralelo') {
+            parallel {
+                stage('Build APK') {
+                    steps {
+                        // Aloca um workspace temporário específico para o build Android
+                        ws("${env.WORKSPACE}_android") {
+                            // Garante que o código atualizado esteja nesta pasta alternativa
+                            checkout scm
+                            echo 'Gerando APK Flutter...'
+                            sh 'flutter pub get'
+                            sh 'flutter build apk --debug --no-tree-shake-icons'
+                        }
+                    }
+                }
 
-        // Build só depois dos testes: se algum teste falhar, não perde tempo gerando APK
-        stage('Build') {
-            steps {
-                echo 'Gerando APK Flutter...'
-                sh 'flutter build apk --debug --no-tree-shake-icons'
+                stage('Build Web') {
+                    steps {
+                        // Aloca um workspace temporário específico para o build Web
+                        ws("${env.WORKSPACE}_web") {
+                            checkout scm
+                            echo 'Gerando Web Flutter...'
+                            sh 'flutter pub get'
+                            sh 'flutter build web --debug --no-tree-shake-icons'
+                        }
+                    }
+                }
+
+                stage('Build IOS') {
+                    steps {
+                        // Aloca um workspace temporário específico para o build iOS
+                        ws("${env.WORKSPACE}_ios") {
+                            checkout scm
+                            echo 'Gerando IOS Flutter...'
+                            sh 'flutter pub get'
+                            sh 'flutter build ios --debug --no-tree-shake-icons --no-codesign'
+                        }
+                    }
+                }
             }
         }
-
     }
 
     post {

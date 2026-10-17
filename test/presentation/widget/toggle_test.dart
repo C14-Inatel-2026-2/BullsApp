@@ -20,7 +20,9 @@ void main() {
       expect(find.text('ESQUERDA'), findsOneWidget);
     });
 
-    testWidgets('quando selected=true, mostra o ícone de check', (tester) async {
+    testWidgets('quando selected=true, mostra o ícone de check', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -36,7 +38,9 @@ void main() {
       expect(find.byIcon(Icons.check), findsOneWidget);
     });
 
-    testWidgets('quando selected=false, NÃO mostra o ícone de check', (tester) async {
+    testWidgets('quando selected=false, NÃO mostra o ícone de check', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -52,7 +56,9 @@ void main() {
       expect(find.byIcon(Icons.check), findsNothing);
     });
 
-    testWidgets('quando selected=true, o fundo NÃO é transparente', (tester) async {
+    testWidgets('quando selected=true, o fundo NÃO é transparente', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -70,7 +76,9 @@ void main() {
       expect(decoration.color, isNot(Colors.transparent));
     });
 
-    testWidgets('quando selected=false, o fundo é transparente', (tester) async {
+    testWidgets('quando selected=false, o fundo é transparente', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -109,27 +117,39 @@ void main() {
       expect(tapped, isTrue);
     });
 
-    testWidgets('cor do texto muda: preto quando selecionado, cor de destaque quando não',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Column(
-              children: [
-                SideToggleButton(label: 'SELECIONADO', selected: true, onTap: () {}),
-                SideToggleButton(label: 'NAO_SELECIONADO', selected: false, onTap: () {}),
-              ],
+    testWidgets(
+      'cor do texto muda: preto quando selecionado, cor de destaque quando não',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: Column(
+                children: [
+                  SideToggleButton(
+                    label: 'SELECIONADO',
+                    selected: true,
+                    onTap: () {},
+                  ),
+                  SideToggleButton(
+                    label: 'NAO_SELECIONADO',
+                    selected: false,
+                    onTap: () {},
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      final selectedText = tester.widget<Text>(find.text('SELECIONADO'));
-      final unselectedText = tester.widget<Text>(find.text('NAO_SELECIONADO'));
+        final selectedText = tester.widget<Text>(find.text('SELECIONADO'));
+        final unselectedText = tester.widget<Text>(
+          find.text('NAO_SELECIONADO'),
+        );
 
-      expect(selectedText.style?.color, Colors.black);
-      expect(unselectedText.style?.color, isNot(Colors.black));
-    });
+        expect(selectedText.style?.color, Colors.black);
+        expect(unselectedText.style?.color, isNot(Colors.black));
+      },
+    );
   });
 
   group('SideToggleButton - simulação de falhas / casos extremos', () {
@@ -137,11 +157,7 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
-            body: SideToggleButton(
-              label: '',
-              selected: false,
-              onTap: () {},
-            ),
+            body: SideToggleButton(label: '', selected: false, onTap: () {}),
           ),
         ),
       );
@@ -150,29 +166,31 @@ void main() {
       expect(find.byType(SideToggleButton), findsOneWidget);
     });
 
-    testWidgets('múltiplos toques rápidos chamam onTap o número certo de vezes',
-        (tester) async {
-      var callCount = 0;
+    testWidgets(
+      'múltiplos toques rápidos chamam onTap o número certo de vezes',
+      (tester) async {
+        var callCount = 0;
 
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: SideToggleButton(
-              label: 'DIREITA',
-              selected: false,
-              onTap: () => callCount++,
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: SideToggleButton(
+                label: 'DIREITA',
+                selected: false,
+                onTap: () => callCount++,
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.tap(find.byType(SideToggleButton));
-      await tester.tap(find.byType(SideToggleButton));
-      await tester.tap(find.byType(SideToggleButton));
-      await tester.pumpAndSettle();
+        await tester.tap(find.byType(SideToggleButton));
+        await tester.tap(find.byType(SideToggleButton));
+        await tester.tap(find.byType(SideToggleButton));
+        await tester.pumpAndSettle();
 
-      expect(callCount, 3);
-    });
+        expect(callCount, 3);
+      },
+    );
 
     testWidgets('toque fora da área do botão não aciona onTap', (tester) async {
       var tapped = false;
@@ -182,7 +200,11 @@ void main() {
           home: Scaffold(
             body: Column(
               children: [
-                SideToggleButton(label: 'DIREITA', selected: false, onTap: () => tapped = true),
+                SideToggleButton(
+                  label: 'DIREITA',
+                  selected: false,
+                  onTap: () => tapped = true,
+                ),
                 const SizedBox(height: 200, child: Text('área neutra')),
               ],
             ),

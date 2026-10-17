@@ -1,5 +1,6 @@
 import 'dart:async';
 
+//import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:bullsapp/data/services/ble_service.dart';
@@ -27,12 +28,7 @@ BleDeviceModel makeDevice({
   int rssi = -55,
   bool isPaired = false,
 }) =>
-    BleDeviceModel(
-      name: name,
-      macAddress: mac,
-      rssi: rssi,
-      isPaired: isPaired,
-    );
+    BleDeviceModel(name: name, macAddress: mac, rssi: rssi, isPaired: isPaired);
 
 /// Stream controller reutilizável para simular [BleRepository.devicesStream].
 StreamController<List<BleDeviceModel>> makeDevicesController() =>

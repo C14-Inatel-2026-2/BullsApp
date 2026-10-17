@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../pages/sensor_page.dart';
+import '../../data/models/sensor_model.dart';
 
 class RobotSensorView extends StatelessWidget {
   final List<SensorModel> sensors;
@@ -21,7 +21,10 @@ class RobotSensorView extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.sensors, color: sensor.status.color),
-                  Text(sensor.label, style: const TextStyle(color: Colors.white)),
+                  Text(
+                    sensor.label,
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ],
               ),
             ),
