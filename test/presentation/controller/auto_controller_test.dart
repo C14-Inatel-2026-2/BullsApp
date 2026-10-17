@@ -173,7 +173,10 @@ void main() {
     await controller.sendJogada('JOGADA_22', 'ladoDir', []);
 
     expect(controller.status, AutoStatus.error);
-    expect(controller.errorMessage, 'Falha ao enviar: Exception: canal fechado');
+    expect(
+      controller.errorMessage,
+      'Falha ao enviar: Exception: canal fechado',
+    );
   });
 
   test('dispose para de ouvir as respostas do robô', () async {
