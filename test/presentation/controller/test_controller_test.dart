@@ -149,4 +149,22 @@ void main() {
     expect(controller.sensores, isEmpty);
     await respostas.close();
   });
+
+  test('sendCommand registra erro inesperado do canal', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenThrow(Exception('canal fechado'));
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+
+    await controller.sendCommand('SENSORES');
+
+    expect(
+      controller.errorMessage,
+      'Falha ao enviar: Exception: canal fechado',
+    );
+    expect(
+      controller.log,
+      contains('! Falha ao enviar: Exception: canal fechado'),
+    );
+  });
 }
