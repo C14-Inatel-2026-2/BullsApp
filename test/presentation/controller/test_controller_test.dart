@@ -189,4 +189,15 @@ void main() {
 
     verify(() => port.send('MOTOR 1000 -500')).called(1);
   });
+
+  test('stopMotors envia STOP', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+
+    await controller.stopMotors();
+
+    verify(() => port.send('STOP')).called(1);
+  });
 }
