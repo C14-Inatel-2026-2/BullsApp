@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../pages/sensor_page.dart';
+import '../../data/models/sensor_model.dart';
 
 class RobotSensorView extends StatelessWidget {
   final List<SensorModel> sensors;
