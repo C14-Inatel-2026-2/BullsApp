@@ -163,4 +163,16 @@ void main() {
     expect(controller.lastResponse, 'OK D22');
     await respostas.close();
   });
+
+  test('sendJogada registra erro inesperado do canal', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenThrow(Exception('canal fechado'));
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.sendJogada('JOGADA_22', 'ladoDir', []);
+
+    expect(controller.status, AutoStatus.error);
+    expect(controller.errorMessage, 'Falha ao enviar: Exception: canal fechado');
+  });
 }
