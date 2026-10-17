@@ -134,4 +134,83 @@ void main() {
     expect(controller.sensores, {'D2': SensorStatus.cego});
     await respostas.close();
   });
+
+  test('dispose para de ouvir as respostas do robô', () async {
+    final respostas = StreamController<String>();
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => respostas.stream);
+    final controller = TestController(port: port)..init();
+
+    controller.dispose();
+    respostas.add('sensorD2 vendo');
+    await Future.delayed(Duration.zero);
+
+    expect(controller.log, isNot(contains('< sensorD2 vendo')));
+    expect(controller.sensores, isEmpty);
+    await respostas.close();
+  });
+
+  test('sendCommand registra erro inesperado do canal', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenThrow(Exception('canal fechado'));
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+
+    await controller.sendCommand('SENSORES');
+
+    expect(
+      controller.errorMessage,
+      'Falha ao enviar: Exception: canal fechado',
+    );
+    expect(
+      controller.log,
+      contains('! Falha ao enviar: Exception: canal fechado'),
+    );
+  });
+
+  test('testSensors envia SENSORES', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+
+    await controller.testSensors();
+
+    verify(() => port.send('SENSORES')).called(1);
+  });
+
+  test('testMotors envia os valores dos dois motores', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+
+    await controller.testMotors(left: 1000, right: -500);
+
+    verify(() => port.send('MOTOR 1000 -500')).called(1);
+  });
+
+  test('stopMotors envia STOP', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+
+    await controller.stopMotors();
+
+    verify(() => port.send('STOP')).called(1);
+  });
+
+  // O formato do comando PID ainda não foi confirmado com o firmware (ver
+  // TODO no RobotProtocol). Se mudar, este teste é o que deve ser atualizado.
+  test('savePid envia os três ganhos', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+
+    await controller.savePid(kp: 1.5, ki: 0.2, kd: 3.0);
+
+    verify(() => port.send('PID 1.5 0.2 3.0')).called(1);
+  });
 }
