@@ -120,4 +120,18 @@ void main() {
     expect(controller.sensores, {'D2': SensorStatus.cego});
     await respostas.close();
   });
+
+  test('nova resposta do mesmo sensor substitui o estado anterior', () async {
+    final respostas = StreamController<String>();
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => respostas.stream);
+    final controller = TestController(port: port)..init();
+
+    respostas.add('sensorD2 vendo');
+    respostas.add('sensorD2 cego');
+    await Future.delayed(Duration.zero);
+
+    expect(controller.sensores, {'D2': SensorStatus.cego});
+    await respostas.close();
+  });
 }
