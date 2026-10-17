@@ -25,7 +25,9 @@ pipeline {
     }
 
     environment {
-        COVERAGE_MIN = '60'
+        // Catraca: o mínimo só sobe, acompanhando a cobertura conquistada.
+        // 60% -> 75% quando os testes do TestController entraram (83,8%).
+        COVERAGE_MIN = '75'
 
         // Arquivos da camada com código executável: entram na cobertura.
         LAYER_LIB = 'lib/presentation/controllers/auto_controller.dart lib/presentation/controllers/test_controller.dart lib/data/models/lado.dart lib/data/models/sensor_status.dart lib/core/constants/robot_protocol.dart lib/data/repositories/robot_command_exception.dart lib/data/repositories/fake_robot_command_port.dart'
