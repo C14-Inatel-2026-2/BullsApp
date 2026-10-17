@@ -105,7 +105,7 @@ class _CommandPageState extends State<CommandPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const CustomHeader(isConnected: true),
+                  const CustomHeader(),
                   const SizedBox(height: 16),
 
                   const Text(

@@ -50,9 +50,7 @@ class _PIDControllerPageState extends State<PIDControllerPage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const CustomHeader(
-              isConnected: true, //  mudar dinamicamente
-            ),
+            const CustomHeader(),
             const SizedBox(height: 20),
             _buildCard(
               'KP',

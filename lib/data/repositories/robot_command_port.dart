@@ -18,4 +18,11 @@ abstract interface class RobotCommandPort {
 
   /// Linhas de resposta do robô (ex.: "sensorD2 vendo"), uma por evento.
   Stream<String> get responses;
+
+  /// Se há um robô conectado agora.
+  bool get isConnected;
+
+  /// Emite o novo valor de [isConnected] sempre que ele muda
+  /// (conectou, desconectou ou a conexão caiu).
+  Stream<bool> get connectionChanges;
 }

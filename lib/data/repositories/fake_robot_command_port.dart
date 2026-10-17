@@ -21,6 +21,13 @@ class FakeRobotCommandPort implements RobotCommandPort {
   @override
   Stream<String> get responses => _responses.stream;
 
+  /// O robô simulado está sempre conectado.
+  @override
+  bool get isConnected => true;
+
+  @override
+  Stream<bool> get connectionChanges => const Stream.empty();
+
   @override
   Future<void> send(String command) async {
     enviados.add(command);

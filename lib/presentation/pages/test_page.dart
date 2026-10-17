@@ -19,9 +19,7 @@ class TestPage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              const CustomHeader(
-                isConnected: true, //  mudar dinamicamente
-              ),
+              const CustomHeader(),
               const SizedBox(height: 5),
               Image.asset('lib/assets/images/robotbull.png', height: 130),
               const SizedBox(height: 20),

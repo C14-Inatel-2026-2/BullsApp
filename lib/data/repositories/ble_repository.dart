@@ -54,6 +54,12 @@ class BleRepository implements RobotCommandPort {
   Stream<String> get responses => _service.robotLines;
 
   @override
+  bool get isConnected => _service.isConnected;
+
+  @override
+  Stream<bool> get connectionChanges => _service.connectionChanges;
+
+  @override
   Future<void> send(String command) async {
     try {
       await _service.sendLine(command);

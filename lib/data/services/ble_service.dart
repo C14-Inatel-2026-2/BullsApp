@@ -35,6 +35,14 @@ class BleService {
   /// Linhas de texto recebidas do robô, sem o fim de linha.
   Stream<String> get robotLines => _lines.stream;
 
+  final _connection = StreamController<bool>.broadcast();
+
+  /// Se o canal de comandos com o robô está aberto.
+  bool get isConnected => _connectedDevice != null;
+
+  /// Emite a cada mudança de [isConnected].
+  Stream<bool> get connectionChanges => _connection.stream;
+
   // ── Scan ──────────────────────────────────────────────────────────────────
 
   Future<void> startScan() async {
@@ -84,6 +92,7 @@ class BleService {
     }
 
     _connectedDevice = device;
+    _connection.add(true);
 
     // Se a conexão cair (robô desligou, saiu do alcance), o canal fica
     // inválido — limpa para o próximo send() falhar com mensagem clara.
@@ -181,6 +190,7 @@ class BleService {
   }
 
   void _closeCommandChannel() {
+    if (_connectedDevice != null) _connection.add(false);
     _decoder.reset();
     _notifySub?.cancel();
     _notifySub = null;
