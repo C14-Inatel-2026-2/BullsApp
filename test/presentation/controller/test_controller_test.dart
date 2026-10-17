@@ -167,4 +167,15 @@ void main() {
       contains('! Falha ao enviar: Exception: canal fechado'),
     );
   });
+
+  test('testSensors envia SENSORES', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+
+    await controller.testSensors();
+
+    verify(() => port.send('SENSORES')).called(1);
+  });
 }
