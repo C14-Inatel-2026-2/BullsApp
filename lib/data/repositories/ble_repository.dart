@@ -1,13 +1,21 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../models/device_model.dart';
 import '../services/ble_service.dart';
+import 'robot_command_exception.dart';
+import 'robot_command_port.dart';
 
-class BleRepository {
+/// Ponto único de acesso ao Bluetooth para o app inteiro.
+///
+/// Deve existir UMA instância só (criada no main.dart e distribuída via
+/// Provider): o robô conectado fica guardado no [BleService] dela, então
+/// uma segunda instância não enxergaria a conexão.
+class BleRepository implements RobotCommandPort {
   BleRepository({BleService? service}) : _service = service ?? BleService();
 
   final BleService _service;
@@ -40,6 +48,22 @@ class BleRepository {
         .map(_toAppConnectionState);
   }
 
+  // ── Comandos (RobotCommandPort) ───────────────────────────────────────────
+
+  @override
+  Stream<String> get responses => _service.robotLines;
+
+  @override
+  Future<void> send(String command) async {
+    try {
+      await _service.sendLine(command);
+    } on BleException catch (e) {
+      throw RobotCommandException(e.message);
+    } catch (e) {
+      throw RobotCommandException('Falha ao enviar comando: $e');
+    }
+  }
+
   // ── Conversões privadas ───────────────────────────────────────────────────
 
   /// Mescla resultados do scan com dispositivos já pareados (bonded).
@@ -51,7 +75,9 @@ class BleRepository {
     final models = <BleDeviceModel>[];
 
     // 1. Dispositivos já pareados (bonded) — Android only
-    if (!Platform.isLinux && !Platform.isWindows && !Platform.isMacOS) {
+    // (Platform do dart:io lança exceção no navegador: checa kIsWeb antes)
+    if (!kIsWeb &&
+        !Platform.isLinux && !Platform.isWindows && !Platform.isMacOS) {
       try {
         final bonded = await FlutterBluePlus.bondedDevices;
         for (final d in bonded) {
@@ -76,16 +102,19 @@ class BleRepository {
     for (final r in results) {
       final mac = r.device.remoteId.toString();
       if (seen.contains(mac)) continue; // já está como pareado
-      if (r.device.platformName.isEmpty) continue; // ignora sem nome
+      // platformName vem do cache do sistema e costuma vir vazio para
+      // dispositivos nunca pareados; o nome anunciado vem em advName.
+      final name = r.advertisementData.advName.isNotEmpty
+          ? r.advertisementData.advName
+          : r.device.platformName;
+      if (name.isEmpty) continue; // ignora sem nome
       seen.add(mac);
-      models.add(
-        BleDeviceModel(
-          name: r.device.platformName,
-          macAddress: mac,
-          rssi: r.rssi,
-          isPaired: false,
-        ),
-      );
+      models.add(BleDeviceModel(
+        name: name,
+        macAddress: mac,
+        rssi: r.rssi,
+        isPaired: false,
+      ));
     }
 
     // Pareados primeiro, depois por RSSI decrescente
@@ -107,7 +136,8 @@ class BleRepository {
   // ── Permissões ────────────────────────────────────────────────────────────
 
   Future<void> _requestPermissions() async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
+    // No navegador quem pede permissão é o próprio Chrome, no seletor do scan.
+    if (kIsWeb || (!Platform.isAndroid && !Platform.isIOS)) return;
 
     // Pede todas as permissões necessárias, incluindo localização
     // (necessária em algumas versões do Android para BLE scan)

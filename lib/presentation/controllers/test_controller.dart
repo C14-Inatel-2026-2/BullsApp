@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/robot_protocol.dart';
 import '../../data/models/sensor_status.dart';
-import '../../data/repositories/fake_robot_command_port.dart';
 import '../../data/repositories/robot_command_exception.dart';
 import '../../data/repositories/robot_command_port.dart';
 
@@ -14,10 +13,7 @@ import '../../data/repositories/robot_command_port.dart';
 /// respostas: em texto cru em [log] (terminal) e já interpretadas em
 /// [sensores] (tela de sensores).
 class TestController extends ChangeNotifier {
-  // TODO(kaynan): trocar o fake pelo BleRepository quando ele implementar
-  // RobotCommandPort (escrita/notify na característica do robô).
-  TestController({RobotCommandPort? port})
-    : _port = port ?? FakeRobotCommandPort();
+  TestController({required RobotCommandPort port}) : _port = port;
 
   final RobotCommandPort _port;
 
@@ -41,9 +37,12 @@ class TestController extends ChangeNotifier {
 
   // ── Ações ──────────────────────────────────────────────────────────────
   /// Envia um comando cru digitado pelo usuário (terminal).
-  Future<void> sendCommand(String command) async {
+  /// Ignorado se vazio ou se já houver um envio em andamento.
+  Future<void> sendCommand(String command) => _sendCommand(command);
+
+  Future<void> _sendCommand(String command, {bool force = false}) async {
     final text = command.trim();
-    if (text.isEmpty || isBusy) return;
+    if (text.isEmpty || (isBusy && !force)) return;
 
     isBusy = true;
     errorMessage = null;
@@ -69,7 +68,8 @@ class TestController extends ChangeNotifier {
   Future<void> testMotors({required int left, required int right}) =>
       sendCommand(RobotProtocol.testarMotores(left, right));
 
-  Future<void> stopMotors() => sendCommand(RobotProtocol.parar);
+  /// Nunca é descartado, mesmo com outro envio em andamento.
+  Future<void> stopMotors() => _sendCommand(RobotProtocol.parar, force: true);
 
   Future<void> savePid({
     required double kp,

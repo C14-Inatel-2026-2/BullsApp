@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/device_model.dart';
 import '../../data/repositories/ble_repository.dart';
@@ -18,7 +19,8 @@ class HomePage extends StatefulWidget {
   /// Se for null, a página não monitora nada (comportamento antigo).
   final BleDeviceModel? device;
 
-  /// Injetável pra facilitar testes (mock/fake). Por padrão usa o real.
+  /// Injetável pra facilitar testes (mock/fake). Por padrão usa o
+  /// repositório único do app, fornecido via Provider no main.dart.
   final BleRepository? repository;
 
   const HomePage({
@@ -42,7 +44,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _isConnected = widget.isConnected;
-    _repo = widget.repository ?? BleRepository();
+    _repo = widget.repository ?? context.read<BleRepository>();
     _listenToConnection();
   }
 
@@ -68,10 +70,21 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _disconnect() {
-    Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (_) => const ScanPage()));
+  Future<void> _disconnect() async {
+    // Para de monitorar antes: a queda que vamos provocar não é "perda".
+    await _connectionSub?.cancel();
+    _connectionSub = null;
+
+    try {
+      await _repo.disconnect();
+    } catch (e) {
+      debugPrint('Erro ao desconectar: $e');
+    }
+
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => const ScanPage()),
+    );
   }
 
   @override

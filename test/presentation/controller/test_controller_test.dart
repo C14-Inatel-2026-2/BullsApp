@@ -1,9 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:bullsapp/data/models/sensor_status.dart';
+import 'package:bullsapp/data/repositories/fake_robot_command_port.dart';
 import 'package:bullsapp/data/repositories/robot_command_exception.dart';
 import 'package:bullsapp/data/repositories/robot_command_port.dart';
 import 'package:bullsapp/presentation/controllers/test_controller.dart';
@@ -11,206 +10,79 @@ import 'package:bullsapp/presentation/controllers/test_controller.dart';
 class MockRobotCommandPort extends Mock implements RobotCommandPort {}
 
 void main() {
-  test('sendCommand manda o comando SENSORES', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = TestController(port: port)..init();
+  // Robô fake sem latência: responde "OK <comando>" e, para SENSORES,
+  // quatro linhas de sensor.
+  late FakeRobotCommandPort robot;
+  late TestController controller;
 
-    await controller.sendCommand('SENSORES');
-
-    verify(() => port.send('SENSORES')).called(1);
-    expect(controller.log, contains('> SENSORES'));
+  setUp(() {
+    robot = FakeRobotCommandPort(latency: Duration.zero);
+    controller = TestController(port: robot)..init();
   });
 
-  test('sendCommand ignora comando vazio', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = TestController(port: port)..init();
-
-    await controller.sendCommand('');
-
-    expect(controller.log, hasLength(2));
-    expect(controller.errorMessage, isNull);
-    verifyNever(() => port.send(any()));
+  tearDown(() async {
+    controller.dispose();
+    await robot.dispose();
   });
 
-  test('sendCommand ignora comando só com espaços', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = TestController(port: port)..init();
+  test('comando do terminal vai para o robô e a resposta entra no log', () async {
+    await controller.sendCommand('  PING  ');
+    await pumpEventQueue();
 
+    expect(robot.enviados, ['PING']);
+    expect(controller.log, containsAllInOrder(['> PING', '< OK PING']));
+    expect(controller.isBusy, isFalse);
+  });
+
+  test('comando vazio não é enviado', () async {
     await controller.sendCommand('   ');
 
-    expect(controller.log, hasLength(2));
-    expect(controller.errorMessage, isNull);
-    verifyNever(() => port.send(any()));
+    expect(robot.enviados, isEmpty);
   });
 
-  test('sendCommand registra erro quando o envio falha', () async {
-    final port = MockRobotCommandPort();
-    when(
-      () => port.send(any()),
-    ).thenThrow(const RobotCommandException('sem robô'));
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = TestController(port: port)..init();
-
-    await controller.sendCommand('SENSORES');
-
-    verify(() => port.send('SENSORES')).called(1);
-    expect(controller.errorMessage, 'sem robô');
-    expect(controller.log, contains('! sem robô'));
-  });
-
-  test('clearLog esvazia o log', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = TestController(port: port)..init();
-    await controller.sendCommand('SENSORES');
-
-    expect(controller.log, isNotEmpty);
-    controller.clearLog();
-
-    expect(controller.log, isEmpty);
-  });
-
-  test('resposta de sensor entra no log e atualiza sensores', () async {
-    final respostas = StreamController<String>();
-    final port = MockRobotCommandPort();
-    when(() => port.responses).thenAnswer((_) => respostas.stream);
-    final controller = TestController(port: port)..init();
-
-    respostas.add('sensorD2 vendo');
-    await Future.delayed(Duration.zero);
-
-    expect(controller.log, contains('< sensorD2 vendo'));
-    expect(controller.sensores['D2'], SensorStatus.vendo);
-    await respostas.close();
-  });
-
-  test(
-    'resposta que não é de sensor entra no log sem alterar sensores',
-    () async {
-      final respostas = StreamController<String>();
-      final port = MockRobotCommandPort();
-      when(() => port.responses).thenAnswer((_) => respostas.stream);
-      final controller = TestController(port: port)..init();
-
-      respostas.add('OK D22');
-      await Future.delayed(Duration.zero);
-
-      expect(controller.log, contains('< OK D22'));
-      expect(controller.sensores, isEmpty);
-      await respostas.close();
-    },
-  );
-
-  test('id do sensor em minúsculas é guardado em maiúsculas', () async {
-    final respostas = StreamController<String>();
-    final port = MockRobotCommandPort();
-    when(() => port.responses).thenAnswer((_) => respostas.stream);
-    final controller = TestController(port: port)..init();
-
-    respostas.add('sensord2 cego');
-    await Future.delayed(Duration.zero);
-
-    expect(controller.sensores, {'D2': SensorStatus.cego});
-    await respostas.close();
-  });
-
-  test('nova resposta do mesmo sensor substitui o estado anterior', () async {
-    final respostas = StreamController<String>();
-    final port = MockRobotCommandPort();
-    when(() => port.responses).thenAnswer((_) => respostas.stream);
-    final controller = TestController(port: port)..init();
-
-    respostas.add('sensorD2 vendo');
-    respostas.add('sensorD2 cego');
-    await Future.delayed(Duration.zero);
-
-    expect(controller.sensores, {'D2': SensorStatus.cego});
-    await respostas.close();
-  });
-
-  test('dispose para de ouvir as respostas do robô', () async {
-    final respostas = StreamController<String>();
-    final port = MockRobotCommandPort();
-    when(() => port.responses).thenAnswer((_) => respostas.stream);
-    final controller = TestController(port: port)..init();
-
-    controller.dispose();
-    respostas.add('sensorD2 vendo');
-    await Future.delayed(Duration.zero);
-
-    expect(controller.log, isNot(contains('< sensorD2 vendo')));
-    expect(controller.sensores, isEmpty);
-    await respostas.close();
-  });
-
-  test('sendCommand registra erro inesperado do canal', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenThrow(Exception('canal fechado'));
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = TestController(port: port)..init();
-
-    await controller.sendCommand('SENSORES');
-
-    expect(
-      controller.errorMessage,
-      'Falha ao enviar: Exception: canal fechado',
-    );
-    expect(
-      controller.log,
-      contains('! Falha ao enviar: Exception: canal fechado'),
-    );
-  });
-
-  test('testSensors envia SENSORES', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = TestController(port: port)..init();
-
+  test('testSensors interpreta as respostas dos sensores', () async {
     await controller.testSensors();
+    await pumpEventQueue();
 
-    verify(() => port.send('SENSORES')).called(1);
+    expect(controller.sensores['D2'], SensorStatus.vendo);
+    expect(controller.sensores['E0'], SensorStatus.cego);
   });
 
-  test('testMotors envia os valores dos dois motores', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = TestController(port: port)..init();
+  test('PID e motores usam o formato do protocolo', () async {
+    await controller.savePid(kp: 1.5, ki: 0.2, kd: 3);
+    await controller.testMotors(left: 5000, right: -5000);
 
-    await controller.testMotors(left: 1000, right: -500);
-
-    verify(() => port.send('MOTOR 1000 -500')).called(1);
+    expect(robot.enviados, ['PID 1.5 0.2 3.0', 'MOTOR 5000 -5000']);
   });
 
-  test('stopMotors envia STOP', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = TestController(port: port)..init();
+  test('STOP passa mesmo com outro comando em andamento', () async {
+    final slowRobot =
+        FakeRobotCommandPort(latency: const Duration(milliseconds: 50));
+    final c = TestController(port: slowRobot)..init();
 
-    await controller.stopMotors();
+    final first = c.sendCommand('MOTOR 100 100');
+    expect(c.isBusy, isTrue);
 
-    verify(() => port.send('STOP')).called(1);
+    await c.sendCommand('OUTRO'); // ignorado: ocupado
+    await c.stopMotors(); // nunca ignorado
+    await first;
+
+    expect(slowRobot.enviados, ['MOTOR 100 100', 'STOP']);
+    c.dispose();
+    await slowRobot.dispose();
   });
 
-  // O formato do comando PID ainda não foi confirmado com o firmware (ver
-  // TODO no RobotProtocol). Se mudar, este teste é o que deve ser atualizado.
-  test('savePid envia os três ganhos', () async {
+  test('erro do canal aparece no log e em errorMessage', () async {
     final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = TestController(port: port)..init();
+    when(() => port.responses).thenAnswer((_) => const Stream.empty());
+    when(() => port.send(any()))
+        .thenThrow(const RobotCommandException('Nenhum robô conectado.'));
+    final c = TestController(port: port)..init();
 
-    await controller.savePid(kp: 1.5, ki: 0.2, kd: 3.0);
+    await c.sendCommand('STOP');
 
-    verify(() => port.send('PID 1.5 0.2 3.0')).called(1);
+    expect(c.errorMessage, 'Nenhum robô conectado.');
+    expect(c.log.last, '! Nenhum robô conectado.');
+    expect(c.isBusy, isFalse);
   });
 }

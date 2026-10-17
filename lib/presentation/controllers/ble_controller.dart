@@ -16,8 +16,9 @@ class BleController extends ChangeNotifier {
     notifyListeners();
   }
 
-  BleController({BleRepository? repository})
-    : _repo = repository ?? BleRepository();
+  /// Recebe o [BleRepository] único do app (via Provider) — criar outro
+  /// aqui perderia a conexão ao sair da ScanPage.
+  BleController({required BleRepository repository}) : _repo = repository;
 
   final BleRepository _repo;
 
@@ -66,6 +67,8 @@ class BleController extends ChangeNotifier {
 
   Future<bool> connect(BleDeviceModel device) async {
     try {
+      // No Android, conectar com o scan rodando costuma falhar ou demorar.
+      await _repo.stopScan();
       await _repo.connect(device);
 
       // Salva o MAC localmente após a conexão ser bem-sucedida

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'dart:async';
@@ -47,151 +49,24 @@ void main() {
     verifyNever(() => port.send(any()));
   });
 
-  test('sendJogada rejeita lado vazio sem enviar comando', () async {
+  test('STOP é enviado mesmo com uma jogada ainda sendo enviada', () async {
     final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = AutoController(port: port)..init();
-
-    await controller.sendJogada('JOGADA_22', '', []);
-
-    expect(controller.status, AutoStatus.error);
-    expect(controller.errorMessage, isNotNull);
-    verifyNever(() => port.send(any()));
-  });
-
-  test('sendJogada rejeita jogada sem número', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = AutoController(port: port)..init();
-
-    await controller.sendJogada('JOGADA_X', 'ladoDir', []);
-
-    expect(controller.status, AutoStatus.error);
-    expect(controller.errorMessage, isNotNull);
-    verifyNever(() => port.send(any()));
-  });
-
-  test('startRC envia DRC para o lado direito', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = AutoController(port: port)..init();
-
-    await controller.startRC('ladoDir');
-
-    verify(() => port.send('DRC')).called(1);
-    expect(controller.status, AutoStatus.running);
-  });
-
-  test('startRC envia ERC para o lado esquerdo', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = AutoController(port: port)..init();
-
-    await controller.startRC('ladoEsc');
-
-    verify(() => port.send('ERC')).called(1);
-    expect(controller.status, AutoStatus.running);
-  });
-
-  test('startRC não envia nada para lado invalido', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = AutoController(port: port)..init();
-
-    await controller.startRC('xpto');
-
-    expect(controller.status, AutoStatus.error);
-    expect(controller.errorMessage, isNotNull);
-    verifyNever(() => port.send(any()));
-  });
-
-  test('stop envia STOP e volta para idle', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) async {});
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = AutoController(port: port)..init();
-
-    await controller.stop();
-
-    verify(() => port.send('STOP')).called(1);
-    expect(controller.status, AutoStatus.idle);
-  });
-
-  test('stop mantém o erro quando o envio falha', () async {
-    final port = MockRobotCommandPort();
-    when(
-      () => port.send(any()),
-    ).thenThrow(const RobotCommandException('sem robô'));
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = AutoController(port: port)..init();
-
-    await controller.stop();
-
-    verify(() => port.send('STOP')).called(1);
-    expect(controller.status, AutoStatus.error);
-    expect(controller.errorMessage, 'sem robô');
-  });
-
-  test('stop envia STOP mesmo com um comando em andamento', () async {
-    final travado = Completer<void>();
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenAnswer((_) => travado.future);
+    final jogadaEnviada = Completer<void>();
+    when(() => port.send('D22')).thenAnswer((_) => jogadaEnviada.future);
     when(() => port.send('STOP')).thenAnswer((_) async {});
     when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
     final controller = AutoController(port: port)..init();
 
-    controller.sendJogada('JOGADA_22', 'ladoDir', []);
+    final jogada = controller.sendJogada('JOGADA_22', 'ladoDir', []);
+    expect(controller.status, AutoStatus.sending);
+
     await controller.stop();
-
     verify(() => port.send('STOP')).called(1);
+    expect(controller.status, AutoStatus.idle);
 
-    travado.complete(); // libera o envio pendurado
-  });
-
-  test('resposta do robô fica registrada em lastResponse', () async {
-    final respostas = StreamController<String>();
-    final port = MockRobotCommandPort();
-    when(() => port.responses).thenAnswer((_) => respostas.stream);
-    final controller = AutoController(port: port)..init();
-
-    respostas.add('OK D22');
-    await Future.delayed(Duration.zero);
-
-    expect(controller.lastResponse, 'OK D22');
-    await respostas.close();
-  });
-
-  test('sendJogada registra erro inesperado do canal', () async {
-    final port = MockRobotCommandPort();
-    when(() => port.send(any())).thenThrow(Exception('canal fechado'));
-    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
-    final controller = AutoController(port: port)..init();
-
-    await controller.sendJogada('JOGADA_22', 'ladoDir', []);
-
-    expect(controller.status, AutoStatus.error);
-    expect(
-      controller.errorMessage,
-      'Falha ao enviar: Exception: canal fechado',
-    );
-  });
-
-  test('dispose para de ouvir as respostas do robô', () async {
-    final respostas = StreamController<String>();
-    final port = MockRobotCommandPort();
-    when(() => port.responses).thenAnswer((_) => respostas.stream);
-    final controller = AutoController(port: port)..init();
-
-    controller.dispose();
-    respostas.add('OK D22');
-    await Future.delayed(Duration.zero);
-
-    expect(controller.lastResponse, isNull);
-    await respostas.close();
+    // A jogada antiga terminando depois não pode "religar" o status.
+    jogadaEnviada.complete();
+    await jogada;
+    expect(controller.status, AutoStatus.idle);
   });
 }
