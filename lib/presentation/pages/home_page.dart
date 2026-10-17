@@ -82,9 +82,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (!mounted) return;
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const ScanPage()),
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const ScanPage()));
   }
 
   @override
