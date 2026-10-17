@@ -29,8 +29,13 @@ class SensorPage extends StatelessWidget {
                       isConnected: true, //  mudar dinamicamente
                     ),
                     const SizedBox(height: 16),
-                    controller.sensors.isEmpty
-                      ? const CircularProgressIndicator(color: Colors.white)
+                    controller.sensors.isEmpty  
+                      ? AspectRatio(
+                          aspectRatio: 2.5,
+                          child: Center(
+                            child: CircularProgressIndicator(color: AppColors.secondary),
+                          ),
+                        )
                       : RobotSensorView(sensors: controller.sensors),
                     const SizedBox(height: 20),
                   ],
