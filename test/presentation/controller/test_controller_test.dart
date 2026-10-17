@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:bullsapp/data/models/sensor_status.dart';
 import 'package:bullsapp/data/repositories/robot_command_exception.dart';
 import 'package:bullsapp/data/repositories/robot_command_port.dart';
 import 'package:bullsapp/presentation/controllers/test_controller.dart';
@@ -72,5 +75,63 @@ void main() {
     controller.clearLog();
 
     expect(controller.log, isEmpty);
+  });
+
+  test('resposta de sensor entra no log e atualiza sensores', () async {
+    final respostas = StreamController<String>();
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => respostas.stream);
+    final controller = TestController(port: port)..init();
+
+    respostas.add('sensorD2 vendo');
+    await Future.delayed(Duration.zero);
+
+    expect(controller.log, contains('< sensorD2 vendo'));
+    expect(controller.sensores['D2'], SensorStatus.vendo);
+    await respostas.close();
+  });
+
+  test(
+    'resposta que não é de sensor entra no log sem alterar sensores',
+    () async {
+      final respostas = StreamController<String>();
+      final port = MockRobotCommandPort();
+      when(() => port.responses).thenAnswer((_) => respostas.stream);
+      final controller = TestController(port: port)..init();
+
+      respostas.add('OK D22');
+      await Future.delayed(Duration.zero);
+
+      expect(controller.log, contains('< OK D22'));
+      expect(controller.sensores, isEmpty);
+      await respostas.close();
+    },
+  );
+
+  test('id do sensor em minúsculas é guardado em maiúsculas', () async {
+    final respostas = StreamController<String>();
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => respostas.stream);
+    final controller = TestController(port: port)..init();
+
+    respostas.add('sensord2 cego');
+    await Future.delayed(Duration.zero);
+
+    expect(controller.sensores, {'D2': SensorStatus.cego});
+    await respostas.close();
+  });
+
+  test('nova resposta do mesmo sensor substitui o estado anterior', () async {
+    final respostas = StreamController<String>();
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => respostas.stream);
+    final controller = TestController(port: port)..init();
+
+    respostas.add('sensorD2 vendo');
+    respostas.add('sensorD2 cego');
+    await Future.delayed(Duration.zero);
+
+    expect(controller.sensores, {'D2': SensorStatus.cego});
+    await respostas.close();
   });
 }
