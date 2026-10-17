@@ -29,7 +29,9 @@ void main() {
     when(() => repo.connectionStateOf(any())).thenAnswer((_) => connection.stream);
   });
 
-  tearDown(() => connection.close());
+  // Sem await: num stream já fechado dentro do fake async do testWidgets,
+  // o Future de close() nunca completa e o tearDown trava.
+  tearDown(() => unawaited(connection.close()));
 
   Future<void> pumpHome(
     WidgetTester tester, {
@@ -107,7 +109,7 @@ void main() {
     testWidgets('stream que fecha sem emitir nada não muda o status', (tester) async {
       await pumpHome(tester);
 
-      await connection.close();
+      unawaited(connection.close());
       await tester.pump();
 
       expect(tester.takeException(), isNull);

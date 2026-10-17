@@ -70,15 +70,20 @@ class AutoController extends ChangeNotifier {
     await _send(RobotProtocol.rc(lado));
   }
 
+  /// Parar é prioritário: passa na frente de um envio em andamento, porque
+  /// é o comando que o piloto usa quando algo deu errado.
   Future<void> stop() async {
-    await _send(RobotProtocol.parar);
+    await _send(RobotProtocol.parar, force: true);
     if (status != AutoStatus.error) status = AutoStatus.idle;
     notifyListeners();
   }
 
   // ── Internos ───────────────────────────────────────────────────────────
-  Future<void> _send(String command) async {
-    if (status == AutoStatus.sending) return;
+  /// [force] ignora a trava de reentrância. Use só para comandos que não
+  /// podem ser descartados (parar); sem ele, dois toques no mesmo botão
+  /// enviariam o comando duas vezes.
+  Future<void> _send(String command, {bool force = false}) async {
+    if (!force && status == AutoStatus.sending) return;
 
     status = AutoStatus.sending;
     lastCommand = command;
