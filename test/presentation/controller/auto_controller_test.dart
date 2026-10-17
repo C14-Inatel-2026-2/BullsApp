@@ -150,4 +150,17 @@ void main() {
 
     travado.complete();   // libera o envio pendurado
   });
+
+  test('resposta do robô fica registrada em lastResponse', () async {
+    final respostas = StreamController<String>();
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => respostas.stream);
+    final controller = AutoController(port: port)..init();
+
+    respostas.add('OK D22');
+    await Future.delayed(Duration.zero);
+
+    expect(controller.lastResponse, 'OK D22');
+    await respostas.close();
+  });
 }
