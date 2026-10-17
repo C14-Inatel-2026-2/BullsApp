@@ -28,10 +28,16 @@ pipeline {
             }
         }
 
-        stage('Verificar Formatação + Análise Estática') {
+        stage('Verificar Formatação') {
             steps {
-                echo 'Verificando formatação e análise estática...'
+                echo 'Verificando formatação...'
                 sh 'dart format --output=none --set-exit-if-changed lib test'
+            }
+        }
+
+        stage('Análise Estática') {
+            steps {
+                echo 'Verificando análise estática...'
                 sh 'flutter analyze'
             }
         }
