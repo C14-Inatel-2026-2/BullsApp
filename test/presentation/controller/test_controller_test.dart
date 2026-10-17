@@ -178,4 +178,15 @@ void main() {
 
     verify(() => port.send('SENSORES')).called(1);
   });
+
+  test('testMotors envia os valores dos dois motores', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = TestController(port: port)..init();
+
+    await controller.testMotors(left: 1000, right: -500);
+
+    verify(() => port.send('MOTOR 1000 -500')).called(1);
+  });
 }
