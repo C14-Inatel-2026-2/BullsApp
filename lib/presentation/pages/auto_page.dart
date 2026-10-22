@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import '../../core/theme/app_colors.dart';
+import '../controllers/auto_status.dart';
 import '../widgets/header.dart';
 import '../widgets/toggle_button.dart';
 import '../widgets/dropdown.dart';
@@ -14,7 +15,21 @@ class CommandPage extends StatefulWidget {
   final void Function(String jogadaKey, String side, List<String> actions)?
   onSendCommand;
 
-  const CommandPage({super.key, this.startPosition, this.onSendCommand});
+  /// Estado do último envio, vindo do AutoController.
+  final AutoStatus status;
+
+  /// Última mensagem que o robô mandou depois do envio.
+  final String? robotResponse;
+  final String? errorMessage;
+
+  const CommandPage({
+    super.key,
+    this.startPosition,
+    this.onSendCommand,
+    this.status = AutoStatus.idle,
+    this.robotResponse,
+    this.errorMessage,
+  });
 
   @override
   State<CommandPage> createState() => _CommandPageState();
@@ -27,6 +42,16 @@ class _CommandPageState extends State<CommandPage> {
 
   String? _selectedKey;
   String _selectedSide = 'ladoDir'; // 'ladoDir' = DIREITA, 'ladoEsc' = ESQUERDA
+
+  /// Seleção ("JOGADA_16-ladoDir") do último envio. Ao trocar a jogada ou o
+  /// lado, o botão volta a "ENVIAR COMANDO".
+  String? _sentSelection;
+
+  String get _currentSelection => '$_selectedKey-$_selectedSide';
+
+  bool get _isSent =>
+      widget.status == AutoStatus.running &&
+      _sentSelection == _currentSelection;
 
   @override
   void initState() {
@@ -62,7 +87,24 @@ class _CommandPageState extends State<CommandPage> {
     if (_selectedKey == null) return;
     final rawJogada = jogadas[_selectedKey] as Map<String, dynamic>;
     final actions = getActionsFromState(rawJogada, _selectedSide);
+    setState(() => _sentSelection = _currentSelection);
     widget.onSendCommand?.call(_selectedKey!, _selectedSide, actions);
+  }
+
+  /// Resposta do robô (verde) ou erro do envio (vermelho), abaixo do botão.
+  Widget? _buildSendFeedback() {
+    if (_sentSelection != _currentSelection) return null;
+    final (text, color) = switch (widget.status) {
+      AutoStatus.error => (widget.errorMessage, Colors.redAccent),
+      AutoStatus.running => (widget.robotResponse, AppColors.success),
+      _ => (null, Colors.transparent),
+    };
+    if (text == null) return null;
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      style: TextStyle(color: color, fontWeight: FontWeight.bold),
+    );
   }
 
   @override
@@ -180,20 +222,26 @@ class _CommandPageState extends State<CommandPage> {
                     child: ElevatedButton(
                       onPressed: () => _sendCommand(data.jogadas),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _sendColor,
+                        backgroundColor: _isSent
+                            ? AppColors.success
+                            : _sendColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
-                      child: const Text(
-                        'ENVIAR COMANDO',
+                      child: Text(
+                        _isSent ? 'COMANDO ENVIADO' : 'ENVIAR COMANDO',
                         style: TextStyle(
-                          color: Colors.black,
+                          color: _isSent ? Colors.white : Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ),
+                  if (_buildSendFeedback() case final feedback?) ...[
+                    const SizedBox(height: 12),
+                    Center(child: feedback),
+                  ],
                   const SizedBox(height: 16),
                 ],
               ),

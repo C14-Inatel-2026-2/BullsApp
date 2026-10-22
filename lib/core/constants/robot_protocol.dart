@@ -9,8 +9,10 @@ import '../../data/models/lado.dart';
 class RobotProtocol {
   RobotProtocol._();
 
-  /// "D22" = executar a JOGADA_22 pelo lado direito.
-  static String jogada(Lado lado, int numero) => '${lado.prefixo}$numero';
+  /// "D22" = executar a JOGADA_22 pelo lado direito; "E08" = JOGADA_8 pelo
+  /// lado esquerdo. O número sempre tem pelo menos 2 dígitos.
+  static String jogada(Lado lado, int numero) =>
+      '${lado.prefixo}${numero.toString().padLeft(2, '0')}';
 
   /// "DRC" = entrar no modo rádio-controlado pelo lado indicado.
   static String rc(Lado lado) => '${lado.prefixo}RC';

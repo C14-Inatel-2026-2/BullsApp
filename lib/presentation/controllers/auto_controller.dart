@@ -85,6 +85,7 @@ class AutoController extends ChangeNotifier {
     final seq = ++_sendSeq;
     status = AutoStatus.sending;
     lastCommand = command;
+    lastResponse = null; // a resposta exibida é sempre a deste envio
     errorMessage = null;
     notifyListeners();
 

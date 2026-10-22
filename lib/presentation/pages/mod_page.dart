@@ -54,11 +54,12 @@ class ModPage extends StatelessWidget {
                               create: (ctx) => AutoController(
                                 port: ctx.read<RobotCommandPort>(),
                               )..init(),
-                              child: Builder(
-                                builder: (ctx) => CommandPage(
-                                  onSendCommand: ctx
-                                      .read<AutoController>()
-                                      .sendJogada,
+                              child: Consumer<AutoController>(
+                                builder: (ctx, auto, _) => CommandPage(
+                                  onSendCommand: auto.sendJogada,
+                                  status: auto.status,
+                                  robotResponse: auto.lastResponse,
+                                  errorMessage: auto.errorMessage,
                                 ),
                               ),
                             ),
