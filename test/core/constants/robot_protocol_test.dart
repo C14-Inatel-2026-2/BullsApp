@@ -17,6 +17,11 @@ void main() {
       expect(RobotProtocol.jogada(Lado.esquerdo, 8), 'E08');
     });
 
+    test('coloca T na frente no modo teste', () {
+      expect(RobotProtocol.jogada(Lado.direito, 8, teste: true), 'TD08');
+      expect(RobotProtocol.jogada(Lado.esquerdo, 16, teste: true), 'TE16');
+    });
+
     test('monta D16 para a jogada 16 do lado direito', () {
       expect(RobotProtocol.jogada(Lado.direito, 16), 'D16');
     });

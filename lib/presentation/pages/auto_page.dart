@@ -12,7 +12,12 @@ import '../widgets/display_state/display_state.dart';
 
 class CommandPage extends StatefulWidget {
   final Map<String, dynamic>? startPosition;
-  final void Function(String jogadaKey, String side, List<String> actions)?
+  final void Function(
+    String jogadaKey,
+    String side,
+    List<String> actions, {
+    bool teste,
+  })?
   onSendCommand;
 
   /// Estado do último envio, vindo do AutoController.
@@ -47,7 +52,10 @@ class _CommandPageState extends State<CommandPage> {
   /// lado, o botão volta a "ENVIAR COMANDO".
   String? _sentSelection;
 
-  String get _currentSelection => '$_selectedKey-$_selectedSide';
+  /// Modo teste: o comando sai com "T" na frente ("TD08").
+  bool _teste = false;
+
+  String get _currentSelection => '$_selectedKey-$_selectedSide-$_teste';
 
   bool get _isSent =>
       widget.status == AutoStatus.running &&
@@ -88,7 +96,12 @@ class _CommandPageState extends State<CommandPage> {
     final rawJogada = jogadas[_selectedKey] as Map<String, dynamic>;
     final actions = getActionsFromState(rawJogada, _selectedSide);
     setState(() => _sentSelection = _currentSelection);
-    widget.onSendCommand?.call(_selectedKey!, _selectedSide, actions);
+    widget.onSendCommand?.call(
+      _selectedKey!,
+      _selectedSide,
+      actions,
+      teste: _teste,
+    );
   }
 
   /// Resposta do robô (verde) ou erro do envio (vermelho), abaixo do botão.
@@ -212,6 +225,14 @@ class _CommandPageState extends State<CommandPage> {
                         ),
                       ),
                     ],
+                  ),
+
+                  const SizedBox(height: 16),
+
+                  SideToggleButton(
+                    label: 'TESTE',
+                    selected: _teste,
+                    onTap: () => setState(() => _teste = !_teste),
                   ),
 
                   const SizedBox(height: 16),
