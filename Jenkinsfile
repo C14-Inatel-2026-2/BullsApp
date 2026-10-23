@@ -46,7 +46,7 @@ pipeline {
             steps {
                 echo 'Rodando testes...'
                 sh 'flutter test -v'
-            }
+        }
         }
         stage('Builds em Paralelo') {
             parallel {
@@ -103,13 +103,19 @@ pipeline {
 }
 
 // Manda uma mensagem no Discord usando o webhook salvo no Jenkins
-// (credencial do tipo "Secret text" com o ID 'discord-webhook')
+// (credencial do tipo "Secret text" com o ID 'discord-webhook').
+// Se o relatório de testes existir, vai junto como anexo e o resumo entra no texto.
 def notificarDiscord(String status) {
     withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
         withEnv(["STATUS=${status}"]) {
             sh '''
-            curl -s -H "Content-Type: application/json" \
-                 -d "{\\"content\\": \\"$STATUS — $JOB_NAME #$BUILD_NUMBER\\n$BUILD_URL\\"}" \
+            RESUMO=""
+            [ -f reports/resumo.txt ] && RESUMO="\\n $(cat reports/resumo.txt)"
+            ANEXO=""
+            [ -f reports/relatorio.html ] && ANEXO="-F file1=@reports/relatorio.html"
+
+            curl -s $ANEXO \
+                 --form-string "payload_json={\\"content\\": \\"$STATUS — $JOB_NAME #$BUILD_NUMBER$RESUMO\\n$BUILD_URL\\"}" \
                  "$DISCORD_WEBHOOK"
             '''
         }

@@ -222,6 +222,32 @@ def html_cobertura(arquivos):
     return "".join(linhas)
 
 
+def junit_xml(por_arquivo):
+    """XML no formato JUnit, lido pelo passo `junit` do Jenkins."""
+    suites = []
+    for arquivo, testes in por_arquivo.items():
+        casos = []
+        for t in testes:
+            nome = f'{t["grupo"]} {t["nome"]}'.strip()
+            dentro = ""
+            if t["status"] == "falhou":
+                erro = "\n".join(t["erros"])
+                dentro = f'<failure message="falhou">{esc(erro)}</failure>'
+            elif t["status"] == "pulado":
+                dentro = "<skipped/>"
+            casos.append(
+                f'<testcase classname="{esc(arquivo)}" name="{esc(nome)}" '
+                f'time="{t["tempo"] / 1000:.3f}">{dentro}</testcase>'
+            )
+        falhas = sum(1 for t in testes if t["status"] == "falhou")
+        pulados = sum(1 for t in testes if t["status"] == "pulado")
+        suites.append(
+            f'<testsuite name="{esc(arquivo)}" tests="{len(testes)}" '
+            f'failures="{falhas}" skipped="{pulados}">{"".join(casos)}</testsuite>'
+        )
+    return '<?xml version="1.0" encoding="UTF-8"?>\n<testsuites>' + "".join(suites) + "</testsuites>"
+
+
 def gerar():
     por_arquivo, duracao = ler_testes()
     cobertura = ler_cobertura()
@@ -259,8 +285,15 @@ def gerar():
     os.makedirs(os.path.dirname(SAIDA), exist_ok=True)
     with open(SAIDA, "w", encoding="utf-8") as f:
         f.write(pagina)
+    with open(os.path.join(os.path.dirname(SAIDA), "test-results.xml"), "w", encoding="utf-8") as f:
+        f.write(junit_xml(por_arquivo))
+
+    resumo = f"{passou}/{total} testes passaram · {falhou} falha(s) · cobertura {pct_cob:.0f}%"
+    # Usado pelo Jenkins no texto da mensagem do Discord
+    with open(os.path.join(os.path.dirname(SAIDA), "resumo.txt"), "w", encoding="utf-8") as f:
+        f.write(resumo)
     print(f"Relatório gerado: {caminho_relativo(SAIDA)}")
-    print(f"  {passou}/{total} testes passaram, cobertura {pct_cob:.0f}%")
+    print(f"  {resumo}")
 
 
 MODELO = """<!doctype html>

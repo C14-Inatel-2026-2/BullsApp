@@ -1,4 +1,4 @@
-.PHONY: run run-fake clean build-apk build-web get test report-setup report format docker-build docker-up docker-down docker-logs docker-stop docker-rm docker-shell help
+.PHONY: run run-fake clean build-apk build-web get test report format docker-build docker-up docker-down docker-logs docker-stop docker-rm docker-shell help
 
 # Flutter Commands
 
@@ -25,15 +25,10 @@ get:
 test:
 	flutter test
 
-# Instala as ferramentas do relatório (só precisa rodar uma vez)
-report-setup:
-	dart pub global activate junitreport
-
 # Gera reports/relatorio.html (testes + cobertura) e reports/test-results.xml (JUnit)
 report:
 	python -c "import os; os.makedirs('reports', exist_ok=True)"
-	flutter test --machine --coverage > reports/test-results.json
-	dart pub global run junitreport:tojunit --input reports/test-results.json --output reports/test-results.xml
+	-flutter test --machine --coverage > reports/test-results.json
 	python scripts/gerar_relatorio.py
 
 format:
@@ -49,7 +44,6 @@ help:
 	@echo "make build-web   - Build web release"
 	@echo "make get         - Obter dependências"
 	@echo "make test        - Rodar testes"
-	@echo "make report-setup - Instalar ferramentas do relatório (uma vez)"
 	@echo "make report      - Gerar reports/relatorio.html"
 	@echo "make format      - Formatar código"
 	@echo ""

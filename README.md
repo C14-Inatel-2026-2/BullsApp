@@ -150,7 +150,6 @@ Gera o arquivo `reports/relatorio.html`, que tem:
 É preciso ter Python instalado. Rode:
 
 ```powershell
-make report-setup   # só na primeira vez
 make report
 start reports/relatorio.html
 ```
