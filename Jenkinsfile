@@ -74,18 +74,6 @@ pipeline {
                         }
                     }
                 }
-
-                stage('Build IOS') {
-                    steps {
-                        // Aloca um workspace temporário específico para o build iOS
-                        ws("${env.WORKSPACE}_ios") {
-                            checkout scm
-                            echo 'Gerando IOS Flutter...'
-                            sh 'flutter pub get'
-                            sh 'flutter build ios --debug --no-tree-shake-icons --no-codesign'
-                        }
-                    }
-                }
             }
         }
     }
