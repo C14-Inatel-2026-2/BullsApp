@@ -28,16 +28,13 @@ test:
 # Instala as ferramentas do relatório (só precisa rodar uma vez)
 report-setup:
 	dart pub global activate junitreport
-	pip install junit2html lcov_cobertura pycobertura
 
-# Gera reports/testes.html (resultado dos testes) e reports/cobertura.html (cobertura)
+# Gera reports/relatorio.html (testes + cobertura) e reports/test-results.xml (JUnit)
 report:
-	mkdir -p reports
+	python -c "import os; os.makedirs('reports', exist_ok=True)"
 	flutter test --machine --coverage > reports/test-results.json
 	dart pub global run junitreport:tojunit --input reports/test-results.json --output reports/test-results.xml
-	junit2html reports/test-results.xml reports/testes.html
-	python -m lcov_cobertura coverage/lcov.info --base-dir . --output reports/coverage.xml
-	pycobertura show --format html --output reports/cobertura.html reports/coverage.xml
+	python scripts/gerar_relatorio.py
 
 format:
 	dart format lib/
@@ -53,7 +50,7 @@ help:
 	@echo "make get         - Obter dependências"
 	@echo "make test        - Rodar testes"
 	@echo "make report-setup - Instalar ferramentas do relatório (uma vez)"
-	@echo "make report      - Gerar relatórios HTML em reports/"
+	@echo "make report      - Gerar reports/relatorio.html"
 	@echo "make format      - Formatar código"
 	@echo ""
 	@echo "=== BullsApp Docker Commands ==="

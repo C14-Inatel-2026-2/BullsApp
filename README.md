@@ -141,19 +141,19 @@ make build-web
 
 ## Relatório de testes
 
-Gera dois relatórios em HTML na pasta `reports/`:
+Gera o arquivo `reports/relatorio.html`, que tem:
 
-- `reports/testes.html`: quais testes passaram e quais falharam;
-- `reports/cobertura.html`: quanto do código os testes cobrem.
+- um resumo com o total de testes, quantos passaram ou falharam e a cobertura geral;
+- os testes agrupados por arquivo, com a mensagem de erro de cada falha;
+- a cobertura de cada arquivo do `lib/`, com o código colorido: verde para linha testada e vermelho para linha nunca executada.
 
-Para gerar, é preciso ter Python (com `pip`) instalado. Depois rode:
+É preciso ter Python instalado. Rode:
 
 ```powershell
 make report-setup   # só na primeira vez
 make report
+start reports/relatorio.html
 ```
-
-Para ver o resultado, abra os arquivos no navegador.
 
 ## CI/CD com Jenkins + Docker
 
