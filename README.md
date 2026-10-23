@@ -138,3 +138,13 @@ docker logs jenkins
 6. Salve e rode **Build Now**.
 
 A cada build, o Jenkins baixa o código, sobe um container com o Flutter, roda `flutter pub get` e `flutter test`, e reporta o resultado.
+
+### Notificações no Discord
+
+Para o Jenkins avisar no Discord, coloque a URL do webhook em:
+
+**Manage Jenkins → Credentials → System → Global credentials → Add Credentials**
+
+- **Kind:** `Secret text`
+- **Secret:** a URL do webhook do Discord
+- **ID:** `discord-webhook`
