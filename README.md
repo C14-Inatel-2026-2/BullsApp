@@ -1,6 +1,58 @@
 # BullsApp
 
-Projeto Flutter para controle e conexão com dispositivos.
+Aplicativo mobile (Android e iOS), feito em Flutter, para controlar e testar os robôs de sumô da **RobotBulls** por Bluetooth Low Energy (BLE).
+
+## Por que o projeto existe
+
+O BullsApp foi criado para ajudar os membros da RobotBulls nas categorias **Sumô Mini** e **Sumô 3 kg**. A ideia é ter tudo num lugar só, direto no celular:
+
+- **na hora do combate:** escolher e visualizar as jogadas do robô;
+- **nos treinos:** testar motores e sensores e calibrar o PID, sem precisar regravar o firmware.
+
+## Funcionalidades
+
+| Tela | O que faz |
+|---|---|
+| **Conexão** | Procura robôs por BLE, conecta e lembra os dispositivos já usados. O cabeçalho mostra se o robô está conectado. |
+| **Combate (Auto)** | Escolhe o lado de saída (esquerda/direita) e a jogada. Antes de enviar, mostra uma simulação da jogada no dohyo. |
+| **Modo teste** | Envia a jogada com o prefixo `T`, para treinar sem iniciar uma luta de verdade. |
+| **RC** | Coloca o robô no modo rádio-controlado. |
+| **Testar motores** | Envia valores para os motores esquerdo e direito, com marcha à ré. |
+| **Testar sensores** | Mostra em tempo real quais sensores estão vendo o oponente. |
+| **Calibrar PID** | Ajusta Kp, Ki e Kd (de 0 a 100) e envia para o robô. |
+| **Terminal** | Mostra as mensagens trocadas com o robô, para depuração. |
+
+As jogadas ficam em `lib/assets/json/JOGADAS.json` e estão divididas em 5 categorias: **busca**, **ofensiva**, **defensiva**, **fake** e **desempate**. Os parâmetros físicos usados na simulação (tamanho do robô, dohyo, velocidade) ficam em `lib/assets/json/PHYSICS.json`.
+
+## Como usar
+
+1. Ligue o robô e ative o Bluetooth do celular.
+2. Abra o app, procure o robô e conecte.
+3. Na tela inicial, escolha:
+   - **Combate**: para escolher o lado e a jogada e enviar ao robô;
+   - **Testar**: para testar motores e sensores, calibrar o PID ou abrir o terminal.
+
+## Como funciona por dentro
+
+O app se comunica com o robô por **comandos de texto curtos** enviados via BLE, como estes:
+
+| Comando | Significado |
+|---|---|
+| `D22` | Executar a jogada 22 saindo pela direita |
+| `TE08` | Executar a jogada 8 pela esquerda, em modo teste |
+| `DRC` | Entrar no modo RC pelo lado direito |
+| `MOTOR 1000 -1000` | Testar os motores |
+| `PID 1.0 0.0 0.5` | Enviar os valores do PID |
+
+Todos os comandos são montados num lugar só: `lib/core/constants/robot_protocol.dart`.
+
+O código está organizado em camadas:
+
+- `lib/presentation/`: telas, widgets e controllers;
+- `lib/data/`: serviços BLE, repositórios e modelos;
+- `lib/core/`: protocolo, constantes e tema;
+- `test/`: testes automatizados.
+
 
 ## Bibliotecas e ferramentas necessárias
 
