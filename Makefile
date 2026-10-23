@@ -1,4 +1,4 @@
-.PHONY: run run-fake clean build-apk build-web get test format docker-build docker-up docker-down docker-logs docker-stop docker-rm docker-shell help
+.PHONY: run run-fake clean build-apk build-web get test report-setup report format docker-build docker-up docker-down docker-logs docker-stop docker-rm docker-shell help
 
 # Flutter Commands
 
@@ -25,6 +25,20 @@ get:
 test:
 	flutter test
 
+# Instala as ferramentas do relatório (só precisa rodar uma vez)
+report-setup:
+	dart pub global activate junitreport
+	pip install junit2html lcov_cobertura pycobertura
+
+# Gera reports/testes.html (resultado dos testes) e reports/cobertura.html (cobertura)
+report:
+	mkdir -p reports
+	flutter test --machine --coverage > reports/test-results.json
+	dart pub global run junitreport:tojunit --input reports/test-results.json --output reports/test-results.xml
+	junit2html reports/test-results.xml reports/testes.html
+	python -m lcov_cobertura coverage/lcov.info --base-dir . --output reports/coverage.xml
+	pycobertura show --format html --output reports/cobertura.html reports/coverage.xml
+
 format:
 	dart format lib/
 
@@ -38,6 +52,8 @@ help:
 	@echo "make build-web   - Build web release"
 	@echo "make get         - Obter dependências"
 	@echo "make test        - Rodar testes"
+	@echo "make report-setup - Instalar ferramentas do relatório (uma vez)"
+	@echo "make report      - Gerar relatórios HTML em reports/"
 	@echo "make format      - Formatar código"
 	@echo ""
 	@echo "=== BullsApp Docker Commands ==="

@@ -139,6 +139,22 @@ make build-apk
 make build-web
 ```
 
+## Relatório de testes
+
+Gera dois relatórios em HTML na pasta `reports/`:
+
+- `reports/testes.html`: quais testes passaram e quais falharam;
+- `reports/cobertura.html`: quanto do código os testes cobrem.
+
+Para gerar, é preciso ter Python (com `pip`) instalado. Depois rode:
+
+```powershell
+make report-setup   # só na primeira vez
+make report
+```
+
+Para ver o resultado, abra os arquivos no navegador.
+
 ## CI/CD com Jenkins + Docker
 
 O projeto usa Jenkins rodando em container Docker para executar a pipeline (testes automatizados a cada push). A pipeline roda o Flutter dentro de outro container (`ghcr.io/cirruslabs/flutter:stable`), então **não é necessário instalar o Flutter na máquina do Jenkins** — só o Docker.
