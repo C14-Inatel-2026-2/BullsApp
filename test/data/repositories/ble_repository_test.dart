@@ -132,19 +132,26 @@ void main() {
     });
 
     test('converte BleException em RobotCommandException', () async {
-      when(() => mockService.sendLine(any()))
-          .thenThrow(const BleException('Nenhum robô conectado.'));
+      when(
+        () => mockService.sendLine(any()),
+      ).thenThrow(const BleException('Nenhum robô conectado.'));
 
       await expectLater(
         () => repository.send('STOP'),
-        throwsA(isA<RobotCommandException>()
-            .having((e) => e.message, 'message', 'Nenhum robô conectado.')),
+        throwsA(
+          isA<RobotCommandException>().having(
+            (e) => e.message,
+            'message',
+            'Nenhum robô conectado.',
+          ),
+        ),
       );
     });
 
     test('responses repassa as linhas do robô', () async {
-      when(() => mockService.robotLines)
-          .thenAnswer((_) => Stream.fromIterable(['sensorD2 vendo', 'OK']));
+      when(
+        () => mockService.robotLines,
+      ).thenAnswer((_) => Stream.fromIterable(['sensorD2 vendo', 'OK']));
 
       await expectLater(
         repository.responses,

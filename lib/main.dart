@@ -15,8 +15,9 @@ const bool useFakeRobot = bool.fromEnvironment('FAKE_ROBOT');
 void main() {
   // Instância ÚNICA: guarda a conexão com o robô para o app inteiro.
   final repository = BleRepository();
-  final RobotCommandPort port =
-      useFakeRobot ? FakeRobotCommandPort() : repository;
+  final RobotCommandPort port = useFakeRobot
+      ? FakeRobotCommandPort()
+      : repository;
 
   runApp(MyApp(repository: repository, port: port));
 }

@@ -38,11 +38,13 @@ class AutoController extends ChangeNotifier {
   /// [jogadaKey] vem no formato "JOGADA_22"; [side] é 'ladoDir' ou 'ladoEsc'.
   /// [actions] é a sequência simulada na tela — o robô já a conhece pelo
   /// número da jogada, então só o número viaja pelo BLE.
+  /// [teste] envia a jogada em modo teste ("TD08").
   Future<void> sendJogada(
     String jogadaKey,
     String side,
-    List<String> actions,
-  ) async {
+    List<String> actions, {
+    bool teste = false,
+  }) async {
     final number = _jogadaNumber(jogadaKey);
     if (number == null) {
       _fail('Jogada inválida: $jogadaKey');
@@ -53,7 +55,7 @@ class AutoController extends ChangeNotifier {
       _fail('Lado inválido: $side');
       return;
     }
-    await _send(RobotProtocol.jogada(lado, number));
+    await _send(RobotProtocol.jogada(lado, number, teste: teste));
   }
 
   /// Entra no modo rádio-controlado pelo lado indicado ('ladoDir'/'ladoEsc').
@@ -85,6 +87,7 @@ class AutoController extends ChangeNotifier {
     final seq = ++_sendSeq;
     status = AutoStatus.sending;
     lastCommand = command;
+    lastResponse = null; // a resposta exibida é sempre a deste envio
     errorMessage = null;
     notifyListeners();
 

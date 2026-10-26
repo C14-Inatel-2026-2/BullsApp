@@ -71,9 +71,7 @@ class _TerminalPageState extends State<TerminalPage> {
 
             body: Column(
               children: [
-                const CustomHeader(
-                  isConnected: true, //  mudar dinamicamente
-                ),
+                const CustomHeader(),
                 // Área que mostra o texto
                 Expanded(
                   child: Padding(

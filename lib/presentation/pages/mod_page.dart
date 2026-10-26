@@ -22,9 +22,7 @@ class ModPage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              const CustomHeader(
-                isConnected: true, //  mudar dinamicamente
-              ),
+              const CustomHeader(),
               const SizedBox(height: 16),
               Image.asset('lib/assets/images/robotbull.png', height: 130),
               const SizedBox(height: 20),
@@ -56,11 +54,12 @@ class ModPage extends StatelessWidget {
                               create: (ctx) => AutoController(
                                 port: ctx.read<RobotCommandPort>(),
                               )..init(),
-                              child: Builder(
-                                builder: (ctx) => CommandPage(
-                                  onSendCommand: ctx
-                                      .read<AutoController>()
-                                      .sendJogada,
+                              child: Consumer<AutoController>(
+                                builder: (ctx, auto, _) => CommandPage(
+                                  onSendCommand: auto.sendJogada,
+                                  status: auto.status,
+                                  robotResponse: auto.lastResponse,
+                                  errorMessage: auto.errorMessage,
                                 ),
                               ),
                             ),

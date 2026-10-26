@@ -1,4 +1,4 @@
-.PHONY: run run-fake clean build-apk build-web get test format docker-build docker-up docker-down docker-logs docker-stop docker-rm docker-shell help
+.PHONY: run run-fake clean build-apk build-web get test report format docker-build docker-up docker-down docker-logs docker-stop docker-rm docker-shell help
 
 # Flutter Commands
 
@@ -25,6 +25,12 @@ get:
 test:
 	flutter test
 
+# Gera reports/relatorio.html (testes + cobertura) e reports/test-results.xml (JUnit)
+report:
+	python -c "import os; os.makedirs('reports', exist_ok=True)"
+	-flutter test --machine --coverage > reports/test-results.json
+	python scripts/gerar_relatorio.py
+
 format:
 	dart format lib/
 
@@ -38,6 +44,7 @@ help:
 	@echo "make build-web   - Build web release"
 	@echo "make get         - Obter dependências"
 	@echo "make test        - Rodar testes"
+	@echo "make report      - Gerar reports/relatorio.html"
 	@echo "make format      - Formatar código"
 	@echo ""
 	@echo "=== BullsApp Docker Commands ==="

@@ -23,9 +23,7 @@ class SensorPage extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
-                    const CustomHeader(
-                      isConnected: true, //  mudar dinamicamente
-                    ),
+                    const CustomHeader(),
                     const SizedBox(height: 16),
                     controller.sensors.isEmpty
                         ? AspectRatio(
