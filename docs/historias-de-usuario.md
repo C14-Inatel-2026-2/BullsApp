@@ -6,6 +6,8 @@
 **eu quero** escolher numero da jogada e lado que ela vai, ou ativar o modo RC pelo celular,
 **para que** eu consiga mudar a estratégia do robô rapidamente entre os rounds.
 
+**Prioridade:** Alta · **Status:** Parcial (a tela de RC ainda não está pronta)
+
 ### Critérios de aceite
 
 1. **Enviar jogada pelo lado direito**
@@ -33,12 +35,16 @@
    - **Quando** toco em parar
    - **Então** o comando `STOP` é enviado na hora, sem esperar o anterior
 
+**Rastreabilidade:** Jira Scrum-7 → PR #22 → `test/presentation/controller/auto_controller_test.dart`, `test/core/constants/robot_protocol_test.dart`
+
 
 ## US02 — Usar o terminal e calibrar o PID do robô
 
 **Como** responsável pela calibração do robô nas competições,
 **eu quero** ajustar os valores de Kp, Ki e Kd e mandar comandos manuais por um terminal no app,
 **para que** eu consiga alinhar as jogadas com suas determinadas estrategias do robô nos treinos, sem precisar conectar um computador.
+
+**Prioridade:** Alta · **Status:** Entregue
 
 ### Critérios de aceite
 
@@ -66,3 +72,5 @@
    - **Dado** que a conexão com o robô falha durante um envio
    - **Quando** o envio dá erro
    - **Então** a mensagem de erro aparece no terminal e na tela
+
+**Rastreabilidade:** Jira Scrum-32 → PR #22 → `test/presentation/controller/test_controller_test.dart`
