@@ -44,4 +44,18 @@ void main() {
 
     expect(lista, [fraco, forte]);
   });
+
+  test('init carrega os MACs já salvos no aparelho', () async {
+    SharedPreferences.setMockInitialValues({
+      'saved_ble_macs': ['AA:BB:CC:DD:EE:FF'],
+    });
+    final repo = MockBleRepository();
+    when(() => repo.isScanning).thenAnswer((_) => const Stream.empty());
+    when(() => repo.devicesStream).thenAnswer((_) => const Stream.empty());
+    final controller = BleController(repository: repo)..init();
+
+    await pumpEventQueue();
+
+    expect(controller.knownMacs, ['AA:BB:CC:DD:EE:FF']);
+  });
 }
