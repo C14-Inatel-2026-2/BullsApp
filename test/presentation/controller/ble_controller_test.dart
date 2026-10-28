@@ -109,4 +109,16 @@ void main() {
     expect(controller.devices, isEmpty);
     expect(controller.errorMessage, isNull);
   });
+
+  test('startScan mostra a mensagem de permissão negada', () async {
+    final repo = MockBleRepository();
+    when(
+      () => repo.startScan(),
+    ).thenThrow(const BlePermissionException('Permita o Bluetooth.'));
+    final controller = BleController(repository: repo);
+
+    await controller.startScan();
+
+    expect(controller.errorMessage, 'Permita o Bluetooth.');
+  });
 }
