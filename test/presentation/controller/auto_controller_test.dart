@@ -66,4 +66,17 @@ void main() {
     await jogada;
     expect(controller.status, AutoStatus.idle);
   });
+
+  test('sendJogada rejeita jogada sem número sem enviar comando', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.sendJogada('JOGADA_X', 'ladoDir', []);
+
+    expect(controller.status, AutoStatus.error);
+    expect(controller.errorMessage, 'Jogada inválida: JOGADA_X');
+    verifyNever(() => port.send(any()));
+  });
 }
