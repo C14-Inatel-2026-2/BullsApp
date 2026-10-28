@@ -159,4 +159,20 @@ void main() {
     expect(controller.knownMacs, [robo.macAddress]);
     expect(await SavedDevicesService.getSavedMacs(), [robo.macAddress]);
   });
+
+  test('connect não duplica um MAC já conhecido', () async {
+    final repo = MockBleRepository();
+    when(() => repo.stopScan()).thenAnswer((_) async {});
+    when(() => repo.connect(any())).thenAnswer((_) async {});
+    final robo = makeDevice();
+    final controller = BleController(repository: repo)
+      ..knownMacs = [robo.macAddress];
+    var notificacoes = 0;
+    controller.addListener(() => notificacoes++);
+
+    await controller.connect(robo);
+
+    expect(controller.knownMacs, [robo.macAddress]);
+    expect(notificacoes, 0);
+  });
 }
