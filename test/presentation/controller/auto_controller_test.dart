@@ -120,4 +120,16 @@ void main() {
     verify(() => port.send('DRC')).called(1);
     expect(controller.status, AutoStatus.running);
   });
+
+  test('startRC envia ERC para o lado esquerdo', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.startRC('ladoEsc');
+
+    verify(() => port.send('ERC')).called(1);
+    expect(controller.status, AutoStatus.running);
+  });
 }
