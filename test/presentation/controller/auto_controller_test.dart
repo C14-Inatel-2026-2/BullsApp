@@ -3,11 +3,10 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:bullsapp/data/repositories/robot_command_port.dart';
 import 'package:bullsapp/presentation/controllers/auto_controller.dart';
 import 'package:bullsapp/presentation/controllers/auto_status.dart';
 
-class MockRobotCommandPort extends Mock implements RobotCommandPort {}
+import '../../mocks/mocks.dart';
 
 void main() {
   test('sendJogada monta D22 para JOGADA_22 do lado direito', () async {

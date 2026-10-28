@@ -4,10 +4,9 @@ import 'package:mocktail/mocktail.dart';
 import 'package:bullsapp/data/models/sensor_status.dart';
 import 'package:bullsapp/data/repositories/fake_robot_command_port.dart';
 import 'package:bullsapp/data/repositories/robot_command_exception.dart';
-import 'package:bullsapp/data/repositories/robot_command_port.dart';
 import 'package:bullsapp/presentation/controllers/test_controller.dart';
 
-class MockRobotCommandPort extends Mock implements RobotCommandPort {}
+import '../../mocks/mocks.dart';
 
 void main() {
   // Robô fake sem latência: responde "OK <comando>" e, para SENSORES,

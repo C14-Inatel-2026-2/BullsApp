@@ -5,6 +5,7 @@ import 'package:mocktail/mocktail.dart';
 
 import 'package:bullsapp/data/services/ble_service.dart';
 import 'package:bullsapp/data/repositories/ble_repository.dart';
+import 'package:bullsapp/data/repositories/robot_command_port.dart';
 import 'package:bullsapp/data/models/device_model.dart';
 
 // ── Service mock ────────────────────────────────────────────────────────────
@@ -14,6 +15,8 @@ class MockBleService extends Mock implements BleService {}
 // ── Repository mock ─────────────────────────────────────────────────────────
 
 class MockBleRepository extends Mock implements BleRepository {}
+
+class MockRobotCommandPort extends Mock implements RobotCommandPort {}
 
 // ── Fake fallbacks (mocktail exige fakes para tipos não-primitivos) ──────────
 
