@@ -230,4 +230,17 @@ void main() {
 
     expect(estados, [AutoStatus.sending, AutoStatus.running]);
   });
+
+  test('dispose para de ouvir as respostas do robô', () async {
+    final respostas = StreamController<String>.broadcast();
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => respostas.stream);
+    final controller = AutoController(port: port)..init();
+
+    controller.dispose();
+
+    expect(respostas.hasListener, isFalse);
+    expect(controller.lastResponse, isNull);
+    await respostas.close();
+  });
 }
