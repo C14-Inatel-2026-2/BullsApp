@@ -95,4 +95,18 @@ void main() {
       await devices.close();
     },
   );
+
+  test('startScan limpa a lista e o erro e inicia o scan', () async {
+    final repo = MockBleRepository();
+    when(() => repo.startScan()).thenAnswer((_) async {});
+    final controller = BleController(repository: repo)
+      ..devices = [makeDevice()]
+      ..errorMessage = 'erro antigo';
+
+    await controller.startScan();
+
+    verify(() => repo.startScan()).called(1);
+    expect(controller.devices, isEmpty);
+    expect(controller.errorMessage, isNull);
+  });
 }
