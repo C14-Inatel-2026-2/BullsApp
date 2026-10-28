@@ -108,4 +108,16 @@ void main() {
     verifyNever(() => port.send('E11'));
     expect(controller.lastCommand, 'D22');
   });
+
+  test('startRC envia DRC para o lado direito', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.startRC('ladoDir');
+
+    verify(() => port.send('DRC')).called(1);
+    expect(controller.status, AutoStatus.running);
+  });
 }
