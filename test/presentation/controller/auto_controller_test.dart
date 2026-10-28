@@ -91,4 +91,21 @@ void main() {
     verify(() => port.send('TD08')).called(1);
     expect(controller.lastCommand, 'TD08');
   });
+
+  test('sendJogada ignora um segundo envio enquanto o primeiro sai', () async {
+    final port = MockRobotCommandPort();
+    final primeiroEnvio = Completer<void>();
+    when(() => port.send(any())).thenAnswer((_) => primeiroEnvio.future);
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    final envio = controller.sendJogada('JOGADA_22', 'ladoDir', []);
+    await controller.sendJogada('JOGADA_11', 'ladoEsc', []);
+    primeiroEnvio.complete();
+    await envio;
+
+    verify(() => port.send('D22')).called(1);
+    verifyNever(() => port.send('E11'));
+    expect(controller.lastCommand, 'D22');
+  });
 }
