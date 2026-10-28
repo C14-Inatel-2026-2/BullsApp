@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
+import 'package:bullsapp/data/repositories/robot_command_exception.dart';
 import 'package:bullsapp/presentation/controllers/auto_controller.dart';
 import 'package:bullsapp/presentation/controllers/auto_status.dart';
 
@@ -156,5 +157,20 @@ void main() {
 
     verify(() => port.send('STOP')).called(1);
     expect(controller.status, AutoStatus.idle);
+  });
+
+  test('stop mantém o erro quando o envio falha', () async {
+    final port = MockRobotCommandPort();
+    when(
+      () => port.send(any()),
+    ).thenThrow(const RobotCommandException('Nenhum robô conectado.'));
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.stop();
+
+    verify(() => port.send('STOP')).called(1);
+    expect(controller.status, AutoStatus.error);
+    expect(controller.errorMessage, 'Nenhum robô conectado.');
   });
 }
