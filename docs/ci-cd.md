@@ -45,10 +45,16 @@ docker logs jenkins
 2. Em **Pipeline → Definition**, selecione **Pipeline script from SCM**.
 3. **SCM:** Git — informe a URL deste repositório e a branch (`main`).
 4. **Script Path:** `Jenkinsfile` (já está na raiz do projeto).
-5. Instale o plugin **Docker Pipeline** em *Manage Jenkins → Plugins*, caso ainda não esteja instalado — é necessário para o `Jenkinsfile` conseguir rodar o container do Flutter.
+5. Instale os plugins abaixo em *Manage Jenkins → Plugins*, caso ainda não estejam instalados:
+   - **Docker Pipeline**: necessário para o `Jenkinsfile` conseguir rodar o container do Flutter;
+   - **Coverage**: necessário para o passo `recordCoverage` do estágio "Executar Testes".
 6. Salve e rode **Build Now**.
 
-A cada build, o Jenkins baixa o código, sobe um container com o Flutter, roda `flutter pub get` e `flutter test`, e reporta o resultado.
+A cada build, o Jenkins baixa o código, sobe um container com o Flutter, roda `flutter pub get` e `flutter test --coverage`, e reporta o resultado.
+
+## Relatório de cobertura
+
+O estágio "Executar Testes" publica a cobertura com o plugin **Coverage**, a partir do `coverage/lcov.info`. Na página de cada build aparece o item **Cobertura de Testes**, com a cobertura por pasta e por arquivo, o código-fonte colorido linha a linha e a evolução entre builds.
 
 ## Notificações no Discord
 
