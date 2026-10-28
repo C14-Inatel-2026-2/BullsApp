@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -113,4 +115,21 @@ void main() {
     expect(controller.log, isEmpty);
     expect(robot.enviados, ['PING']);
   });
+
+  test(
+    'resposta que não é de sensor entra no log sem alterar sensores',
+    () async {
+      final respostas = StreamController<String>();
+      final port = MockRobotCommandPort();
+      when(() => port.responses).thenAnswer((_) => respostas.stream);
+      final c = TestController(port: port)..init();
+
+      respostas.add('OK D22');
+      await pumpEventQueue();
+
+      expect(c.log.last, '< OK D22');
+      expect(c.sensores, isEmpty);
+      await respostas.close();
+    },
+  );
 }
