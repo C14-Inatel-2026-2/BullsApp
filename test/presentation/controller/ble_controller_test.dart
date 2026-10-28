@@ -58,4 +58,21 @@ void main() {
 
     expect(controller.knownMacs, ['AA:BB:CC:DD:EE:FF']);
   });
+
+  test('isScanning acompanha o estado do scan no repositório', () async {
+    final scanning = makeScanningController();
+    final repo = MockBleRepository();
+    when(() => repo.isScanning).thenAnswer((_) => scanning.stream);
+    when(() => repo.devicesStream).thenAnswer((_) => const Stream.empty());
+    final controller = BleController(repository: repo)..init();
+
+    scanning.add(true);
+    await pumpEventQueue();
+    expect(controller.isScanning, isTrue);
+
+    scanning.add(false);
+    await pumpEventQueue();
+    expect(controller.isScanning, isFalse);
+    await scanning.close();
+  });
 }
