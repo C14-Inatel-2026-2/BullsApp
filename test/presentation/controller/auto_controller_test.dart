@@ -79,4 +79,16 @@ void main() {
     expect(controller.errorMessage, 'Jogada inválida: JOGADA_X');
     verifyNever(() => port.send(any()));
   });
+
+  test('sendJogada em modo teste envia TD08 para JOGADA_8', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+
+    await controller.sendJogada('JOGADA_8', 'ladoDir', [], teste: true);
+
+    verify(() => port.send('TD08')).called(1);
+    expect(controller.lastCommand, 'TD08');
+  });
 }
