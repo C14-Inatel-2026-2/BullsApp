@@ -201,4 +201,20 @@ void main() {
     expect(controller.lastResponse, 'OK D22');
     await respostas.close();
   });
+
+  test('novo envio apaga a resposta do envio anterior', () async {
+    final respostas = StreamController<String>();
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => respostas.stream);
+    final controller = AutoController(port: port)..init();
+    respostas.add('OK D22');
+    await Future.delayed(Duration.zero);
+
+    await controller.sendJogada('JOGADA_11', 'ladoEsc', []);
+
+    expect(controller.lastCommand, 'E11');
+    expect(controller.lastResponse, isNull);
+    await respostas.close();
+  });
 }
