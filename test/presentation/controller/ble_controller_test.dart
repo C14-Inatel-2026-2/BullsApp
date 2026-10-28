@@ -192,4 +192,23 @@ void main() {
       expect(await SavedDevicesService.getSavedMacs(), isEmpty);
     },
   );
+
+  test('dispose para de ouvir o repositório e para o scan', () async {
+    final scanning = makeScanningController();
+    final devices = makeDevicesController();
+    final repo = MockBleRepository();
+    when(() => repo.isScanning).thenAnswer((_) => scanning.stream);
+    when(() => repo.devicesStream).thenAnswer((_) => devices.stream);
+    when(() => repo.stopScan()).thenAnswer((_) async {});
+    final controller = BleController(repository: repo)..init();
+    await pumpEventQueue();
+
+    controller.dispose();
+
+    expect(scanning.hasListener, isFalse);
+    expect(devices.hasListener, isFalse);
+    verify(() => repo.stopScan()).called(1);
+    await scanning.close();
+    await devices.close();
+  });
 }
