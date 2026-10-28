@@ -44,9 +44,15 @@ pipeline {
 
         stage('Executar Testes'){
             steps {
-                echo 'Rodando testes...'
-                sh 'flutter test -v'
-        }
+                echo 'Rodando testes e medindo a cobertura...'
+                sh 'flutter test -v --coverage'
+            }
+            post {
+                always {
+                    recordCoverage name: 'Cobertura de Testes',
+                        tools: [[parser: 'LCOV', pattern: 'coverage/lcov.info']]
+                }
+            }
         }
 
         stage('Cobertura dos Controllers') {
