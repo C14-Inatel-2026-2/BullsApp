@@ -132,4 +132,17 @@ void main() {
       await respostas.close();
     },
   );
+
+  test('id do sensor em minúsculas é guardado em maiúsculas', () async {
+    final respostas = StreamController<String>();
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => respostas.stream);
+    final c = TestController(port: port)..init();
+
+    respostas.add('sensord2 CEGO');
+    await pumpEventQueue();
+
+    expect(c.sensores, {'D2': SensorStatus.cego});
+    await respostas.close();
+  });
 }
