@@ -16,7 +16,7 @@ void main() {
 
   setUp(() {
     repo = MockSensorRepository();
-    stream = StreamController<List<SensorModel>>();
+    stream = StreamController<List<SensorModel>>.broadcast();
     when(() => repo.sensorsStream).thenAnswer((_) => stream.stream);
     controller = SensorController(repository: repo);
   });
