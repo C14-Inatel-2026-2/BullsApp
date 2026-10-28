@@ -172,4 +172,16 @@ void main() {
 
     expect(ocupado, [true, false]);
   });
+
+  test('dispose para de ouvir as respostas do robô', () async {
+    final respostas = StreamController<String>.broadcast();
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => respostas.stream);
+    final c = TestController(port: port)..init();
+
+    c.dispose();
+
+    expect(respostas.hasListener, isFalse);
+    await respostas.close();
+  });
 }
