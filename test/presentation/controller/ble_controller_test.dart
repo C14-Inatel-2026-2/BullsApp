@@ -131,4 +131,17 @@ void main() {
 
     expect(controller.errorMessage, 'Exception: adaptador desligado');
   });
+
+  test('stopScan e disconnect são repassados ao repositório', () async {
+    final repo = MockBleRepository();
+    when(() => repo.stopScan()).thenAnswer((_) async {});
+    when(() => repo.disconnect()).thenAnswer((_) async {});
+    final controller = BleController(repository: repo);
+
+    await controller.stopScan();
+    await controller.disconnect();
+
+    verify(() => repo.stopScan()).called(1);
+    verify(() => repo.disconnect()).called(1);
+  });
 }
