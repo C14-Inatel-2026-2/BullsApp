@@ -217,4 +217,17 @@ void main() {
     expect(controller.lastResponse, isNull);
     await respostas.close();
   });
+
+  test('sendJogada avisa a tela ao começar e ao terminar o envio', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.send(any())).thenAnswer((_) async {});
+    when(() => port.responses).thenAnswer((_) => Stream<String>.empty());
+    final controller = AutoController(port: port)..init();
+    final estados = <AutoStatus>[];
+    controller.addListener(() => estados.add(controller.status));
+
+    await controller.sendJogada('JOGADA_22', 'ladoDir', []);
+
+    expect(estados, [AutoStatus.sending, AutoStatus.running]);
+  });
 }
