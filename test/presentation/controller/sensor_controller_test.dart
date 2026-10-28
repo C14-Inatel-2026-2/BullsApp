@@ -65,4 +65,37 @@ void main() {
       expect(stream.hasListener, isFalse);
     });
   });
+
+  group('SensorController - leituras seguidas', () {
+    test('cada leitura substitui a anterior e notifica a tela', () async {
+      const primeira = [
+        SensorModel(
+          id: '1',
+          label: 'Sensor 1',
+          status: SensorStatus.vendo,
+          position: Alignment(0, 0),
+        ),
+      ];
+      const segunda = [
+        SensorModel(
+          id: '1',
+          label: 'Sensor 1',
+          status: SensorStatus.cego,
+          position: Alignment(0, 0),
+        ),
+      ];
+      var notificacoes = 0;
+      controller.addListener(() => notificacoes++);
+      controller.init();
+
+      stream.add(primeira);
+      stream.add(segunda);
+      await Future.delayed(Duration.zero);
+
+      expect(controller.sensors, equals(segunda));
+      expect(notificacoes, 2);
+
+      controller.dispose();
+    });
+  });
 }
