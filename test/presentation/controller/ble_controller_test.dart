@@ -33,4 +33,15 @@ void main() {
       expect(ordenados, [conhecido, forte, fraco]);
     },
   );
+
+  test('sortDevicesForUI não altera a lista recebida', () {
+    final controller = BleController(repository: MockBleRepository());
+    final fraco = makeDevice(mac: 'CC:CC:CC:CC:CC:CC', rssi: -70);
+    final forte = makeDevice(mac: 'BB:BB:BB:BB:BB:BB', rssi: -40);
+    final lista = [fraco, forte];
+
+    controller.sortDevicesForUI(lista);
+
+    expect(lista, [fraco, forte]);
+  });
 }
