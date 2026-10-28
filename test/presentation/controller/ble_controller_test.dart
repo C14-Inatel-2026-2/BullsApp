@@ -144,4 +144,19 @@ void main() {
     verify(() => repo.stopScan()).called(1);
     verify(() => repo.disconnect()).called(1);
   });
+
+  test('connect para o scan antes de conectar e salva o MAC', () async {
+    final repo = MockBleRepository();
+    when(() => repo.stopScan()).thenAnswer((_) async {});
+    when(() => repo.connect(any())).thenAnswer((_) async {});
+    final controller = BleController(repository: repo);
+    final robo = makeDevice();
+
+    final conectou = await controller.connect(robo);
+
+    expect(conectou, isTrue);
+    verifyInOrder([() => repo.stopScan(), () => repo.connect(robo)]);
+    expect(controller.knownMacs, [robo.macAddress]);
+    expect(await SavedDevicesService.getSavedMacs(), [robo.macAddress]);
+  });
 }
