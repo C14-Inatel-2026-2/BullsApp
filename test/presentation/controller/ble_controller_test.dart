@@ -75,4 +75,24 @@ void main() {
     expect(controller.isScanning, isFalse);
     await scanning.close();
   });
+
+  test(
+    'nova lista de dispositivos substitui a anterior e limpa o erro',
+    () async {
+      final devices = makeDevicesController();
+      final repo = MockBleRepository();
+      when(() => repo.isScanning).thenAnswer((_) => const Stream.empty());
+      when(() => repo.devicesStream).thenAnswer((_) => devices.stream);
+      final controller = BleController(repository: repo)..init();
+      controller.errorMessage = 'erro antigo';
+      final robo = makeDevice();
+
+      devices.add([robo]);
+      await pumpEventQueue();
+
+      expect(controller.devices, [robo]);
+      expect(controller.errorMessage, isNull);
+      await devices.close();
+    },
+  );
 }
