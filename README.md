@@ -106,7 +106,7 @@ Prompts usados, respostas aceitas ou descartadas, dinâmica de uso e o que foi f
 | Silas Rodrigues de Oliveira Junior | Manager / FullStack | [@silasjunior360](https://github.com/silasjunior360) |
 | Luiz Filipe Peçanha de Melo | Frontend / Integração | [@Luizfilipe99](https://github.com/Luizfilipe99) |
 | Kaynan Herique Dias de Melo | Backend / Comunicação BLE | [@KaynanMelo06](https://github.com/KaynanMelo06) |
-| João Pedro Torrano Dias | QA / Testes + CI/CD | [@JoaoDTorrano](https://github.com/JoaoDTorrano) |
+| João Pedro Torrano Dias | Backend / Controllers | [@JoaoDTorrano](https://github.com/JoaoDTorrano) |
 
 ## Documentação
 
