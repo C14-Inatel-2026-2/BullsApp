@@ -98,4 +98,18 @@ void main() {
       controller.dispose();
     });
   });
+
+  group('SensorController - repositório padrão', () {
+    testWidgets('sem repositório injetado, usa o SensorRepository simulado', (
+      tester,
+    ) async {
+      final padrao = SensorController()..init();
+
+      await tester.pump(const Duration(seconds: 2));
+      expect(padrao.sensors, hasLength(6));
+
+      padrao.dispose();
+      await tester.pump(const Duration(seconds: 2));
+    });
+  });
 }
