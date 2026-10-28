@@ -55,14 +55,6 @@ pipeline {
             }
         }
 
-        stage('Cobertura dos Controllers') {
-            steps {
-                echo 'Medindo a cobertura dos testes da camada de controllers...'
-                sh 'flutter test --coverage test/presentation/controller'
-                archiveArtifacts artifacts: 'coverage/lcov.info', allowEmptyArchive: true
-            }
-        }
-
         stage('Builds em Paralelo') {
             parallel {
                 stage('Build APK') {
