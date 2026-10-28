@@ -121,4 +121,14 @@ void main() {
 
     expect(controller.errorMessage, 'Permita o Bluetooth.');
   });
+
+  test('startScan mostra o erro inesperado do repositório', () async {
+    final repo = MockBleRepository();
+    when(() => repo.startScan()).thenThrow(Exception('adaptador desligado'));
+    final controller = BleController(repository: repo);
+
+    await controller.startScan();
+
+    expect(controller.errorMessage, 'Exception: adaptador desligado');
+  });
 }
