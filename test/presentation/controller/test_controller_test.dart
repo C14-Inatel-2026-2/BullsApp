@@ -102,4 +102,15 @@ void main() {
     expect(c.log.last, '! Falha ao enviar: Exception: canal fechado');
     expect(c.isBusy, isFalse);
   });
+
+  test('clearLog esvazia o log sem enviar nada', () async {
+    await controller.sendCommand('PING');
+    await pumpEventQueue();
+    expect(controller.log, isNotEmpty);
+
+    controller.clearLog();
+
+    expect(controller.log, isEmpty);
+    expect(robot.enviados, ['PING']);
+  });
 }
