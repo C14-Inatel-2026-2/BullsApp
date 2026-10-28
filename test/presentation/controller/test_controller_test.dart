@@ -159,4 +159,17 @@ void main() {
     expect(c.sensores, {'D2': SensorStatus.cego});
     await respostas.close();
   });
+
+  test('sendCommand avisa a tela ao começar e ao terminar o envio', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => const Stream.empty());
+    when(() => port.send(any())).thenAnswer((_) async {});
+    final c = TestController(port: port)..init();
+    final ocupado = <bool>[];
+    c.addListener(() => ocupado.add(c.isBusy));
+
+    await c.sendCommand('PING');
+
+    expect(ocupado, [true, false]);
+  });
 }
