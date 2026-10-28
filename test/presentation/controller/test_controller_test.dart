@@ -89,4 +89,17 @@ void main() {
     expect(c.log.last, '! Nenhum robô conectado.');
     expect(c.isBusy, isFalse);
   });
+
+  test('sendCommand registra erro inesperado do canal', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => const Stream.empty());
+    when(() => port.send(any())).thenThrow(Exception('canal fechado'));
+    final c = TestController(port: port)..init();
+
+    await c.sendCommand('SENSORES');
+
+    expect(c.errorMessage, 'Falha ao enviar: Exception: canal fechado');
+    expect(c.log.last, '! Falha ao enviar: Exception: canal fechado');
+    expect(c.isBusy, isFalse);
+  });
 }
