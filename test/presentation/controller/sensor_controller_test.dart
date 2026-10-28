@@ -16,7 +16,7 @@ void main() {
 
   setUp(() {
     repo = MockSensorRepository();
-    stream = StreamController<List<SensorModel>>();
+    stream = StreamController<List<SensorModel>>.broadcast();
     when(() => repo.sensorsStream).thenAnswer((_) => stream.stream);
     controller = SensorController(repository: repo);
   });
@@ -63,6 +63,53 @@ void main() {
       expect(stream.hasListener, isTrue);
       controller.dispose();
       expect(stream.hasListener, isFalse);
+    });
+  });
+
+  group('SensorController - leituras seguidas', () {
+    test('cada leitura substitui a anterior e notifica a tela', () async {
+      const primeira = [
+        SensorModel(
+          id: '1',
+          label: 'Sensor 1',
+          status: SensorStatus.vendo,
+          position: Alignment(0, 0),
+        ),
+      ];
+      const segunda = [
+        SensorModel(
+          id: '1',
+          label: 'Sensor 1',
+          status: SensorStatus.cego,
+          position: Alignment(0, 0),
+        ),
+      ];
+      var notificacoes = 0;
+      controller.addListener(() => notificacoes++);
+      controller.init();
+
+      stream.add(primeira);
+      stream.add(segunda);
+      await Future.delayed(Duration.zero);
+
+      expect(controller.sensors, equals(segunda));
+      expect(notificacoes, 2);
+
+      controller.dispose();
+    });
+  });
+
+  group('SensorController - repositório padrão', () {
+    testWidgets('sem repositório injetado, usa o SensorRepository simulado', (
+      tester,
+    ) async {
+      final padrao = SensorController()..init();
+
+      await tester.pump(const Duration(seconds: 2));
+      expect(padrao.sensors, hasLength(6));
+
+      padrao.dispose();
+      await tester.pump(const Duration(seconds: 2));
     });
   });
 }
