@@ -28,6 +28,8 @@ class TestController extends ChangeNotifier {
   bool isBusy = false;
   String? errorMessage;
 
+  int _pendingSends = 0;
+
   StreamSubscription<String>? _responsesSub;
 
   // ── Inicialização ──────────────────────────────────────────────────────
@@ -44,6 +46,7 @@ class TestController extends ChangeNotifier {
     final text = command.trim();
     if (text.isEmpty || (isBusy && !force)) return;
 
+    _pendingSends++;
     isBusy = true;
     errorMessage = null;
     log.add('> $text');
@@ -58,7 +61,8 @@ class TestController extends ChangeNotifier {
       errorMessage = 'Falha ao enviar: $e';
       log.add('! $errorMessage');
     } finally {
-      isBusy = false;
+      _pendingSends--;
+      isBusy = _pendingSends > 0;
       notifyListeners();
     }
   }

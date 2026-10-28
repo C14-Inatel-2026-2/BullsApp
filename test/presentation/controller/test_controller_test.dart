@@ -184,4 +184,27 @@ void main() {
     expect(respostas.hasListener, isFalse);
     await respostas.close();
   });
+
+  test('isBusy só volta a false quando todos os envios terminam', () async {
+    final port = MockRobotCommandPort();
+    final motor = Completer<void>();
+    final stop = Completer<void>();
+    when(() => port.responses).thenAnswer((_) => const Stream.empty());
+    when(() => port.send('MOTOR 100 100')).thenAnswer((_) => motor.future);
+    when(() => port.send('STOP')).thenAnswer((_) => stop.future);
+    final c = TestController(port: port)..init();
+
+    final envioMotor = c.testMotors(left: 100, right: 100);
+    final envioStop = c.stopMotors();
+    motor.complete();
+    await envioMotor;
+
+    expect(c.isBusy, isTrue);
+    await c.sendCommand('PING');
+    verifyNever(() => port.send('PING'));
+
+    stop.complete();
+    await envioStop;
+    expect(c.isBusy, isFalse);
+  });
 }
