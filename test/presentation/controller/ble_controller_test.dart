@@ -175,4 +175,21 @@ void main() {
     expect(controller.knownMacs, [robo.macAddress]);
     expect(notificacoes, 0);
   });
+
+  test(
+    'connect devolve false e mostra o erro quando a conexão falha',
+    () async {
+      final repo = MockBleRepository();
+      when(() => repo.stopScan()).thenAnswer((_) async {});
+      when(() => repo.connect(any())).thenThrow(Exception('timeout'));
+      final controller = BleController(repository: repo);
+
+      final conectou = await controller.connect(makeDevice());
+
+      expect(conectou, isFalse);
+      expect(controller.errorMessage, 'Falha ao conectar: Exception: timeout');
+      expect(controller.knownMacs, isEmpty);
+      expect(await SavedDevicesService.getSavedMacs(), isEmpty);
+    },
+  );
 }
