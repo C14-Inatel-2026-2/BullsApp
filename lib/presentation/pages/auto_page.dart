@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
 import '../../core/theme/app_colors.dart';
+import '../controllers/auto_status.dart';
 import '../widgets/header.dart';
 import '../widgets/toggle_button.dart';
 import '../widgets/dropdown.dart';
@@ -11,13 +12,28 @@ import '../widgets/display_state/display_state.dart';
 
 class CommandPage extends StatefulWidget {
   final Map<String, dynamic>? startPosition;
-  final void Function(String jogadaKey, String side, List<String> actions)?
-      onSendCommand;
+  final void Function(
+    String jogadaKey,
+    String side,
+    List<String> actions, {
+    bool teste,
+  })?
+  onSendCommand;
+
+  /// Estado do último envio, vindo do AutoController.
+  final AutoStatus status;
+
+  /// Última mensagem que o robô mandou depois do envio.
+  final String? robotResponse;
+  final String? errorMessage;
 
   const CommandPage({
     super.key,
     this.startPosition,
     this.onSendCommand,
+    this.status = AutoStatus.idle,
+    this.robotResponse,
+    this.errorMessage,
   });
 
   @override
@@ -32,6 +48,19 @@ class _CommandPageState extends State<CommandPage> {
   String? _selectedKey;
   String _selectedSide = 'ladoDir'; // 'ladoDir' = DIREITA, 'ladoEsc' = ESQUERDA
 
+  /// Seleção ("JOGADA_16-ladoDir") do último envio. Ao trocar a jogada ou o
+  /// lado, o botão volta a "ENVIAR COMANDO".
+  String? _sentSelection;
+
+  /// Modo teste: o comando sai com "T" na frente ("TD08").
+  bool _teste = false;
+
+  String get _currentSelection => '$_selectedKey-$_selectedSide-$_teste';
+
+  bool get _isSent =>
+      widget.status == AutoStatus.running &&
+      _sentSelection == _currentSelection;
+
   @override
   void initState() {
     super.initState();
@@ -39,8 +68,12 @@ class _CommandPageState extends State<CommandPage> {
   }
 
   Future<_JogadaData> _loadData() async {
-    final physicsString = await rootBundle.loadString('lib/assets/json/PHYSICS.json');
-    final jogadasString = await rootBundle.loadString('lib/assets/json/JOGADAS.json');
+    final physicsString = await rootBundle.loadString(
+      'lib/assets/json/PHYSICS.json',
+    );
+    final jogadasString = await rootBundle.loadString(
+      'lib/assets/json/JOGADAS.json',
+    );
 
     final physics = jsonDecode(physicsString) as Map<String, dynamic>;
     final jogadas = jsonDecode(jogadasString) as Map<String, dynamic>;
@@ -62,7 +95,29 @@ class _CommandPageState extends State<CommandPage> {
     if (_selectedKey == null) return;
     final rawJogada = jogadas[_selectedKey] as Map<String, dynamic>;
     final actions = getActionsFromState(rawJogada, _selectedSide);
-    widget.onSendCommand?.call(_selectedKey!, _selectedSide, actions);
+    setState(() => _sentSelection = _currentSelection);
+    widget.onSendCommand?.call(
+      _selectedKey!,
+      _selectedSide,
+      actions,
+      teste: _teste,
+    );
+  }
+
+  /// Resposta do robô (verde) ou erro do envio (vermelho), abaixo do botão.
+  Widget? _buildSendFeedback() {
+    if (_sentSelection != _currentSelection) return null;
+    final (text, color) = switch (widget.status) {
+      AutoStatus.error => (widget.errorMessage, Colors.redAccent),
+      AutoStatus.running => (widget.robotResponse, AppColors.success),
+      _ => (null, Colors.transparent),
+    };
+    if (text == null) return null;
+    return Text(
+      text,
+      textAlign: TextAlign.center,
+      style: TextStyle(color: color, fontWeight: FontWeight.bold),
+    );
   }
 
   @override
@@ -88,8 +143,12 @@ class _CommandPageState extends State<CommandPage> {
             final data = snapshot.data!;
             _selectedKey ??= data.orderedKeys.first;
 
-            final rawJogada = data.jogadas[_selectedKey!] as Map<String, dynamic>;
-            final actionsForSide = getActionsFromState(rawJogada, _selectedSide);
+            final rawJogada =
+                data.jogadas[_selectedKey!] as Map<String, dynamic>;
+            final actionsForSide = getActionsFromState(
+              rawJogada,
+              _selectedSide,
+            );
 
             final flattenedState = {
               'category': rawJogada['category'],
@@ -101,19 +160,25 @@ class _CommandPageState extends State<CommandPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const CustomHeader(
-                    isConnected: true,
-                  ),
+                  const CustomHeader(),
                   const SizedBox(height: 16),
 
                   const Text(
                     'SELECIONAR JOGADA',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   const Text(
                     'SEQUÊNCIA AUTÔNOMA TÁTICA',
-                    style: TextStyle(color: Colors.white54, fontSize: 11, letterSpacing: 1),
+                    style: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 11,
+                      letterSpacing: 1,
+                    ),
                   ),
                   const SizedBox(height: 16),
 
@@ -164,21 +229,40 @@ class _CommandPageState extends State<CommandPage> {
 
                   const SizedBox(height: 16),
 
+                  SideToggleButton(
+                    label: 'TESTE',
+                    selected: _teste,
+                    onTap: () => setState(() => _teste = !_teste),
+                  ),
+
+                  const SizedBox(height: 16),
+
                   SizedBox(
                     width: double.infinity,
                     height: 52,
                     child: ElevatedButton(
                       onPressed: () => _sendCommand(data.jogadas),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: _sendColor,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        backgroundColor: _isSent
+                            ? AppColors.success
+                            : _sendColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
                       ),
-                      child: const Text(
-                        'ENVIAR COMANDO',
-                        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+                      child: Text(
+                        _isSent ? 'COMANDO ENVIADO' : 'ENVIAR COMANDO',
+                        style: TextStyle(
+                          color: _isSent ? Colors.white : Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
+                  if (_buildSendFeedback() case final feedback?) ...[
+                    const SizedBox(height: 12),
+                    Center(child: feedback),
+                  ],
                   const SizedBox(height: 16),
                 ],
               ),

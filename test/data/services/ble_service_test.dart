@@ -12,6 +12,30 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../mocks/mocks.dart';
+// ── Wrapper mockável (conforme o guia) ──────────────────────────────────────
+
+/// Encapsula todas as chamadas estáticas de [FlutterBluePlus].
+/// Em produção, [BleService] usaria esta classe em vez de chamar
+/// FlutterBluePlus diretamente; nos testes usamos o mock abaixo.
+class FlutterBluePlusMockable {
+  Stream<List<ScanResult>> get scanResults => FlutterBluePlus.scanResults;
+  Stream<bool> get isScanning => FlutterBluePlus.isScanning;
+  Stream<BluetoothAdapterState> get adapterState =>
+      FlutterBluePlus.adapterState;
+
+  Future<void> startScan({
+    List<Guid> withServices = const [],
+    Duration? timeout,
+    Duration? removeIfGone,
+    bool oneByOne = false,
+    bool androidUsesFineLocation = false,
+  }) => FlutterBluePlus.startScan(
+    withServices: withServices,
+    timeout: timeout,
+    removeIfGone: removeIfGone,
+    oneByOne: oneByOne,
+    androidUsesFineLocation: androidUsesFineLocation,
+  );
 
 void main() {
   late MockBlePlatform platform;
@@ -106,6 +130,45 @@ void main() {
       when(() => platform.adapterState)
           .thenAnswer((_) => Stream.value(BluetoothAdapterState.on));
       when(() => platform.isScanning).thenAnswer((_) => Stream.value(true));
+  group('BleService.startScan', () {
+    test(
+      'chama startScan quando Bluetooth está ON e não está escaneando',
+      () async {
+        // Arrange
+        when(
+          () => mockFbp.adapterState,
+        ).thenAnswer((_) => Stream.value(BluetoothAdapterState.on));
+        when(() => mockFbp.isScanning).thenAnswer((_) => Stream.value(false));
+        when(() => mockFbp.startScan()).thenAnswer((_) async {});
+
+        // Act
+        await service.startScan();
+
+        // Assert
+        verify(() => mockFbp.startScan()).called(1);
+      },
+    );
+
+    test('lança BleTestException quando Bluetooth está OFF', () async {
+      // Arrange
+      when(
+        () => mockFbp.adapterState,
+      ).thenAnswer((_) => Stream.value(BluetoothAdapterState.off));
+      when(() => mockFbp.isScanning).thenAnswer((_) => Stream.value(false));
+
+      // Act & Assert
+      await expectLater(service.startScan(), throwsA(isA<BleTestException>()));
+      verifyNever(() => mockFbp.startScan());
+    });
+
+    test('não chama startScan quando já está escaneando', () async {
+      // Arrange
+      when(
+        () => mockFbp.adapterState,
+      ).thenAnswer((_) => Stream.value(BluetoothAdapterState.on));
+      when(
+        () => mockFbp.isScanning,
+      ).thenAnswer((_) => Stream.value(true)); // já escaneando
 
       await service.startScan();
 
@@ -139,6 +202,9 @@ void main() {
           )).thenThrow(
         FlutterBluePlusException(ErrorPlatform.fbp, 'connect', 1, 'timeout'),
       );
+      // 1. Registra a expectativa ANTES de disparar o evento
+      // 2. Usa isEmpty no lugar de []
+      final expectation = expectLater(stream, emits(isEmpty));
 
       await expectLater(
         service.connectToDevice(mac),
@@ -199,6 +265,14 @@ void main() {
           ),
         ),
       );
+    test('isScanning repassa o stream do wrapper', () async {
+      // Arrange
+      when(
+        () => mockFbp.isScanning,
+      ).thenAnswer((_) => Stream.fromIterable([false, true, false]));
+
+      // Act & Assert
+      await expectLater(service.isScanning, emitsInOrder([false, true, false]));
     });
 
     test('retorna os serviços do dispositivo conectado', () async {

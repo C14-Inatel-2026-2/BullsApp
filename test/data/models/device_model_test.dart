@@ -12,33 +12,57 @@ void main() {
   group('BleDeviceModel.signalStrength', () {
     test('sinal forte: RSSI >= -60', () {
       expect(
-        const BleDeviceModel(name: 'R', macAddress: '', rssi: -60).signalStrength,
+        const BleDeviceModel(
+          name: 'R',
+          macAddress: '',
+          rssi: -60,
+        ).signalStrength,
         SignalStrength.strong,
       );
       expect(
-        const BleDeviceModel(name: 'R', macAddress: '', rssi: -30).signalStrength,
+        const BleDeviceModel(
+          name: 'R',
+          macAddress: '',
+          rssi: -30,
+        ).signalStrength,
         SignalStrength.strong,
       );
     });
 
     test('sinal médio: -80 <= RSSI < -60', () {
       expect(
-        const BleDeviceModel(name: 'R', macAddress: '', rssi: -80).signalStrength,
+        const BleDeviceModel(
+          name: 'R',
+          macAddress: '',
+          rssi: -80,
+        ).signalStrength,
         SignalStrength.medium,
       );
       expect(
-        const BleDeviceModel(name: 'R', macAddress: '', rssi: -70).signalStrength,
+        const BleDeviceModel(
+          name: 'R',
+          macAddress: '',
+          rssi: -70,
+        ).signalStrength,
         SignalStrength.medium,
       );
     });
 
     test('sinal fraco: RSSI < -80', () {
       expect(
-        const BleDeviceModel(name: 'R', macAddress: '', rssi: -81).signalStrength,
+        const BleDeviceModel(
+          name: 'R',
+          macAddress: '',
+          rssi: -81,
+        ).signalStrength,
         SignalStrength.weak,
       );
       expect(
-        const BleDeviceModel(name: 'R', macAddress: '', rssi: -100).signalStrength,
+        const BleDeviceModel(
+          name: 'R',
+          macAddress: '',
+          rssi: -100,
+        ).signalStrength,
         SignalStrength.weak,
       );
     });
@@ -46,7 +70,11 @@ void main() {
 
   group('BleDeviceModel.isPaired', () {
     test('padrão é false', () {
-      const device = BleDeviceModel(name: 'Bot', macAddress: 'AA:BB', rssi: -50);
+      const device = BleDeviceModel(
+        name: 'Bot',
+        macAddress: 'AA:BB',
+        rssi: -50,
+      );
       expect(device.isPaired, isFalse);
     });
 

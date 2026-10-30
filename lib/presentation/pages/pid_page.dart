@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/theme/app_colors.dart';
+import '../../data/repositories/robot_command_port.dart';
+import '../controllers/test_controller.dart';
 import '../widgets/header.dart';
-import '/core/theme/app_colors.dart';
 
 class PIDControllerPage extends StatefulWidget {
   const PIDControllerPage({super.key});
@@ -10,11 +14,33 @@ class PIDControllerPage extends StatefulWidget {
 }
 
 class _PIDControllerPageState extends State<PIDControllerPage> {
-  double _kp = 45.0, _kd = 50.1, _ki = 5.2;
-  final double _min = 0.0000001, _max = 10.0;
+  static const double _min = 0, _max = 100;
 
-  void _salvar() {
-    debugPrint('KP: $_kp, KD: $_kd, KI: $_ki');
+  double _kp = 45.0, _kd = 50.1, _ki = 5.2;
+  late final TestController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TestController(port: context.read<RobotCommandPort>());
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _salvar() async {
+    await _controller.savePid(kp: _kp, ki: _ki, kd: _kd);
+    if (!mounted) return;
+    final error = _controller.errorMessage;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(error ?? 'PID enviado ao robô.'),
+        backgroundColor: error == null ? null : Colors.red,
+      ),
+    );
   }
 
   @override
@@ -24,9 +50,7 @@ class _PIDControllerPageState extends State<PIDControllerPage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            const CustomHeader(
-              isConnected: true, //  mudar dinamicamente
-            ),
+            const CustomHeader(),
             const SizedBox(height: 20),
             _buildCard(
               'KP',
@@ -112,7 +136,7 @@ class _PIDControllerPageState extends State<PIDControllerPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      value.toStringAsFixed(7),
+                      value.toStringAsFixed(2),
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w600,
@@ -153,7 +177,7 @@ class _PIDControllerPageState extends State<PIDControllerPage> {
             ),
             const SizedBox(height: 8),
             LinearProgressIndicator(
-              value: (value - _min) / (_max - _min),
+              value: ((value - _min) / (_max - _min)).clamp(0.0, 1.0),
               backgroundColor: AppColors.primary,
               color: color,
               minHeight: 4,
@@ -173,70 +197,75 @@ class _PIDControllerPageState extends State<PIDControllerPage> {
   ) {
     final controller = TextEditingController(text: value.toString());
 
-    showDialog(
+    showDialog<void>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: AppColors.card2,
-            title: Text(
-              'Ajustar $label',
-              style: TextStyle(color: AppColors.secondary),
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.card2,
+        title: Text(
+          'Ajustar $label',
+          style: TextStyle(color: AppColors.secondary),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: controller,
+              style: const TextStyle(color: AppColors.secondary),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              decoration: InputDecoration(
+                fillColor: AppColors.primary,
+                filled: true,
+                hintStyle: TextStyle(color: AppColors.primary),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                hintText: 'Valor entre 0 e 100',
+              ),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
+            const SizedBox(height: 16),
+            Row(
               children: [
-                TextField(
-                  controller: controller,
-                  style: const TextStyle(color: AppColors.secondary),
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    fillColor: AppColors.primary,
-                    filled: true,
-                    hintStyle: TextStyle(color: AppColors.primary),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Aceita vírgula como separador decimal (teclado BR).
+                      final newValue =
+                          double.tryParse(
+                            controller.text.replaceAll(',', '.'),
+                          ) ??
+                          value;
+                      if (newValue >= _min && newValue <= _max) {
+                        onChanged(newValue);
+                      }
+                      Navigator.pop(context);
+                    },
+                    style: ElevatedButton.styleFrom(backgroundColor: color),
+                    child: const Text(
+                      'Aplicar',
+                      style: TextStyle(color: AppColors.primary),
                     ),
-                    hintText: 'Valor entre 0.0000001 e 10',
                   ),
                 ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () {
-                          final newValue =
-                              double.tryParse(controller.text) ?? value;
-                          if (newValue >= _min && newValue <= _max) {
-                            onChanged(newValue);
-                          }
-                          Navigator.pop(context);
-                        },
-                        style: ElevatedButton.styleFrom(backgroundColor: color),
-                        child: const Text(
-                          'Aplicar',
-                          style: TextStyle(color: AppColors.primary),
-                        ),
-                      ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                        ),
-                        child: const Text(
-                          'Cancelar',
-                          style: TextStyle(color: AppColors.secondary),
-                        ),
-                      ),
+                    child: const Text(
+                      'Cancelar',
+                      style: TextStyle(color: AppColors.secondary),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),
-          ),
+          ],
+        ),
+      ),
     );
   }
 }

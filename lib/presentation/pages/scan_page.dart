@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../data/models/device_model.dart';
+import '../../data/repositories/ble_repository.dart';
 import '../controllers/ble_controller.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/device_list_item.dart';
@@ -50,7 +51,9 @@ class _ScanPageState extends State<ScanPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(controller.errorMessage ?? 'Falha ao conectar no robô.'),
+          content: Text(
+            controller.errorMessage ?? 'Falha ao conectar no robô.',
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -60,7 +63,8 @@ class _ScanPageState extends State<ScanPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => BleController()..init(),
+      create: (ctx) =>
+          BleController(repository: ctx.read<BleRepository>())..init(),
       child: Builder(
         builder: (context) {
           final controller = context.watch<BleController>();
@@ -78,7 +82,10 @@ class _ScanPageState extends State<ScanPage> {
                   child: Column(
                     children: [
                       const SizedBox(height: 24),
-                      Image.asset('lib/assets/images/robotbull.png', height: 110),
+                      Image.asset(
+                        'lib/assets/images/robotbull.png',
+                        height: 110,
+                      ),
                       const SizedBox(height: 32),
                       TabSelector(
                         options: const ['DISPONÍVEIS', 'PAREADOS'],
@@ -101,11 +108,18 @@ class _ScanPageState extends State<ScanPage> {
                       else
                         Column(
                           children: [
-                            for (int i = 0; i < displayedDevices.length; i++) ...[
+                            for (
+                              int i = 0;
+                              i < displayedDevices.length;
+                              i++
+                            ) ...[
                               DeviceListItem(
                                 device: displayedDevices[i],
-                                onConnect: () =>
-                                    _connect(context, controller, displayedDevices[i]),
+                                onConnect: () => _connect(
+                                  context,
+                                  controller,
+                                  displayedDevices[i],
+                                ),
                               ),
                               if (i != displayedDevices.length - 1)
                                 const SizedBox(height: 12),
@@ -113,12 +127,22 @@ class _ScanPageState extends State<ScanPage> {
                           ],
                         ),
                       const SizedBox(height: 20),
+                      if (controller.errorMessage != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            controller.errorMessage!,
+                            style: const TextStyle(color: Colors.redAccent),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
                       if (displayedDevices.isEmpty && controller.isScanning)
                         const Padding(
                           padding: EdgeInsets.only(top: 8),
                           child: CircularProgressIndicator(color: Colors.white),
                         )
-                      else if (displayedDevices.isEmpty && !controller.isScanning)
+                      else if (displayedDevices.isEmpty &&
+                          !controller.isScanning)
                         const Padding(
                           padding: EdgeInsets.only(top: 8),
                           child: Text(

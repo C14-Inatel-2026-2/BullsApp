@@ -22,7 +22,8 @@ class DisplayStateStyle {
 
   static const compactBorderRadius = 18.0;
 
-  static const dojoOuterFactor = 0.82; // dojoOuter é 82% do stage/compactWrapper
+  static const dojoOuterFactor =
+      0.82; // dojoOuter é 82% do stage/compactWrapper
 
   static const robotBorderRadius = 12.0;
   static const robotImgBorderWidth = 2.0;
@@ -47,7 +48,10 @@ class DisplayStateStyle {
 
   static const nextTextFontSize = 15.0;
   static const nextTextBorderRadius = 12.0;
-  static const nextTextPadding = EdgeInsets.symmetric(horizontal: 14, vertical: 12);
+  static const nextTextPadding = EdgeInsets.symmetric(
+    horizontal: 14,
+    vertical: 12,
+  );
 
   static const controlsBorderRadius = 14.0;
   static const controlsPadding = EdgeInsets.all(14);

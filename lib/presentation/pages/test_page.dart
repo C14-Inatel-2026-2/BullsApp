@@ -6,7 +6,6 @@ import 'terminal_page.dart';
 import 'pid_page.dart';
 import 'sensor_page.dart';
 
-
 // presentation/pages/home_page.dart
 class TestPage extends StatelessWidget {
   const TestPage({super.key});
@@ -20,16 +19,18 @@ class TestPage extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
             children: [
-              const CustomHeader(
-                isConnected: true, //  mudar dinamicamente
-              ),
+              const CustomHeader(),
               const SizedBox(height: 5),
               Image.asset('lib/assets/images/robotbull.png', height: 130),
               const SizedBox(height: 20),
               Text(
                 "ESCOLHA UM TESTE",
-                style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.bold, letterSpacing: 2),
-              ),            
+                style: const TextStyle(
+                  color: AppColors.secondary,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
+                ),
+              ),
               const SizedBox(height: 32),
 
               Center(
@@ -39,7 +40,7 @@ class TestPage extends StatelessWidget {
                       label: 'TESTAR MOTORES',
                       icon: Icons.settings,
                       color: AppColors.secondary,
-                      onTap: () {}, 
+                      onTap: () {},
                     ),
                     const SizedBox(height: 20),
                     CustomButton(
@@ -49,9 +50,11 @@ class TestPage extends StatelessWidget {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const SensorPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const SensorPage(),
+                          ),
                         );
-                      }, 
+                      },
                     ),
                     const SizedBox(height: 20),
                     CustomButton(
@@ -61,9 +64,11 @@ class TestPage extends StatelessWidget {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const PIDControllerPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const PIDControllerPage(),
+                          ),
                         );
-                      }, 
+                      },
                     ),
                     const SizedBox(height: 20),
                     CustomButton(
@@ -73,12 +78,13 @@ class TestPage extends StatelessWidget {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const TerminalPage()),
+                          MaterialPageRoute(
+                            builder: (context) => const TerminalPage(),
+                          ),
                         );
-                      }, 
+                      },
                     ),
                     const SizedBox(height: 20),
-                    
                   ],
                 ),
               ),

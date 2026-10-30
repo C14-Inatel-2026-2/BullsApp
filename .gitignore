@@ -50,3 +50,5 @@ app.*.map.json
 
 reports/
 coverage/
+# Relatórios de teste (make report)
+/reports/

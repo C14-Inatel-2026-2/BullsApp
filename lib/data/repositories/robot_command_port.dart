@@ -6,9 +6,10 @@ import 'robot_command_exception.dart';
 /// `TestController` e o `AutoController` só precisam mandar uma string e
 /// ler as respostas — não precisam saber de scan, permissões ou conexão.
 ///
-/// Quem implementa em produção é o `BleRepository` (escrevendo na
-/// característica BLE e assinando as notificações). Enquanto isso não
-/// existe, o `main.dart` injeta `FakeRobotCommandPort`.
+/// Em produção quem implementa é o `BleRepository` (escreve na
+/// característica BLE do robô e lê as notificações). Com
+/// `--dart-define=FAKE_ROBOT=true` o `main.dart` injeta o
+/// `FakeRobotCommandPort`, e os testes usam mocks.
 abstract interface class RobotCommandPort {
   /// Envia um comando cru (ex.: "D22", "E11"). Quem monta a string é o
   /// controller, via `RobotProtocol`; o canal só transporta.
@@ -17,4 +18,11 @@ abstract interface class RobotCommandPort {
 
   /// Linhas de resposta do robô (ex.: "sensorD2 vendo"), uma por evento.
   Stream<String> get responses;
+
+  /// Se há um robô conectado agora.
+  bool get isConnected;
+
+  /// Emite o novo valor de [isConnected] sempre que ele muda
+  /// (conectou, desconectou ou a conexão caiu).
+  Stream<bool> get connectionChanges;
 }

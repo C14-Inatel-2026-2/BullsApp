@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 
 import '../../core/constants/robot_protocol.dart';
 import '../../data/models/lado.dart';
-import '../../data/repositories/fake_robot_command_port.dart';
 import '../../data/repositories/robot_command_exception.dart';
 import '../../data/repositories/robot_command_port.dart';
 import 'auto_status.dart';
@@ -14,10 +13,7 @@ import 'auto_status.dart';
 /// comando que o robô entende ("D22") e envia pelo [RobotCommandPort],
 /// guardando o status de execução.
 class AutoController extends ChangeNotifier {
-  // TODO(kaynan): trocar o fake pelo BleRepository quando ele implementar
-  // RobotCommandPort (escrita/notify na característica do robô).
-  AutoController({RobotCommandPort? port})
-      : _port = port ?? FakeRobotCommandPort();
+  AutoController({required RobotCommandPort port}) : _port = port;
 
   final RobotCommandPort _port;
 
@@ -42,11 +38,13 @@ class AutoController extends ChangeNotifier {
   /// [jogadaKey] vem no formato "JOGADA_22"; [side] é 'ladoDir' ou 'ladoEsc'.
   /// [actions] é a sequência simulada na tela — o robô já a conhece pelo
   /// número da jogada, então só o número viaja pelo BLE.
+  /// [teste] envia a jogada em modo teste ("TD08").
   Future<void> sendJogada(
     String jogadaKey,
     String side,
-    List<String> actions,
-  ) async {
+    List<String> actions, {
+    bool teste = false,
+  }) async {
     final number = _jogadaNumber(jogadaKey);
     if (number == null) {
       _fail('Jogada inválida: $jogadaKey');
@@ -57,7 +55,7 @@ class AutoController extends ChangeNotifier {
       _fail('Lado inválido: $side');
       return;
     }
-    await _send(RobotProtocol.jogada(lado, number));
+    await _send(RobotProtocol.jogada(lado, number, teste: teste));
   }
 
   /// Entra no modo rádio-controlado pelo lado indicado ('ladoDir'/'ladoEsc').
@@ -70,8 +68,7 @@ class AutoController extends ChangeNotifier {
     await _send(RobotProtocol.rc(lado));
   }
 
-  /// Parar é prioritário: passa na frente de um envio em andamento, porque
-  /// é o comando que o piloto usa quando algo deu errado.
+  /// Para o robô. Nunca é descartado, mesmo com outro envio em andamento.
   Future<void> stop() async {
     await _send(RobotProtocol.parar, force: true);
     if (status != AutoStatus.error) status = AutoStatus.idle;
@@ -79,27 +76,36 @@ class AutoController extends ChangeNotifier {
   }
 
   // ── Internos ───────────────────────────────────────────────────────────
-  /// [force] ignora a trava de reentrância. Use só para comandos que não
-  /// podem ser descartados (parar); sem ele, dois toques no mesmo botão
-  /// enviariam o comando duas vezes.
-  Future<void> _send(String command, {bool force = false}) async {
-    if (!force && status == AutoStatus.sending) return;
+  /// Conta os envios para que a resposta de um envio antigo (ex.: a jogada
+  /// que estava indo quando o STOP passou na frente) não sobrescreva o
+  /// status do mais recente.
+  int _sendSeq = 0;
 
+  Future<void> _send(String command, {bool force = false}) async {
+    if (status == AutoStatus.sending && !force) return;
+
+    final seq = ++_sendSeq;
     status = AutoStatus.sending;
     lastCommand = command;
+    lastResponse = null; // a resposta exibida é sempre a deste envio
     errorMessage = null;
     notifyListeners();
 
+    AutoStatus result;
+    String? error;
     try {
       await _port.send(command);
-      status = AutoStatus.running;
+      result = AutoStatus.running;
     } on RobotCommandException catch (e) {
-      errorMessage = e.message;
-      status = AutoStatus.error;
+      error = e.message;
+      result = AutoStatus.error;
     } catch (e) {
-      errorMessage = 'Falha ao enviar: $e';
-      status = AutoStatus.error;
+      error = 'Falha ao enviar: $e';
+      result = AutoStatus.error;
     }
+    if (seq != _sendSeq) return; // um envio mais novo já assumiu o status
+    status = result;
+    errorMessage = error;
     notifyListeners();
   }
 

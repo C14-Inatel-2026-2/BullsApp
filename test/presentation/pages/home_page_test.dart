@@ -26,7 +26,9 @@ void main() {
   setUp(() {
     repo = MockBleRepository();
     connection = StreamController<BleConnectionState>();
-    when(() => repo.connectionStateOf(any())).thenAnswer((_) => connection.stream);
+    when(
+      () => repo.connectionStateOf(any()),
+    ).thenAnswer((_) => connection.stream);
   });
 
   // Sem await: num stream já fechado dentro do fake async do testWidgets,
@@ -69,7 +71,9 @@ void main() {
       expect(find.text('CONECTADO'), findsOneWidget);
     });
 
-    testWidgets('mostra DESCONECTADO quando começa desconectado', (tester) async {
+    testWidgets('mostra DESCONECTADO quando começa desconectado', (
+      tester,
+    ) async {
       await pumpHome(tester, isConnected: false);
 
       expect(find.text('DESCONECTADO'), findsOneWidget);
@@ -96,7 +100,9 @@ void main() {
   });
 
   group('HomePage - simulação de falhas', () {
-    testWidgets('erro no stream de conexão não derruba a página', (tester) async {
+    testWidgets('erro no stream de conexão não derruba a página', (
+      tester,
+    ) async {
       await pumpHome(tester);
 
       connection.addError(Exception('Bluetooth desligado'));
@@ -106,7 +112,9 @@ void main() {
       expect(find.text('CONECTADO'), findsOneWidget);
     });
 
-    testWidgets('stream que fecha sem emitir nada não muda o status', (tester) async {
+    testWidgets('stream que fecha sem emitir nada não muda o status', (
+      tester,
+    ) async {
       await pumpHome(tester);
 
       unawaited(connection.close());
@@ -116,7 +124,9 @@ void main() {
       expect(find.text('CONECTADO'), findsOneWidget);
     });
 
-    testWidgets('para de ouvir a conexão quando a página é destruída', (tester) async {
+    testWidgets('para de ouvir a conexão quando a página é destruída', (
+      tester,
+    ) async {
       await pumpHome(tester);
       expect(connection.hasListener, isTrue);
 

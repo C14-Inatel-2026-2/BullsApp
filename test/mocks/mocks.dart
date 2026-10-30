@@ -1,11 +1,12 @@
 import 'dart:async';
 
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+//import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:bullsapp/data/services/ble_service.dart';
 import 'package:bullsapp/data/services/ble_platform.dart';
 import 'package:bullsapp/data/repositories/ble_repository.dart';
+import 'package:bullsapp/data/repositories/robot_command_port.dart';
 import 'package:bullsapp/data/models/device_model.dart';
 
 // ── Service mock ────────────────────────────────────────────────────────────
@@ -44,6 +45,7 @@ MockScanResult makeScanResult(String name, String mac, int rssi) {
   when(() => r.rssi).thenReturn(rssi);
   return r;
 }
+class MockRobotCommandPort extends Mock implements RobotCommandPort {}
 
 // ── Fake fallbacks (mocktail exige fakes para tipos não-primitivos) ──────────
 
@@ -58,12 +60,7 @@ BleDeviceModel makeDevice({
   int rssi = -55,
   bool isPaired = false,
 }) =>
-    BleDeviceModel(
-      name: name,
-      macAddress: mac,
-      rssi: rssi,
-      isPaired: isPaired,
-    );
+    BleDeviceModel(name: name, macAddress: mac, rssi: rssi, isPaired: isPaired);
 
 /// Stream controller reutilizável para simular [BleRepository.devicesStream].
 StreamController<List<BleDeviceModel>> makeDevicesController() =>

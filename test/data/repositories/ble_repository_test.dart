@@ -17,6 +17,7 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'package:bullsapp/data/services/ble_service.dart';
 import 'package:bullsapp/data/repositories/ble_repository.dart';
+import 'package:bullsapp/data/repositories/robot_command_exception.dart';
 
 import '../../mocks/mocks.dart';
 
@@ -62,13 +63,11 @@ void main() {
 
   group('BleRepository.isScanning', () {
     test('repassa o stream do BleService', () async {
-      when(() => mockService.isScanning)
-          .thenAnswer((_) => Stream.fromIterable([false, true]));
+      when(
+        () => mockService.isScanning,
+      ).thenAnswer((_) => Stream.fromIterable([false, true]));
 
-      await expectLater(
-        repository.isScanning,
-        emitsInOrder([false, true]),
-      );
+      await expectLater(repository.isScanning, emitsInOrder([false, true]));
     });
   });
 
@@ -126,14 +125,12 @@ void main() {
     });
 
     test('propaga BleException lançada pelo service', () async {
-      when(() => mockService.startScan())
-          .thenThrow(const BleException('Bluetooth desligado.'));
+      when(
+        () => mockService.startScan(),
+      ).thenThrow(const BleException('Bluetooth desligado.'));
 
       // BleRepository não trata BleException — ela sobe para o controller.
-      await expectLater(
-        repository.startScan(),
-        throwsA(isA<BleException>()),
-      );
+      await expectLater(repository.startScan(), throwsA(isA<BleException>()));
     });
   });
 
@@ -166,14 +163,15 @@ void main() {
       const mac = 'AA:BB:CC:DD:EE:FF';
 
       // 1. Usa thenAnswer com async para simular a falha num Future
-      when(() => mockService.connectToDevice(mac))
-          .thenAnswer((_) async => throw const BleException('Falha ao conectar.'));
+      when(
+        () => mockService.connectToDevice(mac),
+      ).thenAnswer((_) async => throw const BleException('Falha ao conectar.'));
 
       final device = makeDevice(mac: mac);
 
       // 2. Envolve a chamada numa função anónima () =>
       await expectLater(
-            () => repository.connect(device),
+        () => repository.connect(device),
         throwsA(isA<BleException>()),
       );
     });
@@ -307,6 +305,43 @@ void main() {
       final list = await repository.devicesStream.first;
 
       expect(list.map((d) => d.macAddress), ['AA:01']);
+  // ── Comandos (RobotCommandPort) ────────────────────────────────────────────
+
+  group('BleRepository.send', () {
+    test('envia a linha pelo service', () async {
+      when(() => mockService.sendLine('D22')).thenAnswer((_) async {});
+
+      await repository.send('D22');
+
+      verify(() => mockService.sendLine('D22')).called(1);
+    });
+
+    test('converte BleException em RobotCommandException', () async {
+      when(
+        () => mockService.sendLine(any()),
+      ).thenThrow(const BleException('Nenhum robô conectado.'));
+
+      await expectLater(
+        () => repository.send('STOP'),
+        throwsA(
+          isA<RobotCommandException>().having(
+            (e) => e.message,
+            'message',
+            'Nenhum robô conectado.',
+          ),
+        ),
+      );
+    });
+
+    test('responses repassa as linhas do robô', () async {
+      when(
+        () => mockService.robotLines,
+      ).thenAnswer((_) => Stream.fromIterable(['sensorD2 vendo', 'OK']));
+
+      await expectLater(
+        repository.responses,
+        emitsInOrder(['sensorD2 vendo', 'OK', emitsDone]),
+      );
     });
   });
 }

@@ -27,22 +27,34 @@ pipeline {
                 sh 'flutter pub get'
             }
         }
-        stage('Build') {
-            steps {
 
-                echo 'Gerando APK Flutter...'
-                sh 'flutter build apk --debug'
-                sh './gradlew build'
+        stage('Verificar Formatação') {
+            steps {
+                echo 'Verificando formatação...'
+                sh 'dart format --output=none --set-exit-if-changed lib test'
+            }
+        }
+
+        stage('Análise Estática') {
+            steps {
+                echo 'Verificando análise estática...'
+                sh 'flutter analyze'
             }
         }
 
         stage('Executar Testes'){
             steps {
-                echo 'Rodando testes...'
-                sh './gradlew check'
-                sh 'flutter test -v'
+                echo 'Rodando testes e medindo a cobertura...'
+                sh 'flutter test -v --coverage'
+            }
+            post {
+                always {
+                    recordCoverage name: 'Cobertura de Testes',
+                        tools: [[parser: 'LCOV', pattern: 'coverage/lcov.info']]
+                }
             }
         }
+
         stage('Builds em Paralelo') {
             parallel {
                 stage('Build APK') {
@@ -69,29 +81,38 @@ pipeline {
                         }
                     }
                 }
-
-                stage('Build IOS') {
-                    steps {
-                        // Aloca um workspace temporário específico para o build iOS
-                        ws("${env.WORKSPACE}_ios") {
-                            checkout scm
-                            echo 'Gerando IOS Flutter...'
-                            sh 'flutter pub get'
-                            sh 'flutter build ios --debug --no-tree-shake-icons --no-codesign'
-                        }
-                    }
-                }
             }
-
-
+        }
     }
 
     post {
         success {
             echo '✅ Pipeline concluído com sucesso!'
+            notificarDiscord('✅ Pipeline OK')
         }
         failure {
             echo '❌ Pipeline falhou!'
+            notificarDiscord('❌ Pipeline FALHOU')
+        }
+    }
+}
+
+// Manda uma mensagem no Discord usando o webhook salvo no Jenkins
+// (credencial do tipo "Secret text" com o ID 'discord-webhook').
+// Se o relatório de testes existir, vai junto como anexo e o resumo entra no texto.
+def notificarDiscord(String status) {
+    withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
+        withEnv(["STATUS=${status}"]) {
+            sh '''
+            RESUMO=""
+            [ -f reports/resumo.txt ] && RESUMO="\\n $(cat reports/resumo.txt)"
+            ANEXO=""
+            [ -f reports/relatorio.html ] && ANEXO="-F file1=@reports/relatorio.html"
+
+            curl -s $ANEXO \
+                 --form-string "payload_json={\\"content\\": \\"$STATUS — $JOB_NAME #$BUILD_NUMBER$RESUMO\\n$BUILD_URL\\"}" \
+                 "$DISCORD_WEBHOOK"
+            '''
         }
     }
 }

@@ -12,19 +12,25 @@ class DeviceListItem extends StatelessWidget {
     required this.device,
     required this.onConnect,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: AppColors.card, borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(14),
+      ),
       width: 500,
       child: Row(
         children: [
           Container(
             width: 44,
             height: 44,
-            decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(
+              color: Colors.black26,
+              borderRadius: BorderRadius.circular(10),
+            ),
             child: const Icon(Iconsax.bluetooth, color: Colors.white70),
           ),
           const SizedBox(width: 12),
@@ -32,10 +38,22 @@ class DeviceListItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(device.name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
-                Text(device.macAddress, style: const TextStyle(color: AppColors.white, fontSize: 12)),
+                Text(
+                  device.name,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  device.macAddress,
+                  style: const TextStyle(color: AppColors.white, fontSize: 12),
+                ),
                 const SizedBox(height: 4),
-                Text('${device.rssi} dBm', style: const TextStyle(color: AppColors.white, fontSize: 11)),
+                Text(
+                  '${device.rssi} dBm',
+                  style: const TextStyle(color: AppColors.white, fontSize: 11),
+                ),
               ],
             ),
           ),
@@ -43,10 +61,18 @@ class DeviceListItem extends StatelessWidget {
             onPressed: onConnect,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.secondary,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
-            child: Text(device.isPaired ? 'PAREAR' : 'CONECTAR',
-                style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 12)),
+            child: Text(
+              device.isPaired ? 'PAREAR' : 'CONECTAR',
+              style: const TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
           ),
         ],
       ),

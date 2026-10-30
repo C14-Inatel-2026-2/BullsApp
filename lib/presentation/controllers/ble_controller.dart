@@ -8,21 +8,15 @@ import '../../data/services/saved_devices_service.dart';
 /// Estado da ScanPage gerenciado por ChangeNotifier (Provider).
 /// A presentation/ conversa com o BleRepository — nunca com o BleService.
 class BleController extends ChangeNotifier {
-
-  // Lista em memória dos MACs conhecidos
-  List<String> knownMacs = [];
-
-  Future<void> loadKnownDevices() async {
-    knownMacs = await SavedDevicesService.getSavedMacs();
-    notifyListeners();
-  }
-
-  BleController({BleRepository? repository})
-      : _repo = repository ?? BleRepository();
+  /// Recebe o [BleRepository] único do app (via Provider) — criar outro
+  /// aqui perderia a conexão ao sair da ScanPage.
+  BleController({required BleRepository repository}) : _repo = repository;
 
   final BleRepository _repo;
 
   // ── Estado público ─────────────────────────────────────────────────────
+  /// MACs já conectados antes (salvos localmente).
+  List<String> knownMacs = [];
   List<BleDeviceModel> devices = [];
   bool isScanning = false;
   String? errorMessage;
@@ -47,6 +41,11 @@ class BleController extends ChangeNotifier {
   }
 
   // ── Ações ──────────────────────────────────────────────────────────────
+  Future<void> loadKnownDevices() async {
+    knownMacs = await SavedDevicesService.getSavedMacs();
+    notifyListeners();
+  }
+
   Future<void> startScan() async {
     devices = [];
     errorMessage = null;
@@ -54,11 +53,8 @@ class BleController extends ChangeNotifier {
 
     try {
       await _repo.startScan();
-    } on BlePermissionException catch (e) {
-      errorMessage = e.message;
-      notifyListeners();
     } catch (e) {
-      errorMessage = e.toString();
+      errorMessage = e is BlePermissionException ? e.message : e.toString();
       notifyListeners();
     }
   }
@@ -67,6 +63,8 @@ class BleController extends ChangeNotifier {
 
   Future<bool> connect(BleDeviceModel device) async {
     try {
+      // No Android, conectar com o scan rodando costuma falhar ou demorar.
+      await _repo.stopScan();
       await _repo.connect(device);
 
       // Salva o MAC localmente após a conexão ser bem-sucedida
@@ -86,21 +84,15 @@ class BleController extends ChangeNotifier {
 
   Future<void> disconnect() => _repo.disconnect();
 
-  // Função tipada corretamente para BleDeviceModel
+  /// Já conectados antes primeiro; depois por sinal (RSSI) mais forte.
   List<BleDeviceModel> sortDevicesForUI(List<BleDeviceModel> scanResults) {
-    List<BleDeviceModel> sortedList = List.from(scanResults);
+    final known = knownMacs.toSet();
+    int rank(BleDeviceModel d) => known.contains(d.macAddress) ? 0 : 1;
 
-    sortedList.sort((a, b) {
-      bool isASaved = knownMacs.contains(a.macAddress);
-      bool isBSaved = knownMacs.contains(b.macAddress);
-
-      if (isASaved && !isBSaved) return -1;
-      if (!isASaved && isBSaved) return 1;
-
-      return b.rssi.compareTo(a.rssi);
+    return [...scanResults]..sort((a, b) {
+      final byKnown = rank(a).compareTo(rank(b));
+      return byKnown != 0 ? byKnown : b.rssi.compareTo(a.rssi);
     });
-
-    return sortedList;
   }
 
   // ── Cleanup ────────────────────────────────────────────────────────────

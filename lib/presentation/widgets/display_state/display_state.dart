@@ -41,7 +41,8 @@ class DisplayState extends StatefulWidget {
   State<DisplayState> createState() => _DisplayStateState();
 }
 
-class _DisplayStateState extends State<DisplayState> with SingleTickerProviderStateMixin {
+class _DisplayStateState extends State<DisplayState>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   String _side = 'ladoDir';
   bool _isLoopWaiting = false;
@@ -73,7 +74,11 @@ class _DisplayStateState extends State<DisplayState> with SingleTickerProviderSt
 
   void _rebuildSimulation() {
     _actions = getActionsFromState(widget.state, _side);
-    _resolvedStartPosition = resolveStartPosition(widget.state, _side, widget.startPosition);
+    _resolvedStartPosition = resolveStartPosition(
+      widget.state,
+      _side,
+      widget.startPosition,
+    );
     _simulation = simulateJogada(
       actions: _actions,
       startPosition: _resolvedStartPosition,
@@ -160,10 +165,13 @@ class _DisplayStateState extends State<DisplayState> with SingleTickerProviderSt
       return stageOrCompact;
     }
 
-    final hasSideChoice = widget.state?['ladoDir'] != null || widget.state?['ladoEsc'] != null;
+    final hasSideChoice =
+        widget.state?['ladoDir'] != null || widget.state?['ladoEsc'] != null;
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: DisplayStateStyle.wrapperMaxWidth),
+      constraints: const BoxConstraints(
+        maxWidth: DisplayStateStyle.wrapperMaxWidth,
+      ),
       child: DefaultTextStyle(
         style: const TextStyle(
           fontFamily: DisplayStateStyle.fontFamily,
@@ -181,7 +189,9 @@ class _DisplayStateState extends State<DisplayState> with SingleTickerProviderSt
               padding: DisplayStateStyle.nextTextPadding,
               decoration: BoxDecoration(
                 color: DisplayStateColors.nextTextBackground,
-                borderRadius: BorderRadius.circular(DisplayStateStyle.nextTextBorderRadius),
+                borderRadius: BorderRadius.circular(
+                  DisplayStateStyle.nextTextBorderRadius,
+                ),
                 border: Border.all(color: DisplayStateColors.nextTextBorder),
               ),
               child: Text.rich(
@@ -208,7 +218,9 @@ class _DisplayStateState extends State<DisplayState> with SingleTickerProviderSt
               padding: DisplayStateStyle.controlsPadding,
               decoration: BoxDecoration(
                 color: DisplayStateColors.controlsBackground,
-                borderRadius: BorderRadius.circular(DisplayStateStyle.controlsBorderRadius),
+                borderRadius: BorderRadius.circular(
+                  DisplayStateStyle.controlsBorderRadius,
+                ),
                 border: Border.all(color: DisplayStateColors.controlsBorder),
               ),
               child: Column(
@@ -229,7 +241,8 @@ class _DisplayStateState extends State<DisplayState> with SingleTickerProviderSt
                         child: _SideButton(
                           label: 'Direito',
                           active: _side == 'ladoDir',
-                          enabled: hasSideChoice || widget.state?['ladoDir'] != null,
+                          enabled:
+                              hasSideChoice || widget.state?['ladoDir'] != null,
                           onPressed: () => _setSide('ladoDir'),
                         ),
                       ),
@@ -238,7 +251,8 @@ class _DisplayStateState extends State<DisplayState> with SingleTickerProviderSt
                         child: _SideButton(
                           label: 'Esquerdo',
                           active: _side == 'ladoEsc',
-                          enabled: hasSideChoice || widget.state?['ladoEsc'] != null,
+                          enabled:
+                              hasSideChoice || widget.state?['ladoEsc'] != null,
                           onPressed: () => _setSide('ladoEsc'),
                         ),
                       ),
@@ -278,14 +292,17 @@ class _DisplayStateState extends State<DisplayState> with SingleTickerProviderSt
                       ),
                       child: Slider(
                         min: 0,
-                        max: math.max(1, _simulation.durationMs.roundToDouble()),
+                        max: math.max(
+                          1,
+                          _simulation.durationMs.roundToDouble(),
+                        ),
                         value: _timeMs.clamp(0, _simulation.durationMs),
                         onChanged: (value) {
                           _controller.stop();
                           _loopTimer?.cancel();
                           setState(() => _isLoopWaiting = false);
-                          _controller.value =
-                              (value / _simulation.durationMs).clamp(0.0, 1.0);
+                          _controller.value = (value / _simulation.durationMs)
+                              .clamp(0.0, 1.0);
                         },
                       ),
                     ),
@@ -295,15 +312,23 @@ class _DisplayStateState extends State<DisplayState> with SingleTickerProviderSt
                     child: OutlinedButton(
                       onPressed: () => _resetAnimation(true),
                       style: OutlinedButton.styleFrom(
-                        backgroundColor: DisplayStateColors.controlButtonBackground,
-                        foregroundColor: DisplayStateColors.controlButtonForeground,
-                        side: const BorderSide(color: DisplayStateColors.controlButtonBorder),
+                        backgroundColor:
+                            DisplayStateColors.controlButtonBackground,
+                        foregroundColor:
+                            DisplayStateColors.controlButtonForeground,
+                        side: const BorderSide(
+                          color: DisplayStateColors.controlButtonBorder,
+                        ),
                         shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(DisplayStateStyle.controlButtonBorderRadius),
+                          borderRadius: BorderRadius.circular(
+                            DisplayStateStyle.controlButtonBorderRadius,
+                          ),
                         ),
                       ),
-                      child: const Text('Reiniciar', style: TextStyle(fontWeight: FontWeight.bold)),
+                      child: const Text(
+                        'Reiniciar',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                     ),
                   ),
                 ],
@@ -331,9 +356,15 @@ class _SideButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bg = active ? DisplayStateColors.sideButtonActiveBackground : DisplayStateColors.sideButtonBackground;
-    final fg = active ? DisplayStateColors.sideButtonActiveForeground : DisplayStateColors.sideButtonForeground;
-    final border = active ? DisplayStateColors.sideButtonActiveBackground : DisplayStateColors.sideButtonBorder;
+    final bg = active
+        ? DisplayStateColors.sideButtonActiveBackground
+        : DisplayStateColors.sideButtonBackground;
+    final fg = active
+        ? DisplayStateColors.sideButtonActiveForeground
+        : DisplayStateColors.sideButtonForeground;
+    final border = active
+        ? DisplayStateColors.sideButtonActiveBackground
+        : DisplayStateColors.sideButtonBorder;
 
     return Opacity(
       opacity: enabled ? 1 : DisplayStateColors.sideButtonDisabledOpacity,
@@ -347,10 +378,15 @@ class _SideButton extends StatelessWidget {
             disabledForegroundColor: fg,
             side: BorderSide(color: border),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(DisplayStateStyle.sideButtonBorderRadius),
+              borderRadius: BorderRadius.circular(
+                DisplayStateStyle.sideButtonBorderRadius,
+              ),
             ),
           ),
-          child: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
       ),
     );
@@ -393,7 +429,9 @@ class _Stage extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: DisplayStateColors.stageBackground,
-          borderRadius: BorderRadius.circular(DisplayStateStyle.stageBorderRadius),
+          borderRadius: BorderRadius.circular(
+            DisplayStateStyle.stageBorderRadius,
+          ),
           border: Border.all(
             color: DisplayStateColors.stageBorder,
             width: DisplayStateStyle.stageBorderWidth,
@@ -445,7 +483,10 @@ class _Stage extends StatelessWidget {
                     children: [
                       Flexible(
                         child: Text(
-                          (state?['category'] ?? state?['categoria'] ?? 'JOGADA').toString(),
+                          (state?['category'] ??
+                                  state?['categoria'] ??
+                                  'JOGADA')
+                              .toString(),
                           overflow: TextOverflow.ellipsis,
                           style: _infoTextStyle(fontWeight: FontWeight.bold),
                         ),
@@ -496,13 +537,21 @@ class _Stage extends StatelessWidget {
                     math.min(timeMs, simulation.durationMs),
                   );
                   return Text(
-                    isLoopWaiting ? 'loop em ${loopMs}ms' : (currentFrame?.actionLabel ?? 'início'),
+                    isLoopWaiting
+                        ? 'loop em ${loopMs}ms'
+                        : (currentFrame?.actionLabel ?? 'início'),
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: DisplayStateStyle.actionTextFontSize,
-                      color: DisplayStateColors.actionText.withValues(alpha: 0.95),
+                      color: DisplayStateColors.actionText.withValues(
+                        alpha: 0.95,
+                      ),
                       shadows: const [
-                        Shadow(color: DisplayStateColors.actionTextShadow, blurRadius: 2, offset: Offset(0, 1)),
+                        Shadow(
+                          color: DisplayStateColors.actionTextShadow,
+                          blurRadius: 2,
+                          offset: Offset(0, 1),
+                        ),
                       ],
                     ),
                   );
@@ -515,12 +564,17 @@ class _Stage extends StatelessWidget {
     );
   }
 
-  TextStyle _infoTextStyle({FontWeight fontWeight = FontWeight.normal}) => TextStyle(
+  TextStyle _infoTextStyle({FontWeight fontWeight = FontWeight.normal}) =>
+      TextStyle(
         fontSize: DisplayStateStyle.infoFontSize,
         color: DisplayStateColors.infoText,
         fontWeight: fontWeight,
         shadows: const [
-          Shadow(color: DisplayStateColors.infoTextShadow, blurRadius: 2, offset: Offset(0, 1)),
+          Shadow(
+            color: DisplayStateColors.infoTextShadow,
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
         ],
       );
 }
@@ -557,7 +611,9 @@ class _CompactWrapper extends StatelessWidget {
         child: Container(
           decoration: BoxDecoration(
             color: DisplayStateColors.compactBackground,
-            borderRadius: BorderRadius.circular(DisplayStateStyle.compactBorderRadius),
+            borderRadius: BorderRadius.circular(
+              DisplayStateStyle.compactBorderRadius,
+            ),
           ),
           clipBehavior: Clip.antiAlias,
           child: Center(
@@ -680,23 +736,25 @@ class _DojoCircle extends StatelessWidget {
                         children: [
                           // .robotImg
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(DisplayStateStyle.robotBorderRadius),
+                            borderRadius: BorderRadius.circular(
+                              DisplayStateStyle.robotBorderRadius,
+                            ),
                             child: Container(
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   color: DisplayStateColors.robotImgBorder,
                                   width: DisplayStateStyle.robotImgBorderWidth,
                                 ),
-                                borderRadius:
-                                    BorderRadius.circular(DisplayStateStyle.robotBorderRadius),
+                                borderRadius: BorderRadius.circular(
+                                  DisplayStateStyle.robotBorderRadius,
+                                ),
                                 boxShadow: DisplayStateStyle.robotImgShadow,
                               ),
                               child: Image.asset(
                                 robotAssetPath,
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) => Container(
-                                  color: Colors.blueGrey,
-                                ),
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(color: Colors.blueGrey),
                               ),
                             ),
                           ),
@@ -740,7 +798,8 @@ class _TrianglePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _TrianglePainter oldDelegate) => oldDelegate.color != color;
+  bool shouldRepaint(covariant _TrianglePainter oldDelegate) =>
+      oldDelegate.color != color;
 }
 
 class _PathPainter extends CustomPainter {
@@ -765,16 +824,31 @@ class _PathPainter extends CustomPainter {
     // .shikiriSen (faixas de partida, cor inline no JSX: #8b4d00)
     final rectPaint = Paint()..color = DisplayStateColors.shikiriSen;
     for (final r in getShikiriSenRects(physics)) {
-      final rect = Rect.fromLTWH(r.x * scale, r.y * scale, r.width * scale, r.height * scale);
-      canvas.drawRRect(RRect.fromRectAndRadius(rect, Radius.circular(1.5 * scale)), rectPaint);
+      final rect = Rect.fromLTWH(
+        r.x * scale,
+        r.y * scale,
+        r.width * scale,
+        r.height * scale,
+      );
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect, Radius.circular(1.5 * scale)),
+        rectPaint,
+      );
     }
 
     if (arrowMode == ArrowMode.never) return;
 
     final leftDojo = didPathLeaveDojo(simulation.frames, physics);
-    final pathColor = leftDojo ? DisplayStateColors.pathError : DisplayStateColors.pathOk;
+    final pathColor = leftDojo
+        ? DisplayStateColors.pathError
+        : DisplayStateColors.pathOk;
 
-    final drawable = getDrawableFrames(simulation.frames, physics, currentTimeMs, arrowMode);
+    final drawable = getDrawableFrames(
+      simulation.frames,
+      physics,
+      currentTimeMs,
+      arrowMode,
+    );
     if (drawable.length < 2) return;
 
     final path = Path();
@@ -804,7 +878,12 @@ class _PathPainter extends CustomPainter {
       strokePaint,
     );
 
-    final endAngleDeg = getPathEndAngle(simulation.frames, physics, currentTimeMs, arrowMode);
+    final endAngleDeg = getPathEndAngle(
+      simulation.frames,
+      physics,
+      currentTimeMs,
+      arrowMode,
+    );
     final lastPoint = poseToScreen(drawable.last, physics);
     _drawArrowHead(
       canvas,
@@ -817,8 +896,11 @@ class _PathPainter extends CustomPainter {
       final start = getStartPoint(simulation.frames, physics);
       if (start != null) {
         final center = Offset(start.left * scale, start.top * scale);
-        canvas.drawCircle(center, DisplayStateStyle.startPointRadius * scale,
-            Paint()..color = DisplayStateColors.startPointFill);
+        canvas.drawCircle(
+          center,
+          DisplayStateStyle.startPointRadius * scale,
+          Paint()..color = DisplayStateColors.startPointFill,
+        );
         canvas.drawCircle(
           center,
           DisplayStateStyle.startPointRadius * scale,
@@ -846,7 +928,11 @@ class _PathPainter extends CustomPainter {
     canvas.restore();
   }
 
-  Path _dashPath(Path source, {required double dashLength, required double gapLength}) {
+  Path _dashPath(
+    Path source, {
+    required double dashLength,
+    required double gapLength,
+  }) {
     final dashed = Path();
     for (final metric in source.computeMetrics()) {
       var distance = 0.0;
@@ -854,7 +940,10 @@ class _PathPainter extends CustomPainter {
       while (distance < metric.length) {
         final next = distance + (draw ? dashLength : gapLength);
         if (draw) {
-          dashed.addPath(metric.extractPath(distance, math.min(next, metric.length)), Offset.zero);
+          dashed.addPath(
+            metric.extractPath(distance, math.min(next, metric.length)),
+            Offset.zero,
+          );
         }
         distance = next;
         draw = !draw;

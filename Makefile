@@ -1,8 +1,14 @@
-.PHONY: run clean build-apk build-web get test format docker-build docker-up docker-down docker-logs docker-stop docker-rm docker-shell help
+.PHONY: run run-fake clean build-apk build-web get test report format docker-build docker-up docker-down docker-logs docker-stop docker-rm docker-shell help
 
 # Flutter Commands
+
+# App normal: escaneia e conecta no robô real por Bluetooth
 run:
 	flutter run
+
+# App com robô simulado: pula o scan e responde os comandos sem Bluetooth
+run-fake:
+	flutter run --dart-define=FAKE_ROBOT=true
 
 clean:
 	flutter clean
@@ -19,18 +25,26 @@ get:
 test:
 	flutter test
 
+# Gera reports/relatorio.html (testes + cobertura) e reports/test-results.xml (JUnit)
+report:
+	python -c "import os; os.makedirs('reports', exist_ok=True)"
+	-flutter test --machine --coverage > reports/test-results.json
+	python scripts/gerar_relatorio.py
+
 format:
 	dart format lib/
 
 # Docker Commands
 help:
 	@echo "=== BullsApp Flutter Commands ==="
-	@echo "make run         - Executar app em desenvolvimento"
+	@echo "make run         - Executar app com o robô real (Bluetooth)"
+	@echo "make run-fake    - Executar app com robô simulado (sem Bluetooth)"
 	@echo "make clean       - Limpar build"
 	@echo "make build-apk   - Build APK release"
 	@echo "make build-web   - Build web release"
 	@echo "make get         - Obter dependências"
 	@echo "make test        - Rodar testes"
+	@echo "make report      - Gerar reports/relatorio.html"
 	@echo "make format      - Formatar código"
 	@echo ""
 	@echo "=== BullsApp Docker Commands ==="
