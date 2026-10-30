@@ -6,13 +6,18 @@
 import 'dart:async';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/constants/app_constants.dart';
+import 'ble_platform.dart';
 
 class BleService {
+  BleService({BlePlatform? platform}) : _platform = platform ?? BlePlatform();
+
+  final BlePlatform _platform;
+
   // ── Streams internos ─────────────────────────────────────────────────────
 
-  Stream<List<ScanResult>> get rawScanResults => FlutterBluePlus.scanResults;
-  Stream<bool> get isScanning => FlutterBluePlus.isScanning;
-  Stream<BluetoothAdapterState> get adapterState => FlutterBluePlus.adapterState;
+  Stream<List<ScanResult>> get rawScanResults => _platform.scanResults;
+  Stream<bool> get isScanning => _platform.isScanning;
+  Stream<BluetoothAdapterState> get adapterState => _platform.adapterState;
 
   // ── Dispositivo conectado ─────────────────────────────────────────────────
 
@@ -22,25 +27,25 @@ class BleService {
   // ── Scan ──────────────────────────────────────────────────────────────────
 
   Future<void> startScan() async {
-    final state = await FlutterBluePlus.adapterState.first;
+    final state = await _platform.adapterState.first;
     if (state != BluetoothAdapterState.on) {
       throw BleException('Bluetooth está desligado.');
     }
-    if (await FlutterBluePlus.isScanning.first) return;
+    if (await _platform.isScanning.first) return;
 
-    await FlutterBluePlus.startScan(
+    await _platform.startScan(
       timeout: AppConstants.bleScanTimeout,
     );
   }
 
   Future<void> stopScan() async {
-    await FlutterBluePlus.stopScan();
+    await _platform.stopScan();
   }
 
   // ── Conexão ───────────────────────────────────────────────────────────────
 
   Future<void> connectToDevice(String macAddress) async {
-    final device = BluetoothDevice.fromId(macAddress);
+    final device = _platform.deviceFromId(macAddress);
     try {
       await device.connect(
         license: License.nonprofit, // <-- A linha que faltava!
@@ -61,7 +66,7 @@ class BleService {
   }
 
   Stream<BluetoothConnectionState> connectionStateOf(String macAddress) {
-    return BluetoothDevice.fromId(macAddress).connectionState;
+    return _platform.deviceFromId(macAddress).connectionState;
   }
 
   // ── GATT ──────────────────────────────────────────────────────────────────

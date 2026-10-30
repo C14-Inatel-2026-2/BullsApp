@@ -4,6 +4,7 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:bullsapp/data/services/ble_service.dart';
+import 'package:bullsapp/data/services/ble_platform.dart';
 import 'package:bullsapp/data/repositories/ble_repository.dart';
 import 'package:bullsapp/data/models/device_model.dart';
 
@@ -14,6 +15,16 @@ class MockBleService extends Mock implements BleService {}
 // ── Repository mock ─────────────────────────────────────────────────────────
 
 class MockBleRepository extends Mock implements BleRepository {}
+
+// ── GATT mocks (flutter_blue_plus) ──────────────────────────────────────────
+
+class MockCharacteristic extends Mock implements BluetoothCharacteristic {}
+
+class MockProperties extends Mock implements CharacteristicProperties {}
+
+class MockBlePlatform extends Mock implements BlePlatform {}
+
+class MockBluetoothDevice extends Mock implements BluetoothDevice {}
 
 // ── Fake fallbacks (mocktail exige fakes para tipos não-primitivos) ──────────
 
@@ -42,3 +53,23 @@ StreamController<List<BleDeviceModel>> makeDevicesController() =>
 /// Stream controller reutilizável para simular [BleRepository.isScanning].
 StreamController<bool> makeScanningController() =>
     StreamController<bool>.broadcast();
+
+/// Cria um [MockCharacteristic] com as propriedades GATT informadas.
+MockCharacteristic makeCharacteristic({
+  bool read = false,
+  bool write = false,
+  bool writeWithoutResponse = false,
+  bool notify = false,
+  bool indicate = false,
+}) {
+  final props = MockProperties();
+  when(() => props.read).thenReturn(read);
+  when(() => props.write).thenReturn(write);
+  when(() => props.writeWithoutResponse).thenReturn(writeWithoutResponse);
+  when(() => props.notify).thenReturn(notify);
+  when(() => props.indicate).thenReturn(indicate);
+
+  final c = MockCharacteristic();
+  when(() => c.properties).thenReturn(props);
+  return c;
+}
