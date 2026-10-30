@@ -44,13 +44,19 @@ pipeline {
 
         stage('Executar Testes'){
             steps {
-                echo 'Rodando testes e medindo a cobertura...'
-                sh 'flutter test -v --coverage'
+                echo 'Rodando testes...'
+                sh '''
+                command -v python3 || (apt-get update && apt-get install -y python3)
+                mkdir -p reports
+                flutter test --machine --coverage > reports/test-results.json || FALHOU=1
+                python3 scripts/gerar_relatorio.py
+                exit ${FALHOU:-0}
+                '''
             }
             post {
                 always {
-                    recordCoverage name: 'Cobertura de Testes',
-                        tools: [[parser: 'LCOV', pattern: 'coverage/lcov.info']]
+                    junit allowEmptyResults: true, testResults: 'reports/test-results.xml'
+                    archiveArtifacts artifacts: 'reports/relatorio.html', allowEmptyArchive: true
                 }
             }
         }
