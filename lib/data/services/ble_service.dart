@@ -6,18 +6,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import '../../core/constants/app_constants.dart';
-import 'ble_platform.dart';
-
-class BleService {
-  BleService({BlePlatform? platform}) : _platform = platform ?? BlePlatform();
-
-  final BlePlatform _platform;
-
-  // ── Streams internos ─────────────────────────────────────────────────────
-
-  Stream<List<ScanResult>> get rawScanResults => _platform.scanResults;
-  Stream<bool> get isScanning => _platform.isScanning;
-  Stream<BluetoothAdapterState> get adapterState => _platform.adapterState;
 import 'robot_line_decoder.dart';
 
 class BleService {
@@ -58,13 +46,13 @@ class BleService {
   // ── Scan ──────────────────────────────────────────────────────────────────
 
   Future<void> startScan() async {
-    final state = await _platform.adapterState.first;
+    final state = await FlutterBluePlus.adapterState.first;
     if (state != BluetoothAdapterState.on) {
       throw BleException('Bluetooth está desligado.');
     }
-    if (await _platform.isScanning.first) return;
+    if (await FlutterBluePlus.isScanning.first) return;
 
-    await _platform.startScan(
+    await FlutterBluePlus.startScan(
       timeout: AppConstants.bleScanTimeout,
       // No navegador só dá para abrir os serviços declarados aqui.
       webOptionalServices: [
@@ -75,7 +63,7 @@ class BleService {
   }
 
   Future<void> stopScan() async {
-    await _platform.stopScan();
+    await FlutterBluePlus.stopScan();
   }
 
   // ── Conexão ───────────────────────────────────────────────────────────────
@@ -83,7 +71,6 @@ class BleService {
   /// Conecta e prepara o canal de comandos. Se o robô não expuser um canal
   /// serial reconhecível, desconecta e lança [BleException].
   Future<void> connectToDevice(String macAddress) async {
-    final device = _platform.deviceFromId(macAddress);
     if (_connectedDevice != null) await disconnect();
 
     final device = BluetoothDevice.fromId(macAddress);
@@ -123,7 +110,7 @@ class BleService {
   }
 
   Stream<BluetoothConnectionState> connectionStateOf(String macAddress) {
-    return _platform.deviceFromId(macAddress).connectionState;
+    return BluetoothDevice.fromId(macAddress).connectionState;
   }
 
   // ── Canal de comandos ─────────────────────────────────────────────────────
