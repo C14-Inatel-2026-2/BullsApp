@@ -1,16 +1,19 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../models/device_model.dart';
+import '../services/ble_platform.dart';
 import '../services/ble_service.dart';
 
 class BleRepository {
-  BleRepository({BleService? service}) : _service = service ?? BleService();
+  BleRepository({BleService? service, BlePlatform? platform})
+      : _platform = platform ?? BlePlatform(),
+        _service = service ?? BleService();
 
   final BleService _service;
+  final BlePlatform _platform;
 
   // ── Scan ──────────────────────────────────────────────────────────────────
 
@@ -51,9 +54,9 @@ class BleRepository {
     final models = <BleDeviceModel>[];
 
     // 1. Dispositivos já pareados (bonded) — Android only
-    if (!Platform.isLinux && !Platform.isWindows && !Platform.isMacOS) {
+    if (!_platform.isDesktop) {
       try {
-        final bonded = await FlutterBluePlus.bondedDevices;
+        final bonded = await _platform.bondedDevices;
         for (final d in bonded) {
           if (d.platformName.isEmpty) continue; // ignora sem nome
           final mac = d.remoteId.toString();
@@ -103,18 +106,14 @@ class BleRepository {
   // ── Permissões ────────────────────────────────────────────────────────────
 
   Future<void> _requestPermissions() async {
-    if (!Platform.isAndroid && !Platform.isIOS) return;
+    if (!_platform.isMobile) return;
 
     // Pede todas as permissões necessárias, incluindo localização
     // (necessária em algumas versões do Android para BLE scan)
-    final statuses = await [
-      Permission.bluetoothScan,
-      Permission.bluetoothConnect,
-      Permission.locationWhenInUse, // necessário em Android 10/11
-    ].request();
+    final statuses = await _platform.requestBlePermissions();
 
     final denied =
-    statuses.values.any((s) => s.isDenied || s.isPermanentlyDenied);
+    statuses.any((s) => s.isDenied || s.isPermanentlyDenied);
     if (denied) {
       throw BlePermissionException(
         'Permissões de Bluetooth negadas. Habilite nas configurações do app.',
