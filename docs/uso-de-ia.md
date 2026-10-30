@@ -7,7 +7,8 @@ O grupo usou IA como apoio no desenvolvimento. Todo código gerado foi lido, tes
 | Ferramenta | Modelo | Quem usou |
 |---|---|---|
 | Claude Code | Claude Sonnet 5.5 | Silas |
-| _preencher_ | _preencher_ | _Luiz / Kaynan / João_ |
+| Google Gemini | Gemini 1.5 Pro | Kaynan |
+| _preencher_ | _preencher_ | _Luiz / João_ |
 
 ## Para que foi usada
 
@@ -36,6 +37,11 @@ A IA verificou que o APK tem cerca de 156 MB, e o limite do webhook é de 10 MB.
 **4. Falha no build de iOS: aceito**
 
 Ao rodar o pipeline, a IA identificou que o `flutter build ios` só funciona no macOS e por isso nunca passaria no container Linux. O grupo **removeu** o estágio (commit `c68912d`).
+
+**5. Armazenamento de MAC Address (Bluetooth LE): aceito**
+> "Como posso implementar o armazenamento persistente de endereços MAC no Flutter usando flutter_blue_plus para priorizar os robôs conhecidos na hora do scan?"
+
+A IA sugeriu o uso do pacote `shared_preferences` para salvar os MACs localmente. A estratégia foi **aceita** e integrada ao controlador para agilizar a reconexão automática com os robôs da equipe.
 
 ## Dinâmica de uso
 
