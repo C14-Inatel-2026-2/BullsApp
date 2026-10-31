@@ -74,3 +74,55 @@
    - **Então** a mensagem de erro aparece no terminal e na tela
 
 **Rastreabilidade:** Jira Scrum-32 → PR #22 → `test/presentation/controller/test_controller_test.dart`
+
+## US04 — Conectar ao robô por BLE
+
+*Como* piloto da RobotBulls,
+*eu quero* procurar o robô por Bluetooth e conectar a ele pelo celular,
+*para que* eu possa enviar jogadas, calibrar o PID e usar o terminal sem precisar de cabos ou de um computador.
+
+*Prioridade:* Alta · *Status:* Entregue
+
+### Critérios de aceite
+
+1. *Encontrar o robô*
+   - *Dado* que o Bluetooth está ligado e as permissões foram concedidas
+   - *Quando* abro a tela de busca e toco em escanear
+   - *Então* o app lista os dispositivos com nome encontrados, do sinal mais forte para o mais fraco
+
+2. *Robô conhecido primeiro*
+   - *Dado* que já me conectei a um robô antes
+   - *Quando* a lista de dispositivos é exibida
+   - *Então* o robô já conhecido aparece no topo, antes dos demais
+
+3. *Conectar ao robô*
+   - *Dado* que o robô aparece na lista
+   - *Quando* toco nele
+   - *Então* o app conecta, retorna sucesso e salva o endereço MAC para as próximas vezes
+
+4. *Sem duplicar o MAC salvo*
+   - *Dado* que já me conectei a este robô antes
+   - *Quando* conecto a ele novamente
+   - *Então* o MAC continua salvo uma única vez
+
+5. *Falha na conexão*
+   - *Dado* que o robô está fora de alcance ou a conexão expira
+   - *Quando* a conexão falha
+   - *Então* o app mostra "Falha ao conectar" e o MAC não é salvo
+
+6. *Bluetooth desligado*
+   - *Dado* que o Bluetooth do celular está desligado
+   - *Quando* toco em escanear
+   - *Então* nenhum scan é iniciado e o app mostra "Bluetooth está desligado."
+
+7. *Permissões negadas*
+   - *Dado* que neguei as permissões de Bluetooth ou localização
+   - *Quando* toco em escanear
+   - *Então* nenhum scan é iniciado e o app orienta a habilitar as permissões nas configurações
+
+8. *Desconectar*
+   - *Dado* que o robô está conectado
+   - *Quando* toco em desconectar
+   - *Então* a conexão com o robô é encerrada
+
+*Rastreabilidade:* `test/presentation/controller/ble_controller_test.dart`, `test/data/repositories/ble_repository_test.dart`, `test/data/services/ble_service_test.dart` (100% de cobertura em ble_service.dart e ble_repository.dart)
