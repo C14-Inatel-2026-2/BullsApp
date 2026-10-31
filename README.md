@@ -121,3 +121,4 @@ Prompts usados, respostas aceitas ou descartadas, dinâmica de uso e o que foi f
 | [Dinâmica de desenvolvimento](docs/dinamica.md) | Branches, commits, code review, bloqueios e lições aprendidas |
 | [Refactorings](docs/refactorings.md) | Refactorings aplicados, com commits e PRs |
 | [Uso de IA](docs/uso-de-ia.md) | Modelos, prompts e dinâmica de uso |
+| [BLE](docs/ble.md) | Camadas de comunicação do BLE |
