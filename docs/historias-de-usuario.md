@@ -126,3 +126,89 @@
    - *Então* a conexão com o robô é encerrada
 
 *Rastreabilidade:* `test/presentation/controller/ble_controller_test.dart`, `test/data/repositories/ble_repository_test.dart`, `test/data/services/ble_service_test.dart` (100% de cobertura em ble_service.dart e ble_repository.dart)
+
+## US05 — Testar sensores e motores
+
+**Como** piloto da RobotBulls,
+**eu quero** ver um componente visual do robô na tela indicando a posição e o estado de cada sensor,
+**para que** eu diagnostique rapidamente o hardware visualizando as cores antes ou durante os testes na arena.
+
+**Prioridade:** Média · **Status:** A Fazer
+
+### Critérios de aceite
+
+1. **Renderizar o componente do robô**
+   - **Dado** que abri a `sensor_page`
+   - **Quando** a tela termina de carregar
+   - **Então** vejo o componente visual do robô com todos os sensores posicionados corretamente
+
+2. **Sensor detectando oponente ou linha**
+   - **Dado** que a leitura do sensor acusa detecção
+   - **Quando** a interface recebe essa atualização
+   - **Então** a cor do sensor no componente muda para o status "vendo"
+
+3. **Sensor sem detecção**
+   - **Dado** que o sensor não está detectando nada
+   - **Quando** a interface recebe essa atualização
+   - **Então** a cor do sensor no componente muda para o status "cego"
+
+4. **Sensor inativo ou falhando**
+   - **Dado** que não há resposta do sensor ou ocorreu falha
+   - **Quando** o sistema acusa erro
+   - **Então** a cor do sensor muda para o status "sem resposta"
+
+**Rastreabilidade:** Jira Scrum-5 → `presentation/pages/sensor_page.dart`
+
+## US06 — Ajustar a potência dos motores e acionar a parada
+
+**Como** membro da equipe técnica da RobotBulls,
+**eu quero** ajustar a potência do motor direito e esquerdo usando duas barras verticais e ter um botão de parada,
+**para que** eu consiga testar a tração e o funcionamento independente de cada motor na bancada.
+
+**Prioridade:** Alta · **Status:** A Fazer
+
+### Critérios de aceite
+
+1. **Visualizar interface de motores**
+   - **Dado** que abri a `motor_page`
+   - **Quando** a tela carrega
+   - **Então** visualizo as duas barras verticais (esquerda e direita) e um botão de "Parar"
+
+2. **Ajustar potência da barra**
+   - **Dado** que estou na tela de motores
+   - **Quando** arrasto a barra vertical de um dos motores
+   - **Então** o valor correspondente atualiza na interface e envia o novo parâmetro de velocidade ao robô
+
+3. **Botão de parada de emergência**
+   - **Dado** que modifiquei a potência dos motores
+   - **Quando** toco no botão de "Parar"
+   - **Então** as barras verticais retornam imediatamente a zero e o comando de parar os motores é enviado
+
+**Rastreabilidade:** Jira Scrum-6 → `presentation/pages/motor_page.dart`
+
+## US07 — Enviar comandos e acompanhar respostas no terminal
+
+**Como** desenvolvedor ou responsável pela calibração do robô,
+**eu quero** interagir com um terminal direto na tela, contendo campo de texto e histórico de requisições,
+**para que** eu possa enviar comandos arbitrários e monitorar as respostas do robô sem conectar ao monitor serial.
+
+**Prioridade:** Média · **Status:** A Fazer
+
+### Critérios de aceite
+
+1. **Visualizar os elementos do terminal**
+   - **Dado** que acessei a `rc_page`
+   - **Quando** a interface é carregada
+   - **Então** vejo a lista de histórico de comandos, um campo para digitação e um botão de envio
+
+2. **Enviar comando via interface**
+   - **Dado** que digitei um comando válido no campo de texto
+   - **Quando** toco no botão de enviar
+   - **Então** o comando é disparado para o robô e o campo de texto é esvaziado
+
+3. **Atualizar lista de histórico na tela**
+   - **Dado** que um comando foi enviado ou recebido
+   - **Quando** ocorre a atualização de dados no sistema
+   - **Então** o novo item (enviado ou recebido) aparece visível no final da lista do terminal
+
+**Rastreabilidade:** Jira Scrum-7 → `presentation/pages/rc_page.dart`
