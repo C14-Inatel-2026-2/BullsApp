@@ -75,6 +75,43 @@
 
 **Rastreabilidade:** Jira Scrum-32 → PR #22 → `test/presentation/controller/test_controller_test.dart`
 
+## US03 — Ver o estado real dos sensores do robô
+
+**Como** piloto da RobotBulls,
+**eu quero** pedir a leitura dos sensores pelo celular e ver o que cada um está detectando,
+**para que** eu confirme antes do round que todos os sensores do robô estão funcionando.
+
+**Prioridade:** Média · **Status:** Parcial (o controller já interpreta as respostas, mas a tela de sensores ainda mostra dados simulados)
+
+### Critérios de aceite
+
+1. **Pedir a leitura**
+   - **Dado** que o robô está conectado e estou na tela de sensores
+   - **Quando** peço a leitura dos sensores
+   - **Então** o app envia `SENSORES` ao robô
+
+2. **Mostrar a resposta do robô**
+   - **Dado** que pedi a leitura dos sensores
+   - **Quando** o robô responde `sensorD2 vendo`
+   - **Então** o sensor D2 aparece como **vendo**
+
+3. **A leitura mais nova vale**
+   - **Dado** que o sensor D2 está como **vendo**
+   - **Quando** chega a resposta `sensorD2 cego`
+   - **Então** o D2 passa a aparecer como **cego**
+
+4. **Resposta que não é de sensor**
+   - **Dado** que estou na tela de sensores
+   - **Quando** o robô responde algo como `OK SENSORES`
+   - **Então** nenhum sensor muda de estado
+
+5. **Erro de conexão**
+   - **Dado** que a conexão com o robô falha durante o pedido
+   - **Quando** o envio dá erro
+   - **Então** o app mostra a mensagem de erro e os sensores continuam com o último estado conhecido
+
+**Rastreabilidade:** Jira Scrum-XX → `test/presentation/controller/test_controller_test.dart`
+
 ## US04 — Conectar ao robô por BLE
 
 *Como* piloto da RobotBulls,
