@@ -16,7 +16,7 @@ class RobotProtocol {
   static String rc(Lado lado) => '${lado.prefixo}RC';
 
   static const String parar = 'STOP';
-  static const String testarSensores = 'SENSORES';
+  static const String testarSensores = 'E92';
 
   /// Valores em ticks, no mesmo intervalo de `maxTicks` do PHYSICS.json.
   static String testarMotores(int esquerdo, int direito) =>
@@ -30,4 +30,20 @@ class RobotProtocol {
     r'^sensor(\w+)\s+(vendo|cego)$',
     caseSensitive: false,
   );
+
+  static const List<String> ordemSensores = ['E2', 'E1', 'F1', 'F2', 'D1', 'D2'];
+
+  static Set<String>? lerSensoresVendo(String linha) {
+    final texto = linha.trim().toUpperCase();
+
+    if (texto.isEmpty) return null;
+
+    if (texto == '-') return <String>{};
+
+    final tokens = texto.split(RegExp(r'\s+'));
+
+    if (!tokens.every((t) => ordemSensores.contains(t))) return null;
+
+    return tokens.toSet();
+  }
 }
