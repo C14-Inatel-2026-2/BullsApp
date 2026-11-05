@@ -115,7 +115,7 @@ Prompts usados, respostas aceitas ou descartadas, dinâmica de uso e o que foi f
 | [Instalação e execução](docs/instalacao.md) | Ferramentas, instalar o Flutter, comandos e Makefile |
 | [Arquitetura](docs/arquitetura.md) | Camadas do código, protocolo de comandos e jogadas |
 | [Testes](docs/testes.md) | Como rodar os testes e gerar o relatório HTML com cobertura |
-| [CI/CD](docs/ci-cd.md) | Jenkins + Docker e notificação no Discord |
+| [CI/CD](docs/ci-cd.md) | Jenkins + Docker, notificação no Discord e deploy (GitHub Pages + Releases) |
 | [Histórias de usuário](docs/historias-de-usuario.md) | Histórias com critérios de aceite, prioridade, status e rastreabilidade |
 | [Metodologia](docs/metodologia.md) | Scrum, papéis, sprints, definição de pronto e métricas |
 | [Dinâmica de desenvolvimento](docs/dinamica.md) | Branches, commits, code review, bloqueios e lições aprendidas |
