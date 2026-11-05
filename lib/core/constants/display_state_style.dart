@@ -1,3 +1,4 @@
+// coverage:ignore-file
 // Constantes não-cromáticas extraídas de DisplayState.module.css
 // (raios, espaçamentos, tamanhos de fonte, sombras).
 
