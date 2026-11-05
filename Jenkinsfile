@@ -8,6 +8,10 @@ pipeline {
         }
     }
 
+    parameters {
+        booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Publica a web no GitHub Pages e o APK no GitHub Releases')
+    }
+
     stages {
 
         stage('Test Flutter') {
@@ -71,7 +75,8 @@ pipeline {
                             checkout scm
                             echo 'Gerando APK Flutter...'
                             sh 'flutter pub get'
-                            sh 'flutter build apk --debug --no-tree-shake-icons'
+                            sh 'flutter build apk --release --no-tree-shake-icons'
+                            stash name: 'apk', includes: 'build/app/outputs/flutter-apk/app-release.apk'
                         }
                     }
                 }
@@ -83,7 +88,43 @@ pipeline {
                             checkout scm
                             echo 'Gerando Web Flutter...'
                             sh 'flutter pub get'
-                            sh 'flutter build web --debug --no-tree-shake-icons'
+                            // O GitHub Pages serve o site em /BullsApp/
+                            sh 'flutter build web --release --base-href /BullsApp/ --no-tree-shake-icons'
+                            stash name: 'web', includes: 'build/web/**'
+                            //guarda
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when { expression { params.DEPLOY } }
+            parallel {
+                // Publica build/web na branch gh-pages (GitHub Pages)
+                stage('Deploy Web') {
+                    steps {
+                        //puxa
+                        unstash 'web'
+                        withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
+                            sh '''
+                            cd build/web && git init -q -b gh-pages && git add -A
+                            git -c user.name=Jenkins -c user.email=ci@jenkins commit -qm "Build #$BUILD_NUMBER"
+                            git push -qf https://x-access-token:$GH_TOKEN@github.com/C14-Inatel-2026-2/BullsApp.git gh-pages
+                            '''
+                        }
+                    }
+                }
+
+                // Cria a release build-N no GitHub com o APK anexado
+                stage('Deploy APK') {
+                    steps {
+                        unstash 'apk'
+                        withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
+                            sh '''
+                            apt-get update -qq && apt-get install -y -qq gh
+                            gh release create build-$BUILD_NUMBER build/app/outputs/flutter-apk/app-release.apk -R C14-Inatel-2026-2/BullsApp --target $GIT_COMMIT --notes ""
+                            '''
                         }
                     }
                 }
