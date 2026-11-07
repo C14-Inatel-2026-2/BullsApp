@@ -5,6 +5,7 @@ import '../widgets/header.dart';
 import 'terminal_page.dart';
 import 'pid_page.dart';
 import 'sensor_page.dart';
+import 'motor_page.dart';
 
 // presentation/pages/home_page.dart
 class TestPage extends StatelessWidget {
@@ -40,7 +41,14 @@ class TestPage extends StatelessWidget {
                       label: 'TESTAR MOTORES',
                       icon: Icons.settings,
                       color: AppColors.secondary,
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MotorPage(),
+                          ),
+                        );
+                      },
                     ),
                     const SizedBox(height: 20),
                     CustomButton(
