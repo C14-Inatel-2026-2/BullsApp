@@ -9,7 +9,7 @@ pipeline {
     }
 
     parameters {
-        booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Publica a web no GitHub Pages e o APK no GitHub Releases')
+        booleanParam(name: 'DEPLOY', defaultValue: true, description: 'Publica a web no GitHub Pages e o APK no GitHub Releases')
     }
 
     stages {
