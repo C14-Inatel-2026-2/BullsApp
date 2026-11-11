@@ -9,7 +9,7 @@ pipeline {
     }
 
     parameters {
-        booleanParam(name: 'DEPLOY', defaultValue: false, description: 'Publica a web no GitHub Pages e o APK no GitHub Releases')
+        booleanParam(name: 'DEPLOY', defaultValue: true, description: 'Publica a web no GitHub Pages e o APK no GitHub Releases')
     }
 
     stages {
@@ -104,11 +104,14 @@ pipeline {
                 // Publica build/web na branch gh-pages (GitHub Pages)
                 stage('Deploy Web') {
                     steps {
+                        // Usa uma pasta própria: a build/ do workspace é do root (criada pelo Flutter
+                        // no container) e o unstash roda como usuário jenkins, sem permissão nela
+                        sh 'rm -rf deploy-web'
                         //puxa
-                        unstash 'web'
+                        dir('deploy-web') { unstash 'web' }
                         withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
                             sh '''
-                            cd build/web && git init -q -b gh-pages && git add -A
+                            cd deploy-web/build/web && git init -q -b gh-pages && git add -A
                             git -c user.name=Jenkins -c user.email=ci@jenkins commit -qm "Build #$BUILD_NUMBER"
                             git push -qf https://x-access-token:$GH_TOKEN@github.com/C14-Inatel-2026-2/BullsApp.git gh-pages
                             '''
@@ -119,11 +122,12 @@ pipeline {
                 // Cria a release build-N no GitHub com o APK anexado
                 stage('Deploy APK') {
                     steps {
-                        unstash 'apk'
+                        sh 'rm -rf deploy-apk'
+                        dir('deploy-apk') { unstash 'apk' }
                         withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
                             sh '''
                             apt-get update -qq && apt-get install -y -qq gh
-                            gh release create build-$BUILD_NUMBER build/app/outputs/flutter-apk/app-release.apk -R C14-Inatel-2026-2/BullsApp --target $GIT_COMMIT --notes ""
+                            gh release create build-$BUILD_NUMBER deploy-apk/build/app/outputs/flutter-apk/app-release.apk -R C14-Inatel-2026-2/BullsApp --target $GIT_COMMIT --notes ""
                             '''
                         }
                     }
