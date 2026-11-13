@@ -8,7 +8,8 @@ O grupo usou IA como apoio no desenvolvimento. Todo código gerado foi lido, tes
 |---|---|---|
 | Claude Code | Claude Sonnet 5.5 | Silas |
 | Google Gemini | Gemini 1.5 Pro | Kaynan |
-| _preencher_ | _preencher_ | _Luiz / João_ |
+| Claude Code | Claude Opus 5 e Claude Opus 5.5 | João ([detalhamento](uso-de-ia-joao.md)) |
+| _preencher_ | _preencher_ | _Luiz_ |
 
 ## Para que foi usada
 
@@ -51,4 +52,6 @@ A IA sugeriu o uso do pacote `shared_preferences` para salvar os MACs localmente
 
 ## O que não foi feito por IA
 
-Por exemplo: a arquitetura em camadas, o protocolo de comandos combinado com o firmware, o design das telas, as jogadas do `JOGADAS.json`, a parte de testes unitarios e toda a ideia do projeto foi criada pelos membros da RobotBulls.
+Por exemplo: a arquitetura em camadas, o protocolo de comandos combinado com o firmware, o design das telas, as jogadas do `JOGADAS.json` e toda a ideia do projeto foram criados pelos membros da RobotBulls.
+
+Os testes da camada de controllers tiveram participação da IA. O detalhamento PR a PR (código gerado, assistido ou misto) está em [uso-de-ia-joao.md](uso-de-ia-joao.md).
