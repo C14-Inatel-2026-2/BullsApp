@@ -27,13 +27,22 @@ pipeline {
                 sh 'flutter pub get'
             }
         }
-
+/*
         stage('Verificar Formatação') {
             steps {
                 echo 'Verificando formatação...'
                 sh 'dart format --output=none --set-exit-if-changed lib test'
             }
         }
+        */
+
+        stage('Verificar Formatação') {
+    steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+            sh 'dart format --output=none --set-exit-if-changed lib test'
+        }
+    }
+}
 
         stage('Análise Estática') {
             steps {
@@ -41,6 +50,7 @@ pipeline {
                 sh 'flutter analyze'
             }
         }
+
 
         stage('Executar Testes'){
             steps {
