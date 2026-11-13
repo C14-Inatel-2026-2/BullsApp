@@ -31,7 +31,14 @@ class RobotProtocol {
     caseSensitive: false,
   );
 
-  static const List<String> ordemSensores = ['E2', 'E1', 'F1', 'F2', 'D1', 'D2'];
+  static const List<String> ordemSensores = [
+    'E2',
+    'E1',
+    'F1',
+    'F2',
+    'D1',
+    'D2',
+  ];
 
   static Set<String>? lerSensoresVendo(String linha) {
     final texto = linha.trim().toUpperCase();

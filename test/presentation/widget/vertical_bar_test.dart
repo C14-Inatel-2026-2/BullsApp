@@ -53,14 +53,18 @@ void main() {
   });
 
   group('VerticalBar - valores inválidos', () {
-    testWidgets('valor acima do máximo é limitado e não quebra', (tester) async {
+    testWidgets('valor acima do máximo é limitado e não quebra', (
+      tester,
+    ) async {
       await tester.pumpWidget(montar(value: 999));
 
       expect(tester.takeException(), isNull);
       expect(tester.widget<Slider>(find.byType(Slider)).value, 100);
     });
 
-    testWidgets('valor abaixo do mínimo é limitado e não quebra', (tester) async {
+    testWidgets('valor abaixo do mínimo é limitado e não quebra', (
+      tester,
+    ) async {
       await tester.pumpWidget(montar(value: -999));
 
       expect(tester.takeException(), isNull);

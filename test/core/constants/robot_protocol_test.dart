@@ -67,27 +67,29 @@ void main() {
   });
 
   group('RobotProtocol.lerSensoresVendo', () {
-  test('reconhece os sensores que estão vendo', () {
-    expect(RobotProtocol.lerSensoresVendo('E2 F1 D1 '),
-        equals({'E2', 'F1', 'D1'}));
-  });
+    test('reconhece os sensores que estão vendo', () {
+      expect(
+        RobotProtocol.lerSensoresVendo('E2 F1 D1 '),
+        equals({'E2', 'F1', 'D1'}),
+      );
+    });
 
-  test('"-" significa que nenhum sensor está vendo', () {
-    final r = RobotProtocol.lerSensoresVendo('-');
-    expect(r, isNotNull);
-    expect(r, isEmpty);
-  });
+    test('"-" significa que nenhum sensor está vendo', () {
+      final r = RobotProtocol.lerSensoresVendo('-');
+      expect(r, isNotNull);
+      expect(r, isEmpty);
+    });
 
-  test('ignora mensagens que não são de sensor', () {
-    expect(RobotProtocol.lerSensoresVendo('BUSCA'), isNull);
-  });
+    test('ignora mensagens que não são de sensor', () {
+      expect(RobotProtocol.lerSensoresVendo('BUSCA'), isNull);
+    });
 
-  test('ignora linha com token desconhecido', () {
-    expect(RobotProtocol.lerSensoresVendo('E2 XX'), isNull);
-  });
+    test('ignora linha com token desconhecido', () {
+      expect(RobotProtocol.lerSensoresVendo('E2 XX'), isNull);
+    });
 
-  test('linha vazia não é mensagem de sensor', () {
-    expect(RobotProtocol.lerSensoresVendo('   '), isNull);
+    test('linha vazia não é mensagem de sensor', () {
+      expect(RobotProtocol.lerSensoresVendo('   '), isNull);
+    });
   });
-});
 }

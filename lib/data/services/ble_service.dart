@@ -85,7 +85,8 @@ class BleService {
     // Se a conexão cair (robô desligou, saiu do alcance), o canal fica
     // inválido — limpa para o próximo send() falhar com mensagem clara.
     _connectionSub = device.connectionState.listen((state) {
-      if (state == BluetoothConnectionState.disconnected) _closeCommandChannel();
+      if (state == BluetoothConnectionState.disconnected)
+        _closeCommandChannel();
     });
   }
 
@@ -154,7 +155,8 @@ class BleService {
     bool canNotify(BluetoothCharacteristic c) =>
         c.properties.notify || c.properties.indicate;
 
-    for (final (serviceId, writeId, notifyId) in AppConstants.robotSerialProfiles) {
+    for (final (serviceId, writeId, notifyId)
+        in AppConstants.robotSerialProfiles) {
       for (final s in services.where((s) => s.uuid == Guid(serviceId))) {
         final write = s.characteristics
             .where((c) => c.uuid == Guid(writeId) && canWrite(c))

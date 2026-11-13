@@ -47,8 +47,9 @@ void main() {
       expect(find.text('PARAR'), findsOneWidget);
     });
 
-    testWidgets('ao soltar a barra esquerda, envia o comando de motores',
-        (tester) async {
+    testWidgets('ao soltar a barra esquerda, envia o comando de motores', (
+      tester,
+    ) async {
       await abrirPagina(tester);
 
       slider(tester, 0).onChanged!(50);
@@ -59,8 +60,9 @@ void main() {
       verify(() => port.send(RobotProtocol.testarMotores(50, 0))).called(1);
     });
 
-    testWidgets('PARAR zera as barras e envia o comando de parada',
-        (tester) async {
+    testWidgets('PARAR zera as barras e envia o comando de parada', (
+      tester,
+    ) async {
       await abrirPagina(tester);
       slider(tester, 0).onChanged!(50);
       await tester.pump();
@@ -84,10 +86,12 @@ void main() {
       verifyNever(() => port.send(any()));
     });
 
-    testWidgets('falha ao enviar o comando não derruba a página',
-        (tester) async {
-      when(() => port.send(any()))
-          .thenAnswer((_) async => throw RobotCommandException('sem conexão'));
+    testWidgets('falha ao enviar o comando não derruba a página', (
+      tester,
+    ) async {
+      when(
+        () => port.send(any()),
+      ).thenAnswer((_) async => throw RobotCommandException('sem conexão'));
       await abrirPagina(tester);
 
       await tester.tap(find.text('PARAR'));

@@ -25,14 +25,17 @@ void main() {
     await robot.dispose();
   });
 
-  test('comando do terminal vai para o robô e a resposta entra no log', () async {
-    await controller.sendCommand('  PING  ');
-    await pumpEventQueue();
+  test(
+    'comando do terminal vai para o robô e a resposta entra no log',
+    () async {
+      await controller.sendCommand('  PING  ');
+      await pumpEventQueue();
 
-    expect(robot.enviados, ['PING']);
-    expect(controller.log, containsAllInOrder(['> PING', '< OK PING']));
-    expect(controller.isBusy, isFalse);
-  });
+      expect(robot.enviados, ['PING']);
+      expect(controller.log, containsAllInOrder(['> PING', '< OK PING']));
+      expect(controller.isBusy, isFalse);
+    },
+  );
 
   test('comando vazio não é enviado', () async {
     await controller.sendCommand('   ');
@@ -56,8 +59,9 @@ void main() {
   });
 
   test('STOP passa mesmo com outro comando em andamento', () async {
-    final slowRobot =
-        FakeRobotCommandPort(latency: const Duration(milliseconds: 50));
+    final slowRobot = FakeRobotCommandPort(
+      latency: const Duration(milliseconds: 50),
+    );
     final c = TestController(port: slowRobot)..init();
 
     final first = c.sendCommand('MOTOR 100 100');
@@ -75,8 +79,9 @@ void main() {
   test('erro do canal aparece no log e em errorMessage', () async {
     final port = MockRobotCommandPort();
     when(() => port.responses).thenAnswer((_) => const Stream.empty());
-    when(() => port.send(any()))
-        .thenThrow(const RobotCommandException('Nenhum robô conectado.'));
+    when(
+      () => port.send(any()),
+    ).thenThrow(const RobotCommandException('Nenhum robô conectado.'));
     final c = TestController(port: port)..init();
 
     await c.sendCommand('STOP');

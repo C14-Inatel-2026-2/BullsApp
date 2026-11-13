@@ -23,15 +23,14 @@ class _MotorPageState extends State<MotorPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (ctx) => TestController(port: ctx.read<RobotCommandPort>())..init(),
+      create: (ctx) =>
+          TestController(port: ctx.read<RobotCommandPort>())..init(),
       child: Builder(
         builder: (context) {
           final controller = context.read<TestController>();
 
-          void enviar() => controller.testMotors(
-                left: _esq.round(),
-                right: _dir.round(),
-              );
+          void enviar() =>
+              controller.testMotors(left: _esq.round(), right: _dir.round());
 
           void parar() {
             setState(() {

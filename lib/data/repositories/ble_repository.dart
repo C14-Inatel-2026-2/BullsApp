@@ -77,7 +77,9 @@ class BleRepository implements RobotCommandPort {
     // 1. Dispositivos já pareados (bonded) — Android only
     // (Platform do dart:io lança exceção no navegador: checa kIsWeb antes)
     if (!kIsWeb &&
-        !Platform.isLinux && !Platform.isWindows && !Platform.isMacOS) {
+        !Platform.isLinux &&
+        !Platform.isWindows &&
+        !Platform.isMacOS) {
       try {
         final bonded = await FlutterBluePlus.bondedDevices;
         for (final d in bonded) {
@@ -109,12 +111,14 @@ class BleRepository implements RobotCommandPort {
           : r.device.platformName;
       if (name.isEmpty) continue; // ignora sem nome
       seen.add(mac);
-      models.add(BleDeviceModel(
-        name: name,
-        macAddress: mac,
-        rssi: r.rssi,
-        isPaired: false,
-      ));
+      models.add(
+        BleDeviceModel(
+          name: name,
+          macAddress: mac,
+          rssi: r.rssi,
+          isPaired: false,
+        ),
+      );
     }
 
     // Pareados primeiro, depois por RSSI decrescente
