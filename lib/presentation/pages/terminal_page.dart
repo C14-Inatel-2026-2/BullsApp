@@ -17,8 +17,6 @@ class _TerminalPageState extends State<TerminalPage> {
   final TextEditingController _inputController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  // As linhas do terminal vivem no TestController; a tela só as exibe.
-  // Guarda quantas já foram vistas para rolar quando chegar linha nova.
   int _linesSeen = 0;
 
   // Rola para o final automaticamente
@@ -67,27 +65,20 @@ class _TerminalPageState extends State<TerminalPage> {
           }
 
           return Scaffold(
-            backgroundColor: AppColors.primary, // Fundo preto
+            backgroundColor: AppColors.primary,
 
             body: Column(
               children: [
                 const CustomHeader(),
-                // Área que mostra o texto
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.all(
-                      16.0,
-                    ), // Espaçamento externo da caixa
+                    padding: const EdgeInsets.all(16.0),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: AppColors.card, // Cor de fundo da caixa (Preta)
-                        borderRadius: BorderRadius.circular(
-                          12,
-                        ), // Bordas arredondadas
+                        color: AppColors.card,
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.black.withValues(
-                            alpha: 0.2,
-                          ), // Borda sutil (opcional)
+                          color: AppColors.black.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -99,8 +90,7 @@ class _TerminalPageState extends State<TerminalPage> {
                           return Text(
                             logs[index],
                             style: const TextStyle(
-                              color:
-                                  AppColors.secondary, // Sua cor verde/dourada
+                              color: AppColors.secondary,
                               fontFamily: 'Courier New',
                               fontSize: 15,
                             ),
@@ -111,33 +101,25 @@ class _TerminalPageState extends State<TerminalPage> {
                   ),
                 ),
 
-                // Área de digitação
                 Container(
                   padding: const EdgeInsets.all(12),
-                  color: AppColors.primary, // Fundo
+                  color: AppColors.primary,
                   child: Row(
                     children: [
                       Expanded(
                         child: Container(
                           decoration: BoxDecoration(
                             color: AppColors.black,
-                            borderRadius: BorderRadius.circular(
-                              8,
-                            ), // Bordas arredondadas
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: TextField(
                             controller: _inputController,
-                            style: const TextStyle(
-                              color: AppColors.secondary,
-                            ), // Cor do texto digitado
+                            style: const TextStyle(color: AppColors.secondary),
                             decoration: const InputDecoration(
                               hintText: "Digite o comando...",
-                              hintStyle: TextStyle(
-                                color: AppColors.secondary,
-                              ), // Cor do placeholder
+                              hintStyle: TextStyle(color: AppColors.secondary),
                               filled: true,
-                              fillColor:
-                                  AppColors.card, // Cor de fundo do TextField
+                              fillColor: AppColors.card,
 
                               contentPadding: EdgeInsets.symmetric(
                                 horizontal: 12,

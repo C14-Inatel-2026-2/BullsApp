@@ -3,14 +3,11 @@ import 'dart:async';
 import '../../core/constants/robot_protocol.dart';
 import 'robot_command_port.dart';
 
-/// Implementação em memória do [RobotCommandPort], sem Bluetooth.
-///
 /// Serve para rodar o app sem robô (emulador, apresentação):
 /// `flutter run --dart-define=FAKE_ROBOT=true`. Nos testes unitários
 /// dos controllers, prefira um mock (mocktail) — aí cada teste decide o que
 /// o robô responde.
 class FakeRobotCommandPort implements RobotCommandPort {
-  /// Quanto tempo o fake "demora" para responder. Zero nos testes.
   final Duration latency;
 
   final _responses = StreamController<String>.broadcast();
@@ -33,7 +30,6 @@ class FakeRobotCommandPort implements RobotCommandPort {
     enviados.add(command);
     await Future<void>.delayed(latency);
 
-    // Respostas inventadas só para as telas terem o que mostrar.
     if (command == RobotProtocol.testarSensores) {
       _responses.add('sensorD0 vendo');
       _responses.add('sensorD2 vendo');

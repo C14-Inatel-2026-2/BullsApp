@@ -48,8 +48,6 @@ class ModPage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            // AutoController vive só enquanto a CommandPage
-                            // estiver aberta, igual ao BleController na ScanPage.
                             builder: (_) => ChangeNotifierProvider(
                               create: (ctx) => AutoController(
                                 port: ctx.read<RobotCommandPort>(),
