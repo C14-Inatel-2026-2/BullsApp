@@ -9,3 +9,4 @@
 | `c68912d` | Removeu o estágio de build de iOS | Não roda em container Linux |
 | PR #6 | Reaplicou os controllers depois do revert do PR #4 | Corrigir a quebra da `main` |
 | PR #22 | Juntou os refactorings acima, o relatório de testes e a documentação | Limpeza geral antes da entrega |
+| `aaf1d4a` | Limpou o código de comentários nos controllers, no protocolo, nos modelos, no canal de comandos e na tela do terminal | Comentários ficam desatualizados e repetem o que nomes claros e testes já dizem |
