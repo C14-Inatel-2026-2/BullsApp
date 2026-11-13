@@ -1,6 +1,39 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:bullsapp/data/repositories/robot_command_port.dart';
 import 'package:bullsapp/presentation/widgets/header.dart';
+
+/// Port controlável: o teste decide quando a conexão muda.
+class _ConnectionPort implements RobotCommandPort {
+  _ConnectionPort(this.isConnected);
+
+  final _changes = StreamController<bool>.broadcast();
+
+  @override
+  bool isConnected;
+
+  void set(bool value) {
+    isConnected = value;
+    _changes.add(value);
+  }
+
+  @override
+  Stream<bool> get connectionChanges => _changes.stream;
+
+  @override
+  Stream<String> get responses => const Stream.empty();
+
+  @override
+  Future<void> send(String command) async {}
+}
+
+Widget _withPort(RobotCommandPort port) => Provider<RobotCommandPort>.value(
+  value: port,
+  child: const MaterialApp(home: Scaffold(body: CustomHeader())),
+);
 
 void main() {
   testWidgets('Deve renderizar o botão voltar com texto "VOLTAR"', (
@@ -84,4 +117,28 @@ void main() {
       expect(find.byType(CustomHeader), findsOneWidget);
     },
   );
+
+  group('sem isConnected, acompanha o RobotCommandPort', () {
+    testWidgets('mostra o estado atual ao abrir', (tester) async {
+      await tester.pumpWidget(_withPort(_ConnectionPort(false)));
+      expect(find.text('Desconectado'), findsOneWidget);
+    });
+
+    testWidgets('troca para "Desconectado" quando a conexão cai', (
+      tester,
+    ) async {
+      final port = _ConnectionPort(true);
+      await tester.pumpWidget(_withPort(port));
+      expect(find.text('Conectado'), findsOneWidget);
+
+      port.set(false);
+      await tester.pump();
+      expect(find.text('Desconectado'), findsOneWidget);
+
+      port.set(true);
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('Conectado'), findsOneWidget);
+    });
+  });
 }

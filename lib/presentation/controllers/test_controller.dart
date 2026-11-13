@@ -6,37 +6,26 @@ import '../../data/models/sensor_status.dart';
 import '../../data/repositories/robot_command_exception.dart';
 import '../../data/repositories/robot_command_port.dart';
 
-/// Estado das telas de teste (terminal, sensores, motores, PID)
-/// gerenciado por ChangeNotifier (Provider).
-///
-/// Envia comandos de teste individuais pelo [RobotCommandPort] e acumula as
-/// respostas: em texto cru em [log] (terminal) e já interpretadas em
-/// [sensores] (tela de sensores).
 class TestController extends ChangeNotifier {
   TestController({required RobotCommandPort port}) : _port = port;
 
   final RobotCommandPort _port;
 
-  // ── Estado público ─────────────────────────────────────────────────────
-  /// Linhas do terminal. `> ` = enviado pelo app, `< ` = resposta do robô,
-  /// `! ` = erro local.
   final List<String> log = ['Terminal iniciado...', 'Aguardando entrada...'];
 
-  /// Último estado conhecido de cada sensor, indexado pelo id ("D2", "E0").
   final Map<String, SensorStatus> sensores = {};
 
   bool isBusy = false;
   String? errorMessage;
 
+  int _pendingSends = 0;
+
   StreamSubscription<String>? _responsesSub;
 
-  // ── Inicialização ──────────────────────────────────────────────────────
   void init() {
     _responsesSub = _port.responses.listen(_onResponse);
   }
 
-  // ── Ações ──────────────────────────────────────────────────────────────
-  /// Envia um comando cru digitado pelo usuário (terminal).
   /// Ignorado se vazio ou se já houver um envio em andamento.
   Future<void> sendCommand(String command) => _sendCommand(command);
 
@@ -44,6 +33,7 @@ class TestController extends ChangeNotifier {
     final text = command.trim();
     if (text.isEmpty || (isBusy && !force)) return;
 
+    _pendingSends++;
     isBusy = true;
     errorMessage = null;
     log.add('> $text');
@@ -58,7 +48,8 @@ class TestController extends ChangeNotifier {
       errorMessage = 'Falha ao enviar: $e';
       log.add('! $errorMessage');
     } finally {
-      isBusy = false;
+      _pendingSends--;
+      isBusy = _pendingSends > 0;
       notifyListeners();
     }
   }
@@ -82,7 +73,6 @@ class TestController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── Respostas ──────────────────────────────────────────────────────────
   void _onResponse(String line) {
     log.add('< $line');
 
@@ -95,7 +85,6 @@ class TestController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // ── Cleanup ────────────────────────────────────────────────────────────
   @override
   void dispose() {
     _responsesSub?.cancel();

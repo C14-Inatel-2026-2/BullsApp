@@ -8,6 +8,10 @@ pipeline {
         }
     }
 
+    parameters {
+        booleanParam(name: 'DEPLOY', defaultValue: true, description: 'Publica a web no GitHub Pages e o APK no GitHub Releases')
+    }
+
     stages {
 
         stage('Test Flutter') {
@@ -47,15 +51,19 @@ pipeline {
         stage('Executar Testes'){
             steps {
                 echo 'Rodando testes...'
-                sh 'flutter test -v'
+                sh '''
+                command -v python3 || (apt-get update && apt-get install -y python3)
+                mkdir -p reports
+                flutter test --machine --coverage > reports/test-results.json || FALHOU=1
+                python3 scripts/gerar_relatorio.py
+                exit ${FALHOU:-0}
+                '''
             }
-        }
-
-        stage('Cobertura dos Controllers') {
-            steps {
-                echo 'Medindo a cobertura dos testes da camada de controllers...'
-                sh 'flutter test --coverage test/presentation/controller'
-                archiveArtifacts artifacts: 'coverage/lcov.info', allowEmptyArchive: true
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'reports/test-results.xml'
+                    archiveArtifacts artifacts: 'reports/relatorio.html', allowEmptyArchive: true
+                }
             }
         }
 
@@ -69,7 +77,8 @@ pipeline {
                             checkout scm
                             echo 'Gerando APK Flutter...'
                             sh 'flutter pub get'
-                            sh 'flutter build apk --debug --no-tree-shake-icons'
+                            sh 'flutter build apk --release --no-tree-shake-icons'
+                            stash name: 'apk', includes: 'build/app/outputs/flutter-apk/app-release.apk'
                         }
                     }
                 }
@@ -81,19 +90,45 @@ pipeline {
                             checkout scm
                             echo 'Gerando Web Flutter...'
                             sh 'flutter pub get'
-                            sh 'flutter build web --debug --no-tree-shake-icons'
+                            // O GitHub Pages serve o site em /BullsApp/
+                            sh 'flutter build web --release --base-href /BullsApp/ --no-tree-shake-icons'
+                            stash name: 'web', includes: 'build/web/**'
+                            //guarda
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            when { expression { params.DEPLOY } }
+            parallel {
+                // Publica build/web na branch gh-pages (GitHub Pages)
+                stage('Deploy Web') {  
+                    steps {
+                        sh 'rm -rf deploy-web'
+                        //puxa
+                        dir('deploy-web') { unstash 'web' }
+                        withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
+                            sh '''
+                            cd deploy-web/build/web && git init -q -b gh-pages && git add -A
+                            git -c user.name=Jenkins -c user.email=ci@jenkins commit -qm "Build #$BUILD_NUMBER"
+                            git push -qf https://x-access-token:$GH_TOKEN@github.com/C14-Inatel-2026-2/BullsApp.git gh-pages
+                            '''
                         }
                     }
                 }
 
-                stage('Build IOS') {
+                // Cria a release build-N no GitHub com o APK anexado
+                stage('Deploy APK') {
                     steps {
-                        // Aloca um workspace temporário específico para o build iOS
-                        ws("${env.WORKSPACE}_ios") {
-                            checkout scm
-                            echo 'Gerando IOS Flutter...'
-                            sh 'flutter pub get'
-                            sh 'flutter build ios --debug --no-tree-shake-icons --no-codesign'
+                        sh 'rm -rf deploy-apk'
+                        dir('deploy-apk') { unstash 'apk' }
+                        withCredentials([string(credentialsId: 'github-token', variable: 'GH_TOKEN')]) {
+                            sh '''
+                            apt-get update -qq && apt-get install -y -qq gh
+                            gh release create build-$BUILD_NUMBER deploy-apk/build/app/outputs/flutter-apk/app-release.apk -R C14-Inatel-2026-2/BullsApp --target $GIT_COMMIT --notes ""
+                            '''
                         }
                     }
                 }
@@ -113,14 +148,22 @@ pipeline {
     }
 }
 
-// Manda uma mensagem no Discord usando o webhook salvo no Jenkins
-// (credencial do tipo "Secret text" com o ID 'discord-webhook')
+
 def notificarDiscord(String status) {
+    
+    def build = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+    def user = build ? build[0].userName : 'automático'
+
     withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
-        withEnv(["STATUS=${status}"]) {
+        withEnv(["STATUS=${status}", "QUEM=${user}"]) {
             sh '''
-            curl -s -H "Content-Type: application/json" \
-                 -d "{\\"content\\": \\"$STATUS — $JOB_NAME #$BUILD_NUMBER\\n$BUILD_URL\\"}" \
+            RESUMO=""
+            [ -f reports/resumo.txt ] && RESUMO="\\n $(cat reports/resumo.txt)"
+            ANEXO=""
+            [ -f reports/relatorio.html ] && ANEXO="-F file1=@reports/relatorio.html"
+
+            curl -s $ANEXO \
+                 --form-string "payload_json={\\"content\\": \\"$STATUS — $JOB_NAME #$BUILD_NUMBER\\n Iniciado por: $QUEM$RESUMO\\n$BUILD_URL\\"}" \
                  "$DISCORD_WEBHOOK"
             '''
         }

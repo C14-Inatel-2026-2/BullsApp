@@ -1,19 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../../data/repositories/robot_command_port.dart';
 
 // Widget reutilizável do Header
 class CustomHeader extends StatelessWidget {
-  final bool isConnected;
+  /// Força o status mostrado. Se for null (padrão), o header acompanha a
+  /// conexão real pelo [RobotCommandPort] do Provider.
+  final bool? isConnected;
   final VoidCallback? onBackPressed;
 
   const CustomHeader({
     super.key,
-    required this.isConnected, // Obrigatório: True = Conectado, False = Desconectado
+    this.isConnected,
     this.onBackPressed, // Opcional: função para voltar
   });
 
   @override
   Widget build(BuildContext context) {
+    final fixed = isConnected;
+    if (fixed != null) return _build(context, fixed);
+
+    final port = context.read<RobotCommandPort>();
+    return StreamBuilder<bool>(
+      stream: port.connectionChanges,
+      initialData: port.isConnected,
+      builder: (context, snapshot) =>
+          _build(context, snapshot.data ?? port.isConnected),
+    );
+  }
+
+  Widget _build(BuildContext context, bool isConnected) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

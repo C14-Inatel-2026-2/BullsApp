@@ -54,6 +54,12 @@ class BleRepository implements RobotCommandPort {
   Stream<String> get responses => _service.robotLines;
 
   @override
+  bool get isConnected => _service.isConnected;
+
+  @override
+  Stream<bool> get connectionChanges => _service.connectionChanges;
+
+  @override
   Future<void> send(String command) async {
     try {
       await _service.sendLine(command);
@@ -122,13 +128,11 @@ class BleRepository implements RobotCommandPort {
     }
 
     // Pareados primeiro, depois por RSSI decrescente
-    models.sort((a, b) {
-      if (a.isPaired && !b.isPaired) return -1;
-      if (!a.isPaired && b.isPaired) return 1;
-      return b.rssi.compareTo(a.rssi);
+    int rank(BleDeviceModel d) => d.isPaired ? 0 : 1;
+    return models..sort((a, b) {
+      final byPaired = rank(a).compareTo(rank(b));
+      return byPaired != 0 ? byPaired : b.rssi.compareTo(a.rssi);
     });
-
-    return models;
   }
 
   BleConnectionState _toAppConnectionState(BluetoothConnectionState s) {
@@ -151,10 +155,7 @@ class BleRepository implements RobotCommandPort {
       Permission.locationWhenInUse, // necessário em Android 10/11
     ].request();
 
-    final denied = statuses.values.any(
-      (s) => s.isDenied || s.isPermanentlyDenied,
-    );
-    if (denied) {
+    if (statuses.values.any((s) => s.isDenied || s.isPermanentlyDenied)) {
       throw BlePermissionException(
         'Permissões de Bluetooth negadas. Habilite nas configurações do app.',
       );
