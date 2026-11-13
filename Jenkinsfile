@@ -37,12 +37,12 @@ pipeline {
         */
 
         stage('Verificar Formatação') {
-    steps {
-        catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-            sh 'dart format --output=none --set-exit-if-changed lib test'
+            steps {
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    sh 'dart format --output=none --set-exit-if-changed lib test'
+                }
+            }
         }
-    }
-}
 
         stage('Análise Estática') {
             steps {
