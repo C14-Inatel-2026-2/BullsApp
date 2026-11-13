@@ -9,3 +9,4 @@
 | `c68912d` | Removeu o estágio de build de iOS | Não roda em container Linux |
 | PR #6 | Reaplicou os controllers depois do revert do PR #4 | Corrigir a quebra da `main` |
 | PR #22 | Juntou os refactorings acima, o relatório de testes e a documentação | Limpeza geral antes da entrega |
+| PR #35 | Testes da US03 no `TestController`: limpeza com `addTearDown` e verificação da inscrição antes do `dispose` | Análise FIRST: testes isolados e que não passam sem o comportamento que verificam |
