@@ -110,7 +110,7 @@
    - **Quando** o envio dá erro
    - **Então** o app mostra a mensagem de erro e os sensores continuam com o último estado conhecido
 
-**Rastreabilidade:** Jira Scrum-XX → `test/presentation/controller/test_controller_test.dart`
+**Rastreabilidade:** Jira Scrum-21 → `test/presentation/controller/test_controller_test.dart`, `test/presentation/controller/sensor_controller_test.dart`
 
 ## US04 — Conectar ao robô por BLE
 
