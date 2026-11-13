@@ -85,8 +85,9 @@ class BleService {
     // Se a conexão cair (robô desligou, saiu do alcance), o canal fica
     // inválido — limpa para o próximo send() falhar com mensagem clara.
     _connectionSub = device.connectionState.listen((state) {
-      if (state == BluetoothConnectionState.disconnected)
+      if (state == BluetoothConnectionState.disconnected) {
         _closeCommandChannel();
+      }
     });
   }
 
