@@ -97,6 +97,7 @@ void main() {
     when(() => port.responses).thenAnswer((_) => const Stream.empty());
     when(() => port.send(any())).thenThrow(Exception('canal fechado'));
     final c = TestController(port: port)..init();
+    addTearDown(c.dispose);
 
     await c.sendCommand('SENSORES');
 
@@ -123,13 +124,16 @@ void main() {
       final port = MockRobotCommandPort();
       when(() => port.responses).thenAnswer((_) => respostas.stream);
       final c = TestController(port: port)..init();
+      addTearDown(() async {
+        c.dispose();
+        await respostas.close();
+      });
 
       respostas.add('OK D22');
       await pumpEventQueue();
 
       expect(c.log.last, '< OK D22');
       expect(c.sensores, isEmpty);
-      await respostas.close();
     },
   );
 
@@ -138,12 +142,15 @@ void main() {
     final port = MockRobotCommandPort();
     when(() => port.responses).thenAnswer((_) => respostas.stream);
     final c = TestController(port: port)..init();
+    addTearDown(() async {
+      c.dispose();
+      await respostas.close();
+    });
 
     respostas.add('sensord2 CEGO');
     await pumpEventQueue();
 
     expect(c.sensores, {'D2': SensorStatus.cego});
-    await respostas.close();
   });
 
   test('nova resposta do mesmo sensor substitui o estado anterior', () async {
@@ -151,13 +158,16 @@ void main() {
     final port = MockRobotCommandPort();
     when(() => port.responses).thenAnswer((_) => respostas.stream);
     final c = TestController(port: port)..init();
+    addTearDown(() async {
+      c.dispose();
+      await respostas.close();
+    });
 
     respostas.add('sensorD2 vendo');
     respostas.add('sensorD2 cego');
     await pumpEventQueue();
 
     expect(c.sensores, {'D2': SensorStatus.cego});
-    await respostas.close();
   });
 
   test('sendCommand avisa a tela ao começar e ao terminar o envio', () async {
@@ -165,6 +175,7 @@ void main() {
     when(() => port.responses).thenAnswer((_) => const Stream.empty());
     when(() => port.send(any())).thenAnswer((_) async {});
     final c = TestController(port: port)..init();
+    addTearDown(c.dispose);
     final ocupado = <bool>[];
     c.addListener(() => ocupado.add(c.isBusy));
 
@@ -178,12 +189,12 @@ void main() {
     final port = MockRobotCommandPort();
     when(() => port.responses).thenAnswer((_) => respostas.stream);
     final c = TestController(port: port)..init();
+    addTearDown(respostas.close);
     expect(respostas.hasListener, isTrue);
 
     c.dispose();
 
     expect(respostas.hasListener, isFalse);
-    await respostas.close();
   });
 
   test('isBusy só volta a false quando todos os envios terminam', () async {
@@ -194,6 +205,7 @@ void main() {
     when(() => port.send('MOTOR 100 100')).thenAnswer((_) => motor.future);
     when(() => port.send('STOP')).thenAnswer((_) => stop.future);
     final c = TestController(port: port)..init();
+    addTearDown(c.dispose);
 
     final envioMotor = c.testMotors(left: 100, right: 100);
     final envioStop = c.stopMotors();
