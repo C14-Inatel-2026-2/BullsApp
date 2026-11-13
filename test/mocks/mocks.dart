@@ -23,13 +23,20 @@ class MockRobotCommandPort extends Mock implements RobotCommandPort {}
 class FakeBleDeviceModel extends Fake implements BleDeviceModel {}
 
 class MockBluetoothDevice extends Mock implements BluetoothDevice {}
+
 class MockBluetoothService extends Mock implements BluetoothService {}
-class MockBluetoothCharacteristic extends Mock implements BluetoothCharacteristic {}
+
+class MockBluetoothCharacteristic extends Mock
+    implements BluetoothCharacteristic {}
+
 class MockScanResult extends Mock implements ScanResult {}
+
 class MockAdvertisementData extends Mock implements AdvertisementData {}
 
 class FakeBluetoothDevice extends Fake implements BluetoothDevice {}
+
 class FakeGuid extends Fake implements Guid {}
+
 class FakeDeviceIdentifier extends Fake implements DeviceIdentifier {}
 
 /// Cria um [BleDeviceModel] de teste com valores padrão razoáveis.

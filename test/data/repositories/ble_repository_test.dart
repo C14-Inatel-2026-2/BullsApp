@@ -15,8 +15,8 @@ import 'package:bullsapp/data/models/device_model.dart';
 
 import '../../mocks/mocks.dart';
 
-class MockPermissionHandlerPlatform extends Mock 
-    with MockPlatformInterfaceMixin 
+class MockPermissionHandlerPlatform extends Mock
+    with MockPlatformInterfaceMixin
     implements PermissionHandlerPlatform {}
 
 void main() {
@@ -33,48 +33,58 @@ void main() {
   setUpAll(() {
     registerFallbackValue(FakeBleDeviceModel());
     registerFallbackValue(Permission.bluetoothScan);
-    
+
     TestWidgetsFlutterBinding.ensureInitialized();
-    
+
     mockPermission = MockPermissionHandlerPlatform();
     PermissionHandlerPlatform.instance = mockPermission;
-    
-    when(() => mockPermission.requestPermissions(any())).thenAnswer(
-      (invocation) async {
-        final perms = invocation.positionalArguments.first as List<Permission>;
-        final Map<Permission, PermissionStatus> result = {};
-        for (var p in perms) {
-          result[p] = PermissionStatus.granted;
-        }
-        return result;
+
+    when(() => mockPermission.requestPermissions(any())).thenAnswer((
+      invocation,
+    ) async {
+      final perms = invocation.positionalArguments.first as List<Permission>;
+      final Map<Permission, PermissionStatus> result = {};
+      for (var p in perms) {
+        result[p] = PermissionStatus.granted;
       }
-    );
-    
-    when(() => mockPermission.checkPermissionStatus(any()))
-        .thenAnswer((_) async => PermissionStatus.granted);
+      return result;
+    });
+
+    when(
+      () => mockPermission.checkPermissionStatus(any()),
+    ).thenAnswer((_) async => PermissionStatus.granted);
 
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(
-      const MethodChannel('flutter_blue_plus/methods'),
-      (MethodCall methodCall) async {
-        if (methodCall.method == 'getBondedDevices') return []; 
-        return null;
-      },
-    );
+          const MethodChannel('flutter_blue_plus/methods'),
+          (MethodCall methodCall) async {
+            if (methodCall.method == 'getBondedDevices') return [];
+            return null;
+          },
+        );
   });
 
   setUp(() {
     mockService = MockBleService();
     rawScanResultsController = StreamController<List<ScanResult>>.broadcast();
     isScanningController = StreamController<bool>.broadcast();
-    connectionStateController = StreamController<BluetoothConnectionState>.broadcast();
+    connectionStateController =
+        StreamController<BluetoothConnectionState>.broadcast();
     robotLinesController = StreamController<String>.broadcast();
     connectionChangesController = StreamController<bool>.broadcast();
 
-    when(() => mockService.rawScanResults).thenAnswer((_) => rawScanResultsController.stream);
-    when(() => mockService.isScanning).thenAnswer((_) => isScanningController.stream);
-    when(() => mockService.robotLines).thenAnswer((_) => robotLinesController.stream);
-    when(() => mockService.connectionChanges).thenAnswer((_) => connectionChangesController.stream);
+    when(
+      () => mockService.rawScanResults,
+    ).thenAnswer((_) => rawScanResultsController.stream);
+    when(
+      () => mockService.isScanning,
+    ).thenAnswer((_) => isScanningController.stream);
+    when(
+      () => mockService.robotLines,
+    ).thenAnswer((_) => robotLinesController.stream);
+    when(
+      () => mockService.connectionChanges,
+    ).thenAnswer((_) => connectionChangesController.stream);
     when(() => mockService.isConnected).thenReturn(true);
 
     repository = BleRepository(service: mockService);
@@ -99,74 +109,85 @@ void main() {
     test('isScanning repassa o stream do BleService', () async {
       final events = <bool>[];
       final sub = repository.isScanning.listen(events.add);
-      
+
       isScanningController.add(true);
       await Future.delayed(Duration.zero);
-      
+
       expect(events, contains(true));
       await sub.cancel();
     });
 
-    test('devicesStream filtra nomes vazios, evita duplicatas e ordena por RSSI', () async {
-      // Aparelho 1: Normal, RSSI fraco (-80)
-      final res1 = MockScanResult();
-      final dev1 = MockBluetoothDevice();
-      final adv1 = MockAdvertisementData();
-      when(() => dev1.remoteId).thenReturn(const DeviceIdentifier('00:00:00:00:00:01'));
-      when(() => dev1.platformName).thenReturn('');
-      when(() => adv1.advName).thenReturn('Robo1');
-      when(() => res1.device).thenReturn(dev1);
-      when(() => res1.advertisementData).thenReturn(adv1);
-      when(() => res1.rssi).thenReturn(-80);
+    test(
+      'devicesStream filtra nomes vazios, evita duplicatas e ordena por RSSI',
+      () async {
+        // Aparelho 1: Normal, RSSI fraco (-80)
+        final res1 = MockScanResult();
+        final dev1 = MockBluetoothDevice();
+        final adv1 = MockAdvertisementData();
+        when(
+          () => dev1.remoteId,
+        ).thenReturn(const DeviceIdentifier('00:00:00:00:00:01'));
+        when(() => dev1.platformName).thenReturn('');
+        when(() => adv1.advName).thenReturn('Robo1');
+        when(() => res1.device).thenReturn(dev1);
+        when(() => res1.advertisementData).thenReturn(adv1);
+        when(() => res1.rssi).thenReturn(-80);
 
-      // Aparelho 2: Mesmo MAC que o Aparelho 1 (Duplicata - deve ser ignorado)
-      final res2 = MockScanResult();
-      when(() => res2.device).thenReturn(dev1);
-      when(() => res2.advertisementData).thenReturn(adv1);
-      when(() => res2.rssi).thenReturn(-60);
+        // Aparelho 2: Mesmo MAC que o Aparelho 1 (Duplicata - deve ser ignorado)
+        final res2 = MockScanResult();
+        when(() => res2.device).thenReturn(dev1);
+        when(() => res2.advertisementData).thenReturn(adv1);
+        when(() => res2.rssi).thenReturn(-60);
 
-      // Aparelho 3: Sem Nome algum (deve ser ignorado)
-      final res3 = MockScanResult();
-      final dev3 = MockBluetoothDevice();
-      final adv3 = MockAdvertisementData();
-      when(() => dev3.remoteId).thenReturn(const DeviceIdentifier('00:00:00:00:00:03'));
-      when(() => dev3.platformName).thenReturn('');
-      when(() => adv3.advName).thenReturn('');
-      when(() => res3.device).thenReturn(dev3);
-      when(() => res3.advertisementData).thenReturn(adv3);
-      when(() => res3.rssi).thenReturn(-50);
+        // Aparelho 3: Sem Nome algum (deve ser ignorado)
+        final res3 = MockScanResult();
+        final dev3 = MockBluetoothDevice();
+        final adv3 = MockAdvertisementData();
+        when(
+          () => dev3.remoteId,
+        ).thenReturn(const DeviceIdentifier('00:00:00:00:00:03'));
+        when(() => dev3.platformName).thenReturn('');
+        when(() => adv3.advName).thenReturn('');
+        when(() => res3.device).thenReturn(dev3);
+        when(() => res3.advertisementData).thenReturn(adv3);
+        when(() => res3.rssi).thenReturn(-50);
 
-      // Aparelho 4: Normal, RSSI forte (-30) (Deve aparecer em 1º lugar na ordenação)
-      final res4 = MockScanResult();
-      final dev4 = MockBluetoothDevice();
-      final adv4 = MockAdvertisementData();
-      when(() => dev4.remoteId).thenReturn(const DeviceIdentifier('00:00:00:00:00:04'));
-      when(() => dev4.platformName).thenReturn('Robo4'); // Usando platformName ao invés de advName
-      when(() => adv4.advName).thenReturn('');
-      when(() => res4.device).thenReturn(dev4);
-      when(() => res4.advertisementData).thenReturn(adv4);
-      when(() => res4.rssi).thenReturn(-30);
+        // Aparelho 4: Normal, RSSI forte (-30) (Deve aparecer em 1º lugar na ordenação)
+        final res4 = MockScanResult();
+        final dev4 = MockBluetoothDevice();
+        final adv4 = MockAdvertisementData();
+        when(
+          () => dev4.remoteId,
+        ).thenReturn(const DeviceIdentifier('00:00:00:00:00:04'));
+        when(
+          () => dev4.platformName,
+        ).thenReturn('Robo4'); // Usando platformName ao invés de advName
+        when(() => adv4.advName).thenReturn('');
+        when(() => res4.device).thenReturn(dev4);
+        when(() => res4.advertisementData).thenReturn(adv4);
+        when(() => res4.rssi).thenReturn(-30);
 
-      final events = <List<BleDeviceModel>>[];
-      final sub = repository.devicesStream.listen(events.add);
+        final events = <List<BleDeviceModel>>[];
+        final sub = repository.devicesStream.listen(events.add);
 
-      rawScanResultsController.add([res1, res2, res3, res4]);
-      await Future.delayed(Duration.zero);
+        rawScanResultsController.add([res1, res2, res3, res4]);
+        await Future.delayed(Duration.zero);
 
-      final resultList = events.first;
-      
-      // Foram 4 no total: 1 duplicata removida e 1 sem nome removido = Sobram 2.
-      expect(resultList.length, 2); 
-      
-      // Valida ordenação (RSSI mais forte -30 vem antes do -80)
-      expect(resultList[0].name, 'Robo4');
-      expect(resultList[0].rssi, -30);
-      
-      expect(resultList[1].name, 'Robo1');
-      expect(resultList[1].rssi, -80);
-      
-      await sub.cancel();
-    });
+        final resultList = events.first;
+
+        // Foram 4 no total: 1 duplicata removida e 1 sem nome removido = Sobram 2.
+        expect(resultList.length, 2);
+
+        // Valida ordenação (RSSI mais forte -30 vem antes do -80)
+        expect(resultList[0].name, 'Robo4');
+        expect(resultList[0].rssi, -30);
+
+        expect(resultList[1].name, 'Robo1');
+        expect(resultList[1].rssi, -80);
+
+        await sub.cancel();
+      },
+    );
   });
 
   group('BleRepository.startScan e stopScan', () {
@@ -177,7 +198,9 @@ void main() {
     });
 
     test('startScan propaga BleException lançada pelo service', () async {
-      when(() => mockService.startScan()).thenThrow(const BleException('Bluetooth desligado.'));
+      when(
+        () => mockService.startScan(),
+      ).thenThrow(const BleException('Bluetooth desligado.'));
       expect(() => repository.startScan(), throwsA(isA<BleException>()));
     });
 
@@ -201,8 +224,9 @@ void main() {
 
     test('connect propaga BleException em falha de conexão', () async {
       const mac = 'AA:BB:CC:DD:EE:FF';
-      when(() => mockService.connectToDevice(mac))
-          .thenThrow(const BleException('Falha ao conectar.'));
+      when(
+        () => mockService.connectToDevice(mac),
+      ).thenThrow(const BleException('Falha ao conectar.'));
 
       final device = makeDevice(mac: mac);
       expect(() => repository.connect(device), throwsA(isA<BleException>()));
@@ -213,39 +237,49 @@ void main() {
       await repository.disconnect();
       verify(() => mockService.disconnect()).called(1);
     });
-    
-    test('connectionStateOf mapeia BluetoothConnectionState para BleConnectionState.connected', () async {
-      const mac = 'AA:BB:CC:DD:EE:FF';
-      final device = makeDevice(mac: mac);
-      
-      when(() => mockService.connectionStateOf(mac)).thenAnswer((_) => connectionStateController.stream);
 
-      final events = <BleConnectionState>[];
-      final sub = repository.connectionStateOf(device).listen(events.add);
+    test(
+      'connectionStateOf mapeia BluetoothConnectionState para BleConnectionState.connected',
+      () async {
+        const mac = 'AA:BB:CC:DD:EE:FF';
+        final device = makeDevice(mac: mac);
 
-      connectionStateController.add(BluetoothConnectionState.connected);
-      await Future.delayed(Duration.zero);
+        when(
+          () => mockService.connectionStateOf(mac),
+        ).thenAnswer((_) => connectionStateController.stream);
 
-      expect(events.last, BleConnectionState.connected);
-      await sub.cancel();
-    });
+        final events = <BleConnectionState>[];
+        final sub = repository.connectionStateOf(device).listen(events.add);
 
-    test('connectionStateOf mapeia BluetoothConnectionState para BleConnectionState.disconnected', () async {
-      const mac = 'AA:BB:CC:DD:EE:FF';
-      final device = makeDevice(mac: mac);
-      
-      when(() => mockService.connectionStateOf(mac)).thenAnswer((_) => connectionStateController.stream);
+        connectionStateController.add(BluetoothConnectionState.connected);
+        await Future.delayed(Duration.zero);
 
-      final events = <BleConnectionState>[];
-      final sub = repository.connectionStateOf(device).listen(events.add);
+        expect(events.last, BleConnectionState.connected);
+        await sub.cancel();
+      },
+    );
 
-      // Qualquer estado que não seja "connected" deve mapear para "disconnected"
-      connectionStateController.add(BluetoothConnectionState.disconnected);
-      await Future.delayed(Duration.zero);
+    test(
+      'connectionStateOf mapeia BluetoothConnectionState para BleConnectionState.disconnected',
+      () async {
+        const mac = 'AA:BB:CC:DD:EE:FF';
+        final device = makeDevice(mac: mac);
 
-      expect(events.last, BleConnectionState.disconnected);
-      await sub.cancel();
-    });
+        when(
+          () => mockService.connectionStateOf(mac),
+        ).thenAnswer((_) => connectionStateController.stream);
+
+        final events = <BleConnectionState>[];
+        final sub = repository.connectionStateOf(device).listen(events.add);
+
+        // Qualquer estado que não seja "connected" deve mapear para "disconnected"
+        connectionStateController.add(BluetoothConnectionState.disconnected);
+        await Future.delayed(Duration.zero);
+
+        expect(events.last, BleConnectionState.disconnected);
+        await sub.cancel();
+      },
+    );
   });
 
   group('BleRepository.send (RobotCommandPort)', () {
@@ -256,8 +290,9 @@ void main() {
     });
 
     test('send converte BleException em RobotCommandException', () async {
-      when(() => mockService.sendLine(any()))
-          .thenThrow(const BleException('Nenhum robô conectado.'));
+      when(
+        () => mockService.sendLine(any()),
+      ).thenThrow(const BleException('Nenhum robô conectado.'));
 
       expect(
         () => repository.send('STOP'),
@@ -270,10 +305,11 @@ void main() {
         ),
       );
     });
-    
+
     test('send converte Exception generica em RobotCommandException', () async {
-      when(() => mockService.sendLine(any()))
-          .thenThrow(Exception('Falha estranha'));
+      when(
+        () => mockService.sendLine(any()),
+      ).thenThrow(Exception('Falha estranha'));
 
       expect(
         () => repository.send('STOP'),
@@ -291,10 +327,10 @@ void main() {
       expect(events, contains('sensorD2 vendo'));
       await sub.cancel();
     });
-    
+
     test('isConnected e connectionChanges repassam do service', () async {
       expect(repository.isConnected, isTrue);
-      
+
       final events = <bool>[];
       final sub = repository.connectionChanges.listen(events.add);
 
@@ -305,7 +341,7 @@ void main() {
       await sub.cancel();
     });
   });
-  
+
   group('Exceções e Classes Utilitárias', () {
     test('BlePermissionException valida formatacao', () {
       const exception = BlePermissionException('Negado');
