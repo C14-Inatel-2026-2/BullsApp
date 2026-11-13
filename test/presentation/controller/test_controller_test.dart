@@ -207,4 +207,28 @@ void main() {
     await envioStop;
     expect(c.isBusy, isFalse);
   });
+
+  test(
+    'erro no pedido de leitura mantém o último estado dos sensores',
+    () async {
+      final respostas = StreamController<String>();
+      final port = MockRobotCommandPort();
+      when(() => port.responses).thenAnswer((_) => respostas.stream);
+      when(
+        () => port.send(any()),
+      ).thenThrow(const RobotCommandException('Nenhum robô conectado.'));
+      final c = TestController(port: port)..init();
+      addTearDown(() async {
+        c.dispose();
+        await respostas.close();
+      });
+
+      respostas.add('sensorD2 vendo');
+      await pumpEventQueue();
+      await c.testSensors();
+
+      expect(c.errorMessage, 'Nenhum robô conectado.');
+      expect(c.sensores, {'D2': SensorStatus.vendo});
+    },
+  );
 }
