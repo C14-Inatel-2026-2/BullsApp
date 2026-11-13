@@ -1,6 +1,6 @@
 import 'dart:async';
 
-//import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:mocktail/mocktail.dart';
 
 import 'package:bullsapp/data/services/ble_service.dart';
@@ -22,7 +22,22 @@ class MockRobotCommandPort extends Mock implements RobotCommandPort {}
 
 class FakeBleDeviceModel extends Fake implements BleDeviceModel {}
 
-// ── Helpers ─────────────────────────────────────────────────────────────────
+class MockBluetoothDevice extends Mock implements BluetoothDevice {}
+
+class MockBluetoothService extends Mock implements BluetoothService {}
+
+class MockBluetoothCharacteristic extends Mock
+    implements BluetoothCharacteristic {}
+
+class MockScanResult extends Mock implements ScanResult {}
+
+class MockAdvertisementData extends Mock implements AdvertisementData {}
+
+class FakeBluetoothDevice extends Fake implements BluetoothDevice {}
+
+class FakeGuid extends Fake implements Guid {}
+
+class FakeDeviceIdentifier extends Fake implements DeviceIdentifier {}
 
 /// Cria um [BleDeviceModel] de teste com valores padrão razoáveis.
 BleDeviceModel makeDevice({

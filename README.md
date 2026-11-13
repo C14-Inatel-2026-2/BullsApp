@@ -90,7 +90,8 @@ O grupo usou IA como apoio no desenvolvimento. Todo código gerado foi lido, tes
 | Ferramenta | Modelo | Quem usou |
 |---|---|---|
 | Claude Code | Claude Sonnet 5.5 | Silas |
-| _preencher_ | _preencher_ | _Luiz / Kaynan / João_ |
+| Google Gemini | Gemini 1.5 Pro | Kaynan |
+| _preencher_ | _preencher_ | _Luiz / João_ |
 
 - **Revisão de código:** encontrar problemas e sugerir melhorias, por exemplo no `robot_protocol.dart`.
 - **CI/CD:** ajuda na implementação da notificação do Discord na pipeline e diagnóstico de erros no Jenkins.
