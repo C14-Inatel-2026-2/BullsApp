@@ -231,4 +231,16 @@ void main() {
       expect(c.sensores, {'D2': SensorStatus.vendo});
     },
   );
+
+  test('testSensors envia SENSORES ao robô', () async {
+    final port = MockRobotCommandPort();
+    when(() => port.responses).thenAnswer((_) => const Stream.empty());
+    when(() => port.send(any())).thenAnswer((_) async {});
+    final c = TestController(port: port)..init();
+    addTearDown(c.dispose);
+
+    await c.testSensors();
+
+    verify(() => port.send('SENSORES')).called(1);
+  });
 }
