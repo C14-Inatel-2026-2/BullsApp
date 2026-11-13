@@ -27,14 +27,6 @@ pipeline {
                 sh 'flutter pub get'
             }
         }
-/*
-        stage('Verificar Formatação') {
-            steps {
-                echo 'Verificando formatação...'
-                sh 'dart format --output=none --set-exit-if-changed lib test'
-            }
-        }
-        */
 
         stage('Verificar Formatação') {
             steps {

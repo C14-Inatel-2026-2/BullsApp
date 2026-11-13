@@ -23,7 +23,8 @@ class _MotorPageState extends State<MotorPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (ctx) => TestController(port: ctx.read<RobotCommandPort>())..init(),
+      create: (ctx) =>
+          TestController(port: ctx.read<RobotCommandPort>())..init(),
       child: Builder(
         builder: (context) {
           final controller = context.read<TestController>();
@@ -74,14 +75,14 @@ class _MotorPageState extends State<MotorPage> {
                         ],
                       ),
                     ),
-                    const SizedBox( height: 16),
+                    const SizedBox(height: 16),
                     CustomButton(
                       label: 'PARAR',
                       icon: Icons.stop,
                       color: AppColors.secondary,
                       onTap: parar,
                     ),
-                    const SizedBox( height: 16),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
