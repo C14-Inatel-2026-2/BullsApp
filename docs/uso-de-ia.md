@@ -9,7 +9,7 @@ O grupo usou IA como apoio no desenvolvimento. Todo código gerado foi lido, tes
 | Claude Code | Claude Sonnet 5.5 | Silas |
 | Google Gemini | Gemini 1.5 Pro | Kaynan |
 | Claude Code | Claude Opus 5 e Claude Opus 5.5 | João ([detalhamento](uso-de-ia-joao.md)) |
-| _preencher_ | _preencher_ | _Luiz_ |
+| Claude Code | Claude Sonnet 5.5 | Luiz |
 
 ## Para que foi usada
 
@@ -43,6 +43,36 @@ Ao rodar o pipeline, a IA identificou que o `flutter build ios` só funciona no 
 > "Como posso implementar o armazenamento persistente de endereços MAC no Flutter usando flutter_blue_plus para priorizar os robôs conhecidos na hora do scan?"
 
 A IA sugeriu o uso do pacote `shared_preferences` para salvar os MACs localmente. A estratégia foi **aceita** e integrada ao controlador para agilizar a reconexão automática com os robôs da equipe.
+
+## Uso de IA – Luiz
+
+**Para que foi usada**
+- Guiar a criação da tela de sensores (`SensorPage`, `RobotSensorView`, `SensorController`), sem entregar o código pronto.
+- Resolver conflitos de merge e diagnosticar erros do `flutter analyze` e do Jenkins.
+- Montar os stages de formatação e análise estática no `Jenkinsfile`.
+- Apoio na escrita dos testes unitários.
+
+**Exemplos de prompts**
+
+**1. Tela de sensores: aceito**
+> "me ajude a fazer isso [sensor_page.dart] ... me ensine a fazer não me de o codigo pronto"
+
+A IA explicou o modelo, o enum com `extension` de cor e o `Stack` com `Align`, e revisou cada tentativa. Eu escrevi o código e ela apontou os erros (nome de classe, tipo do campo, import).
+
+**2. Testes dos componentes e da MotorPage: gerado pela IA, revisado por mim**
+> "faça os códigos de teste para essas 3 páginas ..."
+
+A IA gerou os testes de `VerticalBar`, `RobotSensorView` e `MotorPage`. Eu criei os arquivos, corrigi um erro de digitação, rodei com `flutter test` e confirmei que passam. A IA errou o nome da pasta de testes (`widgets` em vez de `widget`), e o erro foi corrigido ao rodar.
+
+**3. Stage do Jenkins: aceito com adaptação**
+> "me ajude a fazer esse job 'Verificar Formatação + Análise Estática'"
+
+A resposta inicial era para GitHub Actions. Eu informei que o grupo usa Jenkins, e ela foi refeita como stage do `Jenkinsfile`. Separei a formatação e a análise em dois stages.
+
+**4. Formatação bloqueando o pipeline: aceito**
+> "não seria melhor ela não ser um requisito para o pipeline continuar a rodar?"
+
+A IA apresentou os dois lados (formatação é cosmética, mas um stage vermelho esconde o resultado dos testes) e sugeriu o `catchError`. Eu adotei no `Jenkinsfile`: o stage de formatação fica instável (amarelo) sem derrubar o build, e o `flutter analyze` continua bloqueando.[Testei desformatando um arquivo de propósito.]
 
 ## Dinâmica de uso
 
