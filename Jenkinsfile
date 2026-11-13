@@ -102,10 +102,8 @@ pipeline {
             when { expression { params.DEPLOY } }
             parallel {
                 // Publica build/web na branch gh-pages (GitHub Pages)
-                stage('Deploy Web') {
+                stage('Deploy Web') {  
                     steps {
-                        // Usa uma pasta própria: a build/ do workspace é do root (criada pelo Flutter
-                        // no container) e o unstash roda como usuário jenkins, sem permissão nela
                         sh 'rm -rf deploy-web'
                         //puxa
                         dir('deploy-web') { unstash 'web' }
@@ -148,12 +146,14 @@ pipeline {
     }
 }
 
-// Manda uma mensagem no Discord usando o webhook salvo no Jenkins
-// (credencial do tipo "Secret text" com o ID 'discord-webhook').
-// Se o relatório de testes existir, vai junto como anexo e o resumo entra no texto.
+
 def notificarDiscord(String status) {
+    
+    def build = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')
+    def user = build ? build[0].userName : 'automático'
+
     withCredentials([string(credentialsId: 'discord-webhook', variable: 'DISCORD_WEBHOOK')]) {
-        withEnv(["STATUS=${status}"]) {
+        withEnv(["STATUS=${status}", "QUEM=${user}"]) {
             sh '''
             RESUMO=""
             [ -f reports/resumo.txt ] && RESUMO="\\n $(cat reports/resumo.txt)"
@@ -161,7 +161,7 @@ def notificarDiscord(String status) {
             [ -f reports/relatorio.html ] && ANEXO="-F file1=@reports/relatorio.html"
 
             curl -s $ANEXO \
-                 --form-string "payload_json={\\"content\\": \\"$STATUS — $JOB_NAME #$BUILD_NUMBER$RESUMO\\n$BUILD_URL\\"}" \
+                 --form-string "payload_json={\\"content\\": \\"$STATUS — $JOB_NAME #$BUILD_NUMBER\\n Iniciado por: $QUEM$RESUMO\\n$BUILD_URL\\"}" \
                  "$DISCORD_WEBHOOK"
             '''
         }

@@ -1,4 +1,4 @@
-.PHONY: run run-fake clean build-apk build-web get test report format docker-build docker-up docker-down docker-logs docker-stop docker-rm docker-shell help
+.PHONY: run run-fake clean build-apk build-web get test report format docker-build docker-up docker-down docker-logs docker-stop docker-rm docker-shell jenkins jenkins-stop help
 
 # Flutter Commands
 
@@ -55,6 +55,10 @@ help:
 	@echo "make docker-stop     - Parar o container"
 	@echo "make docker-rm       - Remover container e imagem"
 	@echo "make docker-shell    - Entrar no container (shell interativo)"
+	@echo ""
+	@echo "=== Jenkins (CI/CD) ==="
+	@echo "make jenkins         - Iniciar o Jenkins (http://localhost:8080)"
+	@echo "make jenkins-stop    - Parar o Jenkins"
 
 build:
 	docker build -t bullsapp:latest .
@@ -76,3 +80,11 @@ docker-rm:
 
 docker-shell:
 	docker-compose exec bullsapp sh
+
+# Jenkins Commands (o Docker Desktop precisa estar aberto; setup inicial em docs/ci-cd.md)
+jenkins:
+	docker start jenkins
+	@echo "Jenkins rodando em http://localhost:8080"
+
+jenkins-stop:
+	docker stop jenkins
