@@ -178,6 +178,7 @@ void main() {
     final port = MockRobotCommandPort();
     when(() => port.responses).thenAnswer((_) => respostas.stream);
     final c = TestController(port: port)..init();
+    expect(respostas.hasListener, isTrue);
 
     c.dispose();
 
