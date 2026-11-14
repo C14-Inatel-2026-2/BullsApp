@@ -9,15 +9,19 @@ import '../../core/constants/app_constants.dart';
 import 'robot_line_decoder.dart';
 
 class BleService {
+  BleService({BlePlatform platform = const BlePlatform()})
+    : _platform = platform;
+
+  final BlePlatform _platform;
+
   /// Serviços genéricos do GATT (1800/1801) nunca são o canal do robô.
   static final _genericServices = {Guid('1800'), Guid('1801')};
 
   // ── Streams internos ─────────────────────────────────────────────────────
 
-  Stream<List<ScanResult>> get rawScanResults => FlutterBluePlus.scanResults;
-  Stream<bool> get isScanning => FlutterBluePlus.isScanning;
-  Stream<BluetoothAdapterState> get adapterState =>
-      FlutterBluePlus.adapterState;
+  Stream<List<ScanResult>> get rawScanResults => _platform.scanResults;
+  Stream<bool> get isScanning => _platform.isScanning;
+  Stream<BluetoothAdapterState> get adapterState => _platform.adapterState;
 
   // ── Dispositivo conectado ─────────────────────────────────────────────────
 
@@ -46,13 +50,13 @@ class BleService {
   // ── Scan ──────────────────────────────────────────────────────────────────
 
   Future<void> startScan() async {
-    final state = await FlutterBluePlus.adapterState.first;
+    final state = await _platform.adapterState.first;
     if (state != BluetoothAdapterState.on) {
-      throw BleException('Bluetooth está desligado.');
+      throw const BleException('Bluetooth está desligado.');
     }
-    if (await FlutterBluePlus.isScanning.first) return;
+    if (await _platform.isScanning.first) return;
 
-    await FlutterBluePlus.startScan(
+    await _platform.startScan(
       timeout: AppConstants.bleScanTimeout,
       // No navegador só dá para abrir os serviços declarados aqui.
       webOptionalServices: [
@@ -63,7 +67,7 @@ class BleService {
   }
 
   Future<void> stopScan() async {
-    await FlutterBluePlus.stopScan();
+    await _platform.stopScan();
   }
 
   // ── Conexão ───────────────────────────────────────────────────────────────
@@ -73,7 +77,7 @@ class BleService {
   Future<void> connectToDevice(String macAddress) async {
     if (_connectedDevice != null) await disconnect();
 
-    final device = BluetoothDevice.fromId(macAddress);
+    final device = _platform.deviceFromId(macAddress);
     try {
       await device.connect(
         license: License.nonprofit,
@@ -110,7 +114,7 @@ class BleService {
   }
 
   Stream<BluetoothConnectionState> connectionStateOf(String macAddress) {
-    return BluetoothDevice.fromId(macAddress).connectionState;
+    return _platform.deviceFromId(macAddress).connectionState;
   }
 
   // ── Canal de comandos ─────────────────────────────────────────────────────
@@ -163,31 +167,43 @@ class BleService {
   (BluetoothCharacteristic, BluetoothCharacteristic)? _findSerialChannel(
     List<BluetoothService> services,
   ) {
-    bool canWrite(BluetoothCharacteristic c) =>
-        c.properties.write || c.properties.writeWithoutResponse;
-    bool canNotify(BluetoothCharacteristic c) =>
-        c.properties.notify || c.properties.indicate;
+    return _findKnownProfile(services) ?? _findAnySerialChannel(services);
+  }
 
+  (BluetoothCharacteristic, BluetoothCharacteristic)? _findKnownProfile(
+    List<BluetoothService> services,
+  ) {
     for (final (serviceId, writeId, notifyId)
         in AppConstants.robotSerialProfiles) {
       for (final s in services.where((s) => s.uuid == Guid(serviceId))) {
         final write = s.characteristics
-            .where((c) => c.uuid == Guid(writeId) && canWrite(c))
+            .where((c) => c.uuid == Guid(writeId) && _canWrite(c))
             .firstOrNull;
         final notify = s.characteristics
-            .where((c) => c.uuid == Guid(notifyId) && canNotify(c))
+            .where((c) => c.uuid == Guid(notifyId) && _canNotify(c))
             .firstOrNull;
         if (write != null && notify != null) return (write, notify);
       }
     }
+    return null;
+  }
 
+  (BluetoothCharacteristic, BluetoothCharacteristic)? _findAnySerialChannel(
+    List<BluetoothService> services,
+  ) {
     for (final s in services.where((s) => !_genericServices.contains(s.uuid))) {
-      final write = s.characteristics.where(canWrite).firstOrNull;
-      final notify = s.characteristics.where(canNotify).firstOrNull;
+      final write = s.characteristics.where(_canWrite).firstOrNull;
+      final notify = s.characteristics.where(_canNotify).firstOrNull;
       if (write != null && notify != null) return (write, notify);
     }
     return null;
   }
+
+  static bool _canWrite(BluetoothCharacteristic c) =>
+      c.properties.write || c.properties.writeWithoutResponse;
+
+  static bool _canNotify(BluetoothCharacteristic c) =>
+      c.properties.notify || c.properties.indicate;
 
   void _closeCommandChannel() {
     if (_connectedDevice != null) _connection.add(false);
@@ -207,6 +223,34 @@ class BleService {
       // já desconectado — nada a fazer
     }
   }
+}
+
+/// Encapsula as chamadas estáticas do [FlutterBluePlus] e [BluetoothDevice]
+/// para permitir injeção de dependência e testes unitários no [BleService].
+class BlePlatform {
+  const BlePlatform();
+
+  Stream<List<ScanResult>> get scanResults => FlutterBluePlus.scanResults;
+
+  Stream<bool> get isScanning => FlutterBluePlus.isScanning;
+
+  Stream<BluetoothAdapterState> get adapterState =>
+      FlutterBluePlus.adapterState;
+
+  Future<void> startScan({
+    Duration? timeout,
+    List<Guid> webOptionalServices = const [],
+  }) {
+    return FlutterBluePlus.startScan(
+      timeout: timeout,
+      webOptionalServices: webOptionalServices,
+    );
+  }
+
+  Future<void> stopScan() => FlutterBluePlus.stopScan();
+
+  BluetoothDevice deviceFromId(String remoteId) =>
+      BluetoothDevice.fromId(remoteId);
 }
 
 class BleException implements Exception {

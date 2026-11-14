@@ -9,3 +9,5 @@
 | Comments: comentários que repetiam o código | Remoção dos comentários redundantes | Comentário fica desatualizado | Sem PR (commit [`aaf1d4a`](https://github.com/C14-Inatel-2026-2/BullsApp/commit/aaf1d4a750cdc4015db6ac780f700a8dc6843251)) |
 | Testes do `TestController` liberavam recursos só no fim (não roda se o teste falhar) | Limpeza com `addTearDown` | Testes isolados (FIRST) | [#35](https://github.com/C14-Inatel-2026-2/BullsApp/pull/35) |
 | Teste do `dispose` passava mesmo sem o controller se inscrever | Verificar a inscrição antes do `dispose` | O teste só passa se o comportamento existir | [#35](https://github.com/C14-Inatel-2026-2/BullsApp/pull/35) |
+| Global Data: `BleService` chamava `FlutterBluePlus.*` e `BluetoothDevice.fromId` direto | Extract Class (`BlePlatform`) + injeção de dependência no construtor | Testar o `BleService` com mock, sem Bluetooth real | TODO |
+| Long Method: `_findSerialChannel` com laços aninhados e funções locais | Extract Function (`_findKnownProfile`, `_findAnySerialChannel`, `_canWrite`, `_canNotify`) | Cada método faz uma busca só e o fluxo se lê de uma vez | TODO |
