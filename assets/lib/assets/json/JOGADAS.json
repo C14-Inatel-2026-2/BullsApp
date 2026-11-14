@@ -1,0 +1,661 @@
+{
+    "JOGADA_1": {
+        "category": "BUSCA",
+        "actions": [
+            "motorL:MAX",
+            "motorR:MAX",
+            "delay:100",
+            "motorL:0",
+            "motorR:0",
+            "delay:100",
+            "PID:180",
+            "motorL:MAX",
+            "motorR:MAX",
+            "delay:100",
+            "motorL:0",
+            "motorR:0",
+            "delay:100",
+            "NEXT:JOGADA_0"
+        ]
+    },
+    "JOGADA_2": {
+        "category": "BUSCA",
+        "actions": [
+            "(stub — NEXT:JOGADA_0)"
+        ]
+    },
+    "JOGADA_3": {
+        "category": "BUSCA",
+        "ladoDir": {
+            "actions": [
+                "motorL:-MAX",
+                "motorR:-7500",
+                "delay:65"
+            ]
+        }
+    },
+    "JOGADA_4": {
+        "category": "BUSCA",
+        "actions": [
+            "(stub — NEXT:JOGADA_0)"
+        ]
+    },
+    "JOGADA_5": {
+        "category": "BUSCA",
+        "actions": [
+            "motorL:MAX",
+            "motorR:MAX",
+            "delay:200",
+            "motorL:0",
+            "motorR:0",
+            "delay:100",
+            "PID:180",
+            "motorL:5000",
+            "motorR:5000",
+            "delay:200",
+            "motorL:0",
+            "motorR:0",
+            "NEXT:JOGADAPARAR"
+        ]
+    },
+    "JOGADA_11": {
+        "category": "OFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "motorL:7500",
+                "motorR:MAX",
+                "delay:800",
+                "PID:70",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:7500",
+                "delay:800",
+                "PID:-70",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_12": {
+        "category": "OFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "motorL:7500",
+                "motorR:MAX",
+                "delay:200",
+                "PID:120",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:7500",
+                "delay:200",
+                "PID:-120",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_13": {
+        "category": "OFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "motorL:7500",
+                "motorR:MAX",
+                "delay:100",
+                "PID:90",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:7500",
+                "delay:100",
+                "PID:-90",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_14": {
+        "category": "OFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "motorL:7500",
+                "motorR:MAX",
+                "delay:400",
+                "PID:90",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:7500",
+                "delay:400",
+                "PID:-90",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_15": {
+        "category": "OFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:180",
+                "PID:180",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:180",
+                "PID:-180",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_16": {
+        "category": "OFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "PID:-45",
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:175",
+                "motorL:0",
+                "motorR:0",
+                "PID:90",
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:50",
+                "motorL:0",
+                "motorR:0",
+                "PID:90",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "PID:45",
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:175",
+                "motorL:0",
+                "motorR:0",
+                "PID:-90",
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:50",
+                "motorL:0",
+                "motorR:0",
+                "PID:-90",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_17": {
+        "category": "OFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:175",
+                "PID:180",
+                "NEXT:JOGADA_16"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:175",
+                "PID:-180",
+                "NEXT:JOGADA_16"
+            ]
+        }
+    },
+    "JOGADA_18": {
+        "category": "OFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "motorL:7500",
+                "motorR:MAX",
+                "delay:25",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:7500",
+                "delay:25",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_19": {
+        "category": "OFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:180",
+                "PID:90",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:180",
+                "PID:-90",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_22": {
+        "category": "DEFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "motorL:-MAX",
+                "motorR:-MAX*0.5",
+                "delay:180",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorL:-MAX*0.5",
+                "motorR:-MAX",
+                "delay:180",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_23": {
+        "category": "DEFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "PID:45",
+                "motorL:-MAX",
+                "motorR:-MAX",
+                "delay:180",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "PID:-45",
+                "motorL:-MAX",
+                "motorR:-MAX",
+                "delay:180",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_24": {
+        "category": "DEFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "motorL:-MAX*0.5",
+                "motorR:-MAX*0.5",
+                "delay:120",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorL:-MAX",
+                "motorR:-MAX",
+                "delay:180",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_26": {
+        "category": "DEFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "PID:45",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "PID:-45",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_28": {
+        "category": "DEFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "PID:90",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "PID:-90",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_29": {
+        "category": "DEFENSIVA",
+        "ladoDir": {
+            "actions": [
+                "PID:180",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "PID:-180",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_31": {
+        "category": "FAKE",
+        "ladoDir": {
+            "actions": [
+                "PID:180",
+                "motorL:MAX",
+                "motorR:7500",
+                "delay:180",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "PID:-180",
+                "motorL:7500",
+                "motorR:MAX",
+                "delay:180",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_32": {
+        "category": "FAKE",
+        "ladoDir": {
+            "actions": [
+                "PID:180",
+                "motorL:7500",
+                "motorR:MAX",
+                "delay:90",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "PID:-180",
+                "motorL:MAX",
+                "motorR:7500",
+                "delay:90",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_33": {
+        "category": "FAKE",
+        "ladoDir": {
+            "actions": [
+                "PID:180",
+                "motorL:7500",
+                "motorR:MAX",
+                "delay:75",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "PID:-180",
+                "motorL:MAX",
+                "motorR:7500",
+                "delay:75",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_34": {
+        "category": "FAKE",
+        "ladoDir": {
+            "actions": [
+                "PID:180",
+                "motorL:7500",
+                "motorR:MAX",
+                "delay:150",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "PID:-180",
+                "motorL:MAX",
+                "motorR:7500",
+                "delay:150",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_35": {
+        "category": "FAKE",
+        "ladoDir": {
+            "actions": [
+                "PID:90",
+                "motorL:7500",
+                "motorR:MAX",
+                "delay:90",
+                "PID:180",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "PID:-90",
+                "motorL:MAX",
+                "motorR:7500",
+                "delay:90",
+                "PID:-180",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_36": {
+        "category": "FAKE",
+        "ladoDir": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:175",
+                "motorL:0",
+                "motorR:0",
+                "PID:90",
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:50",
+                "motorL:0",
+                "motorR:0",
+                "PID:90",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:175",
+                "motorL:0",
+                "motorR:0",
+                "PID:-90",
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:50",
+                "motorL:0",
+                "motorR:0",
+                "PID:-90",
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:100",
+                "motorL:0",
+                "motorR:0",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_39": {
+        "category": "FAKE",
+        "ladoDir": {
+            "actions": [
+                "PID:120",
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:90",
+                "PID:90",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "PID:-120",
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:90",
+                "PID:90 ⚠️BUG? deveria ser -90",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_51": {
+        "category": "DESEMPATE",
+        "ladoDir": {
+            "actions": [
+                "motorL:-2000",
+                "motorR:2000",
+                "delay:100",
+                "motorL:0",
+                "motorR:0",
+                "NEXT:JOGADAPARAR"
+            ]
+        }
+    },
+    "JOGADA_52": {
+        "category": "DESEMPATE",
+        "ladoDir": {
+            "actions": [
+                "motorL:MAX",
+                "delay:100",
+                "motorR:8000",
+                "delay:100",
+                "motorR:0",
+                "motorL:0",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorR:MAX",
+                "delay:100",
+                "motorL:6500",
+                "delay:100",
+                "motorR:0",
+                "motorL:0",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_53": {
+        "category": "DESEMPATE",
+        "ladoDir": {
+            "actions": [
+                "motorR:MAX",
+                "motorL:MAX*0.2",
+                "delay:100",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorR:MAX*0.2",
+                "motorL:MAX",
+                "delay:100",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    },
+    "JOGADA_54": {
+        "category": "DESEMPATE",
+        "actions": [
+            "(stub — sem lógica implementada)"
+        ]
+    },
+    "JOGADA_55": {
+        "category": "DESEMPATE",
+        "actions": [
+            "(stub — sem lógica implementada)"
+        ]
+    },
+    "JOGADA_56": {
+        "category": "DESEMPATE",
+        "actions": [
+            "motorL:MAX",
+            "motorR:MAX",
+            "delay:180",
+            "NEXT:JOGADA_8"
+        ]
+    },
+    "JOGADA_58": {
+        "category": "DESEMPATE",
+        "actions": [
+            "motorL:-MAX*0.5",
+            "motorR:-MAX*0.5",
+            "delay:100"
+        ]
+    },
+    "JOGADA_59": {
+        "category": "DESEMPATE",
+        "ladoDir": {
+            "actions": [
+                "motorR:-MAX",
+                "delay:100",
+                "motorL:-MAX",
+                "delay:100",
+                "motorL:0",
+                "motorR:0",
+                "delay:10",
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:220",
+                "NEXT:JOGADA_8"
+            ]
+        },
+        "ladoEsc": {
+            "actions": [
+                "motorL:-MAX",
+                "delay:100",
+                "motorR:-MAX",
+                "delay:100",
+                "motorL:0",
+                "motorR:0",
+                "delay:10",
+                "motorL:MAX",
+                "motorR:MAX",
+                "delay:220",
+                "NEXT:JOGADA_8"
+            ]
+        }
+    }
+}
