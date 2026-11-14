@@ -121,6 +121,15 @@ void main() {
       expect(bleService.rawScanResults, isA<Stream<List<ScanResult>>>());
       expect(bleService.isScanning, isA<Stream<bool>>());
       expect(bleService.adapterState, isA<Stream<BluetoothAdapterState>>());
+      expect(bleService.connectionChanges, isA<Stream<bool>>());
+      expect(
+        bleService.connectionStateOf(mac),
+        isA<Stream<BluetoothConnectionState>>(),
+      );
+      expect(
+        const BleException('erro').toString(),
+        'BleException: erro',
+      );
     });
   });
 
@@ -262,6 +271,54 @@ void main() {
       expect(bleService.isConnected, isFalse);
       await connController.close();
     });
+
+    test('reconectar desconecta o dispositivo anterior e disconnect limpa estado',
+        () async {
+      final char = _makeChar('FFE1', write: true, notify: true);
+      when(
+        () => mockDevice.discoverServices(),
+      ).thenAnswer((_) async => [_makeService('FFE0', [char])]);
+
+      await bleService.connectToDevice(mac);
+      await bleService.connectToDevice(mac);
+
+      verify(() => mockDevice.disconnect()).called(1);
+
+      await bleService.disconnect();
+      expect(bleService.isConnected, isFalse);
+    });
+
+    test('converte FlutterBluePlusException e erros genéricos em BleException',
+        () async {
+      when(
+        () => mockDevice.connect(
+          license: any(named: 'license'),
+          timeout: any(named: 'timeout'),
+        ),
+      ).thenThrow(
+        FlutterBluePlusException(ErrorPlatform.fbp, 'connect', 1, 'timeout'),
+      );
+
+      await expectLater(
+        bleService.connectToDevice(mac),
+        throwsA(isA<BleException>()),
+      );
+
+      when(
+        () => mockDevice.connect(
+          license: any(named: 'license'),
+          timeout: any(named: 'timeout'),
+        ),
+      ).thenAnswer((_) async {});
+      when(
+        () => mockDevice.discoverServices(),
+      ).thenThrow(StateError('falha inesperada'));
+
+      await expectLater(
+        bleService.connectToDevice(mac),
+        throwsA(isA<BleException>()),
+      );
+    });
   });
 
   group('BleService.sendLine e robotLines', () {
@@ -296,6 +353,17 @@ void main() {
           withoutResponse: false,
         ),
       ).called(1);
+
+      when(
+        () => char.write(any(), withoutResponse: any(named: 'withoutResponse')),
+      ).thenThrow(
+        FlutterBluePlusException(ErrorPlatform.fbp, 'write', 1, 'erro escrita'),
+      );
+
+      await expectLater(
+        bleService.sendLine('STOP'),
+        throwsA(isA<BleException>()),
+      );
     });
 
     test('decodifica linhas recebidas de onValueReceived em robotLines',
