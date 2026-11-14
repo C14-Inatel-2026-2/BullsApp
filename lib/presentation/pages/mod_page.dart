@@ -5,7 +5,7 @@ import '../../core/theme/app_colors.dart';
 import '../../data/repositories/robot_command_port.dart';
 import '../controllers/auto_controller.dart';
 import '../widgets/custom_button.dart';
-import '../widgets/menu_layout.dart';
+import '../widgets/header.dart';
 import 'auto_page.dart';
 
 //import 'rc_page.dart';
@@ -15,45 +15,74 @@ class ModPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MenuLayout(
-      title: 'SELECIONE UM MODO',
-      buttons: [
-        CustomButton(
-          label: 'AUTO',
-          iconAsset: null,
-          color: AppColors.secondary,
-          height: 120,
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ChangeNotifierProvider(
-                  create: (ctx) =>
-                      AutoController(port: ctx.read<RobotCommandPort>())
-                        ..init(),
-                  child: Consumer<AutoController>(
-                    builder: (ctx, auto, _) => CommandPage(
-                      onSendCommand: auto.sendJogada,
-                      status: auto.status,
-                      robotResponse: auto.lastResponse,
-                      errorMessage: auto.errorMessage,
-                    ),
-                  ),
+    return Scaffold(
+      backgroundColor: AppColors.primary,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            children: [
+              const CustomHeader(),
+              const SizedBox(height: 16),
+              Image.asset('lib/assets/images/robotbull.png', height: 130),
+              const SizedBox(height: 20),
+              Text(
+                'SELECIONE UM MODO',
+                style: const TextStyle(
+                  color: AppColors.secondary,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 2,
                 ),
               ),
-            );
-          },
+              const SizedBox(height: 30),
+
+              Center(
+                child: Column(
+                  children: [
+                    CustomButton(
+                      label: 'AUTO',
+                      iconAsset: null,
+                      color: AppColors.secondary,
+                      height: 120,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChangeNotifierProvider(
+                              create: (ctx) => AutoController(
+                                port: ctx.read<RobotCommandPort>(),
+                              )..init(),
+                              child: Consumer<AutoController>(
+                                builder: (ctx, auto, _) => CommandPage(
+                                  onSendCommand: auto.sendJogada,
+                                  status: auto.status,
+                                  robotResponse: auto.lastResponse,
+                                  errorMessage: auto.errorMessage,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    CustomButton(
+                      label: 'RC',
+                      label2: 'Radio Controlado',
+                      height: 120,
+                      iconAsset: null,
+                      color: AppColors.secondary,
+                      onTap:
+                          () {}, //Navigator.push(context, MaterialPageRoute(builder: (_) => const ));}, // navegar para tela de RC
+                    ),
+                    const SizedBox(height: 50),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        CustomButton(
-          label: 'RC',
-          label2: 'Radio Controlado',
-          height: 120,
-          iconAsset: null,
-          color: AppColors.secondary,
-          onTap:
-              () {}, //Navigator.push(context, MaterialPageRoute(builder: (_) => const ));}, // navegar para tela de RC
-        ),
-      ],
+      ),
     );
   }
 }

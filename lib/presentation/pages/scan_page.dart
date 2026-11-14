@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/constants/app_assets.dart';
 import '../../core/theme/app_colors.dart';
 import '../../data/models/device_model.dart';
 import '../../data/repositories/ble_repository.dart';
@@ -83,7 +82,10 @@ class _ScanPageState extends State<ScanPage> {
                   child: Column(
                     children: [
                       const SizedBox(height: 24),
-                      Image.asset(AppAssets.logo, height: 110),
+                      Image.asset(
+                        'lib/assets/images/robotbull.png',
+                        height: 110,
+                      ),
                       const SizedBox(height: 32),
                       TabSelector(
                         options: const ['DISPONÍVEIS', 'PAREADOS'],
