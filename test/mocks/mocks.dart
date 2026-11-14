@@ -10,6 +10,8 @@ import 'package:bullsapp/data/models/device_model.dart';
 
 // ── Service mock ────────────────────────────────────────────────────────────
 
+class MockBlePlatform extends Mock implements BlePlatform {}
+
 class MockBleService extends Mock implements BleService {}
 
 // ── Repository mock ─────────────────────────────────────────────────────────
