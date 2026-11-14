@@ -11,4 +11,4 @@
 | PR #22 | Juntou os refactorings acima, o relatório de testes e a documentação | Limpeza geral antes da entrega |
 | `aaf1d4a` | Limpou o código de comentários nos controllers, no protocolo, nos modelos, no canal de comandos e na tela do terminal | Comentários ficam desatualizados e repetem o que nomes claros e testes já dizem |
 | PR #35 | Testes da US03 no `TestController`: limpeza com `addTearDown` e verificação da inscrição antes do `dispose` | Análise FIRST: testes isolados e que não passam sem o comportamento que verificam |
-| `<hash>` | Separei o `Provider` do layout em `SensorPage` e `MotorPage` e troquei números soltos por constantes na `VerticalBar` | O `build` misturava criação do controller com layout, e os valores soltos dificultavam a leitura |
+| `8674b05` | Separei o `Provider` do layout em `SensorPage` e `MotorPage` e troquei números soltos por constantes na `VerticalBar` | O `build` misturava criação do controller com layout, e os valores soltos dificultavam a leitura |
