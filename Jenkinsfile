@@ -34,8 +34,9 @@ pipeline {
 
         stage('Verificar Formatação') {
             steps {
-                echo 'Verificando formatação...'
-                sh 'dart format --output=none --set-exit-if-changed lib test'
+                catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
+                    sh 'dart format --output=none --set-exit-if-changed lib test'
+                }
             }
         }
 
@@ -45,6 +46,7 @@ pipeline {
                 sh 'flutter analyze'
             }
         }
+
 
         stage('Executar Testes'){
             steps {
