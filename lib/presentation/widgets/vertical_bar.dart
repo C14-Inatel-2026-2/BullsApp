@@ -46,10 +46,7 @@ class VerticalBar extends StatelessWidget {
         const SizedBox(height: _spacing),
         Expanded(child: _buildVerticalSlider(context)),
         const SizedBox(height: _spacing),
-        Text(
-          _formattedValue,
-          style: const TextStyle(color: Colors.white),
-        ),
+        Text(_formattedValue, style: const TextStyle(color: Colors.white)),
       ],
     );
   }
