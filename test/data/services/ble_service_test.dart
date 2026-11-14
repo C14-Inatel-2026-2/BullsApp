@@ -126,10 +126,7 @@ void main() {
         bleService.connectionStateOf(mac),
         isA<Stream<BluetoothConnectionState>>(),
       );
-      expect(
-        const BleException('erro').toString(),
-        'BleException: erro',
-      );
+      expect(const BleException('erro').toString(), 'BleException: erro');
     });
   });
 
@@ -163,19 +160,14 @@ void main() {
         () => mockPlatform.adapterState,
       ).thenAnswer((_) => Stream.value(BluetoothAdapterState.off));
 
-      await expectLater(
-        bleService.startScan(),
-        throwsA(isA<BleException>()),
-      );
+      await expectLater(bleService.startScan(), throwsA(isA<BleException>()));
     });
 
     test('não inicia novo scan se já estiver escaneando', () async {
       when(
         () => mockPlatform.adapterState,
       ).thenAnswer((_) => Stream.value(BluetoothAdapterState.on));
-      when(
-        () => mockPlatform.isScanning,
-      ).thenAnswer((_) => Stream.value(true));
+      when(() => mockPlatform.isScanning).thenAnswer((_) => Stream.value(true));
 
       await bleService.startScan();
 
@@ -211,44 +203,45 @@ void main() {
       verify(() => char.setNotifyValue(true)).called(1);
     });
 
-    test('usa fallback em serviço não-genérico quando não há perfil conhecido',
-        () async {
-      final genericChar = _makeChar('2A00', write: true, notify: true);
-      final genericService = _makeService('1800', [genericChar]);
+    test(
+      'usa fallback em serviço não-genérico quando não há perfil conhecido',
+      () async {
+        final genericChar = _makeChar('2A00', write: true, notify: true);
+        final genericService = _makeService('1800', [genericChar]);
 
-      final customWrite = _makeChar('FFF1', write: true);
-      final customNotify = _makeChar('FFF2', indicate: true);
-      final customService = _makeService(
-        'FFF0',
-        [customWrite, customNotify],
-      );
+        final customWrite = _makeChar('FFF1', write: true);
+        final customNotify = _makeChar('FFF2', indicate: true);
+        final customService = _makeService('FFF0', [customWrite, customNotify]);
 
-      when(
-        () => mockDevice.discoverServices(),
-      ).thenAnswer((_) async => [genericService, customService]);
+        when(
+          () => mockDevice.discoverServices(),
+        ).thenAnswer((_) async => [genericService, customService]);
 
-      await bleService.connectToDevice(mac);
+        await bleService.connectToDevice(mac);
 
-      expect(bleService.isConnected, isTrue);
-      verify(() => customNotify.setNotifyValue(true)).called(1);
-    });
+        expect(bleService.isConnected, isTrue);
+        verify(() => customNotify.setNotifyValue(true)).called(1);
+      },
+    );
 
-    test('desconecta e lança BleException se não encontrar canal serial',
-        () async {
-      final genericChar = _makeChar('2A00', write: true, notify: true);
-      final genericService = _makeService('1800', [genericChar]);
-      when(
-        () => mockDevice.discoverServices(),
-      ).thenAnswer((_) async => [genericService]);
+    test(
+      'desconecta e lança BleException se não encontrar canal serial',
+      () async {
+        final genericChar = _makeChar('2A00', write: true, notify: true);
+        final genericService = _makeService('1800', [genericChar]);
+        when(
+          () => mockDevice.discoverServices(),
+        ).thenAnswer((_) async => [genericService]);
 
-      await expectLater(
-        bleService.connectToDevice(mac),
-        throwsA(isA<BleException>()),
-      );
+        await expectLater(
+          bleService.connectToDevice(mac),
+          throwsA(isA<BleException>()),
+        );
 
-      expect(bleService.isConnected, isFalse);
-      verify(() => mockDevice.disconnect()).called(1);
-    });
+        expect(bleService.isConnected, isFalse);
+        verify(() => mockDevice.disconnect()).called(1);
+      },
+    );
 
     test('fecha canal automaticamente quando dispositivo desconecta', () async {
       final connController =
@@ -258,9 +251,11 @@ void main() {
       ).thenAnswer((_) => connController.stream);
 
       final char = _makeChar('FFE1', write: true, notify: true);
-      when(
-        () => mockDevice.discoverServices(),
-      ).thenAnswer((_) async => [_makeService('FFE0', [char])]);
+      when(() => mockDevice.discoverServices()).thenAnswer(
+        (_) async => [
+          _makeService('FFE0', [char]),
+        ],
+      );
 
       await bleService.connectToDevice(mac);
       expect(bleService.isConnected, isTrue);
@@ -272,53 +267,59 @@ void main() {
       await connController.close();
     });
 
-    test('reconectar desconecta o dispositivo anterior e disconnect limpa estado',
-        () async {
-      final char = _makeChar('FFE1', write: true, notify: true);
-      when(
-        () => mockDevice.discoverServices(),
-      ).thenAnswer((_) async => [_makeService('FFE0', [char])]);
+    test(
+      'reconectar desconecta o dispositivo anterior e disconnect limpa estado',
+      () async {
+        final char = _makeChar('FFE1', write: true, notify: true);
+        when(() => mockDevice.discoverServices()).thenAnswer(
+          (_) async => [
+            _makeService('FFE0', [char]),
+          ],
+        );
 
-      await bleService.connectToDevice(mac);
-      await bleService.connectToDevice(mac);
+        await bleService.connectToDevice(mac);
+        await bleService.connectToDevice(mac);
 
-      verify(() => mockDevice.disconnect()).called(1);
+        verify(() => mockDevice.disconnect()).called(1);
 
-      await bleService.disconnect();
-      expect(bleService.isConnected, isFalse);
-    });
+        await bleService.disconnect();
+        expect(bleService.isConnected, isFalse);
+      },
+    );
 
-    test('converte FlutterBluePlusException e erros genéricos em BleException',
-        () async {
-      when(
-        () => mockDevice.connect(
-          license: any(named: 'license'),
-          timeout: any(named: 'timeout'),
-        ),
-      ).thenThrow(
-        FlutterBluePlusException(ErrorPlatform.fbp, 'connect', 1, 'timeout'),
-      );
+    test(
+      'converte FlutterBluePlusException e erros genéricos em BleException',
+      () async {
+        when(
+          () => mockDevice.connect(
+            license: any(named: 'license'),
+            timeout: any(named: 'timeout'),
+          ),
+        ).thenThrow(
+          FlutterBluePlusException(ErrorPlatform.fbp, 'connect', 1, 'timeout'),
+        );
 
-      await expectLater(
-        bleService.connectToDevice(mac),
-        throwsA(isA<BleException>()),
-      );
+        await expectLater(
+          bleService.connectToDevice(mac),
+          throwsA(isA<BleException>()),
+        );
 
-      when(
-        () => mockDevice.connect(
-          license: any(named: 'license'),
-          timeout: any(named: 'timeout'),
-        ),
-      ).thenAnswer((_) async {});
-      when(
-        () => mockDevice.discoverServices(),
-      ).thenThrow(StateError('falha inesperada'));
+        when(
+          () => mockDevice.connect(
+            license: any(named: 'license'),
+            timeout: any(named: 'timeout'),
+          ),
+        ).thenAnswer((_) async {});
+        when(
+          () => mockDevice.discoverServices(),
+        ).thenThrow(StateError('falha inesperada'));
 
-      await expectLater(
-        bleService.connectToDevice(mac),
-        throwsA(isA<BleException>()),
-      );
-    });
+        await expectLater(
+          bleService.connectToDevice(mac),
+          throwsA(isA<BleException>()),
+        );
+      },
+    );
   });
 
   group('BleService.sendLine e robotLines', () {
@@ -331,27 +332,24 @@ void main() {
 
     test('divide comando longo em pacotes respeitando o MTU', () async {
       final char = _makeChar('FFE1', write: true, notify: true);
-      when(
-        () => mockDevice.discoverServices(),
-      ).thenAnswer((_) async => [_makeService('FFE0', [char])]);
+      when(() => mockDevice.discoverServices()).thenAnswer(
+        (_) async => [
+          _makeService('FFE0', [char]),
+        ],
+      );
       when(() => mockDevice.mtuNow).thenReturn(23); // chunk = 20 bytes
 
       await bleService.connectToDevice(mac);
 
-      final longCmd = 'A' * 25; // 25 + 1 ('\n') = 26 bytes -> 2 pacotes (20 + 6)
+      final longCmd =
+          'A' * 25; // 25 + 1 ('\n') = 26 bytes -> 2 pacotes (20 + 6)
       await bleService.sendLine(longCmd);
 
       verify(
-        () => char.write(
-          utf8.encode('A' * 20),
-          withoutResponse: false,
-        ),
+        () => char.write(utf8.encode('A' * 20), withoutResponse: false),
       ).called(1);
       verify(
-        () => char.write(
-          utf8.encode('${'A' * 5}\n'),
-          withoutResponse: false,
-        ),
+        () => char.write(utf8.encode('${'A' * 5}\n'), withoutResponse: false),
       ).called(1);
 
       when(
@@ -366,31 +364,35 @@ void main() {
       );
     });
 
-    test('decodifica linhas recebidas de onValueReceived em robotLines',
-        () async {
-      final rxController = StreamController<List<int>>.broadcast();
-      final char = _makeChar(
-        'FFE1',
-        write: true,
-        notify: true,
-        onValueReceived: rxController.stream,
-      );
-      when(
-        () => mockDevice.discoverServices(),
-      ).thenAnswer((_) async => [_makeService('FFE0', [char])]);
+    test(
+      'decodifica linhas recebidas de onValueReceived em robotLines',
+      () async {
+        final rxController = StreamController<List<int>>.broadcast();
+        final char = _makeChar(
+          'FFE1',
+          write: true,
+          notify: true,
+          onValueReceived: rxController.stream,
+        );
+        when(() => mockDevice.discoverServices()).thenAnswer(
+          (_) async => [
+            _makeService('FFE0', [char]),
+          ],
+        );
 
-      await bleService.connectToDevice(mac);
+        await bleService.connectToDevice(mac);
 
-      final expectation = expectLater(
-        bleService.robotLines,
-        emitsInOrder(['sensorD2 vendo', 'OK']),
-      );
+        final expectation = expectLater(
+          bleService.robotLines,
+          emitsInOrder(['sensorD2 vendo', 'OK']),
+        );
 
-      rxController.add(utf8.encode('sensorD2 '));
-      rxController.add(utf8.encode('vendo\r\nOK\n'));
+        rxController.add(utf8.encode('sensorD2 '));
+        rxController.add(utf8.encode('vendo\r\nOK\n'));
 
-      await expectation;
-      await rxController.close();
-    });
+        await expectation;
+        await rxController.close();
+      },
+    );
   });
 }

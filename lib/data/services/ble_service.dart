@@ -10,7 +10,7 @@ import 'robot_line_decoder.dart';
 
 class BleService {
   BleService({BlePlatform platform = const BlePlatform()})
-      : _platform = platform;
+    : _platform = platform;
 
   final BlePlatform _platform;
 
