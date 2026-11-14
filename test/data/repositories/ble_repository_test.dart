@@ -12,7 +12,6 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
-import 'package:bullsapp/data/models/device_model.dart';
 import 'package:bullsapp/data/services/ble_service.dart';
 import 'package:bullsapp/data/repositories/ble_repository.dart';
 import 'package:bullsapp/data/repositories/robot_command_exception.dart';
