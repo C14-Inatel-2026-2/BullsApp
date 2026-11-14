@@ -1,13 +1,11 @@
 # Refactorings
 
-| Commit / PR | O que mudou | Por quê |
-|---|---|---|
-| `9bdc8a3` | Simplificou a ordenação e o tratamento de erros na camada BLE | Código duplicado e erros tratados de formas diferentes |
-| `7e421d7` | Centralizou a montagem dos comandos no `RobotProtocol` | As strings estavam espalhadas pelas telas |
-| `685e5fa` | Adicionou o modo teste no comando de jogada (`TD08`) | Evitar criar outro comando só para os testes |
-| `6c8866d` | Separou formatação e análise estática em estágios próprios no Jenkins | Saber exatamente qual verificação falhou |
-| `c68912d` | Removeu o estágio de build de iOS | Não roda em container Linux |
-| PR #6 | Reaplicou os controllers depois do revert do PR #4 | Corrigir a quebra da `main` |
-| PR #22 | Juntou os refactorings acima, o relatório de testes e a documentação | Limpeza geral antes da entrega |
-| `aaf1d4a` | Limpou o código de comentários nos controllers, no protocolo, nos modelos, no canal de comandos e na tela do terminal | Comentários ficam desatualizados e repetem o que nomes claros e testes já dizem |
-| PR #35 | Testes da US03 no `TestController`: limpeza com `addTearDown` e verificação da inscrição antes do `dispose` | Análise FIRST: testes isolados e que não passam sem o comportamento que verificam |
+| Smell | Refactoring | Por quê | PR |
+|---|---|---|---|
+| Duplicated Code: layout repetido nas telas Home, Modo e Teste | Extract Function (widget `MenuLayout`) | Mudar o menu num lugar só | [refactor/menu-layout](https://github.com/C14-Inatel-2026-2/BullsApp/compare/main...refactor/menu-layout) |
+| Magic Literal: caminho do logo repetido em 4 telas | Replace Magic Literal (`AppAssets.logo`) | Trocar a imagem num lugar só | [refactor/menu-layout](https://github.com/C14-Inatel-2026-2/BullsApp/compare/main...refactor/menu-layout) |
+| Duplicated Code: `catch` repetido e ordenação com `if`s encadeados na camada BLE | Consolidate Duplicate Conditional Fragments e Substitute Algorithm | Um só tratamento de erro e código mais curto | [#22](https://github.com/C14-Inatel-2026-2/BullsApp/pull/22) |
+| Estágio do Jenkins com duas responsabilidades | Split Phase (formatação e análise estática separadas) | Saber qual verificação falhou | [#19](https://github.com/C14-Inatel-2026-2/BullsApp/pull/19) |
+| Comments: comentários que repetiam o código | Remoção dos comentários redundantes | Comentário fica desatualizado | Sem PR (commit [`aaf1d4a`](https://github.com/C14-Inatel-2026-2/BullsApp/commit/aaf1d4a750cdc4015db6ac780f700a8dc6843251)) |
+| Testes do `TestController` liberavam recursos só no fim (não roda se o teste falhar) | Limpeza com `addTearDown` | Testes isolados (FIRST) | [#35](https://github.com/C14-Inatel-2026-2/BullsApp/pull/35) |
+| Teste do `dispose` passava mesmo sem o controller se inscrever | Verificar a inscrição antes do `dispose` | O teste só passa se o comportamento existir | [#35](https://github.com/C14-Inatel-2026-2/BullsApp/pull/35) |
