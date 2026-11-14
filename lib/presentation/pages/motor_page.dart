@@ -1,95 +1,122 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../core/theme/app_colors.dart';
+import '../../data/repositories/robot_command_port.dart';
 import '../controllers/test_controller.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/header.dart';
 import '../widgets/vertical_bar.dart';
-import '../../data/repositories/robot_command_port.dart';
 
-class MotorPage extends StatefulWidget {
+class MotorPage extends StatelessWidget {
   const MotorPage({super.key});
-
-  @override
-  State<MotorPage> createState() => _MotorPageState();
-}
-
-class _MotorPageState extends State<MotorPage> {
-  static const double _maxTicks = 100;
-
-  double _esq = 0;
-  double _dir = 0;
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (ctx) =>
           TestController(port: ctx.read<RobotCommandPort>())..init(),
-      child: Builder(
-        builder: (context) {
-          final controller = context.read<TestController>();
+      child: const _MotorView(),
+    );
+  }
+}
 
-          void enviar() =>
-              controller.testMotors(left: _esq.round(), right: _dir.round());
+class _MotorView extends StatefulWidget {
+  const _MotorView();
 
-          void parar() {
-            setState(() {
-              _esq = 0;
-              _dir = 0;
-            });
-            controller.stopMotors();
-          }
+  @override
+  State<_MotorView> createState() => _MotorViewState();
+}
 
-          return Scaffold(
-            backgroundColor: AppColors.primary,
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  children: [
-                    const CustomHeader(isConnected: true),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: VerticalBar(
-                              label: 'ESQ',
-                              value: _esq,
-                              min: -_maxTicks,
-                              max: _maxTicks,
-                              onChanged: (v) => setState(() => _esq = v),
-                              onChangeEnd: (_) => enviar(),
-                            ),
-                          ),
-                          Expanded(
-                            child: VerticalBar(
-                              label: 'DIR',
-                              value: _dir,
-                              min: -_maxTicks,
-                              max: _maxTicks,
-                              onChanged: (v) => setState(() => _dir = v),
-                              onChangeEnd: (_) => enviar(),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    CustomButton(
-                      label: 'PARAR',
-                      icon: Icons.stop,
-                      color: AppColors.secondary,
-                      onTap: parar,
-                    ),
-                    const SizedBox(height: 16),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
+class _MotorViewState extends State<_MotorView> {
+  static const double _maxPower = 100;
+  static const double _horizontalPadding = 24;
+  static const double _verticalSpacing = 16;
+
+  static const String _leftMotorLabel = 'ESQ';
+  static const String _rightMotorLabel = 'DIR';
+  static const String _stopButtonLabel = 'PARAR';
+
+  double _leftPower = 0;
+  double _rightPower = 0;
+
+  void _sendMotorCommand() {
+    context.read<TestController>().testMotors(
+      left: _leftPower.round(),
+      right: _rightPower.round(),
+    );
+  }
+
+  void _stopMotors() {
+    setState(() {
+      _leftPower = 0;
+      _rightPower = 0;
+    });
+    context.read<TestController>().stopMotors();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.primary,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: _horizontalPadding),
+          child: Column(
+            children: [
+              const CustomHeader(isConnected: true),
+              const SizedBox(height: _verticalSpacing),
+              Expanded(child: _buildMotorControls()),
+              const SizedBox(height: _verticalSpacing),
+              _buildStopButton(),
+              const SizedBox(height: _verticalSpacing),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+
+  Widget _buildMotorControls() {
+    return Row(
+      children: [
+        _buildMotorBar(
+          label: _leftMotorLabel,
+          value: _leftPower,
+          onChanged: (value) => setState(() => _leftPower = value),
+        ),
+        _buildMotorBar(
+          label: _rightMotorLabel,
+          value: _rightPower,
+          onChanged: (value) => setState(() => _rightPower = value),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMotorBar({
+    required String label,
+    required double value,
+    required ValueChanged<double> onChanged,
+  }) {
+    return Expanded(
+      child: VerticalBar(
+        label: label,
+        value: value,
+        min: -_maxPower,
+        max: _maxPower,
+        onChanged: onChanged,
+        onChangeEnd: (_) => _sendMotorCommand(),
+      ),
+    );
+  }
+
+  Widget _buildStopButton() {
+    return CustomButton(
+      label: _stopButtonLabel,
+      icon: Icons.stop,
+      color: AppColors.secondary,
+      onTap: _stopMotors,
     );
   }
 }
